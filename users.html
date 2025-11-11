@@ -1,0 +1,94 @@
+<script>
+  const user = JSON.parse(localStorage.getItem("loggedInUser"));
+
+  const allowedRoles = ["Developer", "Founder", "Owner", "Co-Owner", "Admin", "Staff"];
+
+  if (!user || !allowedRoles.includes(user.role)) {
+    alert("Access denied. You do not have permission to view this page.");
+    window.location.href = "login.html"; // or homepage
+  }
+</script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>PCE Users Management</title>
+  <link rel="stylesheet" href="users.css" />
+</head>
+<body>
+  <div class="sidebar">
+    <h2>PCE MANAGEMENT</h2>
+    <ul>
+      <li><a href="admin-dashboard.html">← Back to Dashboard</a></li>
+    </ul>
+  </div>
+
+  <div class="main">
+  <h1>👥 Users Management</h1>
+
+  <table class="user-table">
+    <thead>
+      <tr>
+        <th>Username</th>
+        <th>Email</th>
+        <th>Gamer Tag</th>
+        <th>Team</th>
+        <th>Manager Role</th>
+        <th>Platform Role</th>
+        <th>Actions</th>
+        <th>Activity</th>
+      </tr>
+    </thead>
+    <tbody id="userTableBody"></tbody>
+  </table>
+
+  <div class="pagination">
+    <button onclick="prevPage()">← Prev</button>
+    <span id="pageIndicator">Page 1</span>
+    <button onclick="nextPage()">Next →</button>
+  </div>
+</div>
+
+<script src="users.js"></script>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
+  import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyB0C5O-9xh9CrmLnsD2kquCyJ1zTtYkiLg",
+    authDomain: "fifa-super-league.firebaseapp.com",
+    projectId: "fifa-super-league",
+    storageBucket: "fifa-super-league.firebasestorage.app",
+    messagingSenderId: "407346622789",
+    appId: "1:407346622789:web:6b48448ca0410ccf588e2c",
+    measurementId: "G-Y8HVMK7SZ1"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  async function loadFirebaseUsers() {
+    const usersSnap = await getDocs(collection(db, "users"));
+    const tbody = document.getElementById("userTableBody");
+    if (!tbody) return;
+
+    usersSnap.forEach(doc => {
+      const user = doc.data();
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${user.username || "N/A"}</td>
+        <td>${user.email || "N/A"}</td>
+        <td>${user.tag || "N/A"}</td>
+        <td>${user.team || "Unassigned"}</td>
+        <td>${user.managerRole || "None"}</td>
+        <td>${user.websiteRole || "Member"}</td>
+        <td><em>Firebase user</em></td>
+        <td>${user.activity || "0%"}</td>
+      `;
+      tbody.appendChild(row);
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", loadFirebaseUsers);
+</script>

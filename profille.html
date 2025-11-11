@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>User Profile</title>
+  <link rel="stylesheet" href="profile.css" />
+</head>
+<body>
+  <div class="sidebar">
+    <h2>FSL PROFILE</h2>
+    <ul>
+      <li><a href="admin-dashboard.html">← Back to Dashboard</a></li>
+      <li><a href="users.html">Users</a></li>
+      <li><a href="profile.html">My Stats</a></li>
+    </ul>
+  </div>
+
+  <div class="main">
+    <h1>👤 Profile: eden</h1>
+
+    <div class="section">
+      <h2>📊 Season Stats</h2>
+      <table class="stats-table">
+        <tr><th>Matches Played</th><td id="matchesPlayed">0</td></tr>
+        <tr><th>Wins</th><td id="wins">0</td></tr>
+        <tr><th>Draws</th><td id="draws">0</td></tr>
+        <tr><th>Losses</th><td id="losses">0</td></tr>
+        <tr><th>Goals Scored</th><td id="goals">0</td></tr>
+        <tr><th>Team</th><td id="team">Unassigned</td></tr>
+        <tr><th>Role</th><td id="role">Developer</td></tr>
+      </table>
+    </div>
+
+    <div class="section">
+      <h2>🏆 Trophy Cabinet</h2>
+      <div class="trophy-grid" id="trophyCabinet">
+        <div class="trophy">No trophies yet.</div>
+      </div>
+    </div>
+  </div>
+
+  <script src="profile.js"></script>
+</body>
+</html>

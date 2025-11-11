@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>FSL Stats & Results</title>
+  <link rel="stylesheet" href="admin-dashboard.css" />
+</head>
+<body>
+  <div class="main">
+    <h1>📊 Stats & Results Approval</h1>
+    <div id="approvalPanel"></div>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const currentUser = localStorage.getItem("currentUser") || "unknown";
+      const userStats = JSON.parse(localStorage.getItem(`${currentUser}Stats`)) || { role: "Member" };
+      const panel = document.getElementById("approvalPanel");
+
+      if (userStats.role === "Stats Admin") {
+        panel.innerHTML = "<p>You can approve submitted stats and results.</p>";
+      } else if (["Founder", "Owner"].includes(userStats.role)) {
+        panel.innerHTML = "<p>You can edit and override any stats or results.</p>";
+      } else {
+        panel.innerHTML = "<p>Access denied. You do not have permission to view this page.</p>";
+      }
+    });
+  </script>
+</body>
+</html>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const currentUser = localStorage.getItem("currentUser") || "unknown";
+  const userStats = JSON.parse(localStorage.getItem(`${currentUser}Stats`)) || { role: "Member" };
+
+  const submissionPanel = document.getElementById("submissionPanel");
+  const approvalPanel = document.getElementById("approvalPanel");
+
+  if (["Founder", "Owner", "Stats Admin"].includes(userStats.role)) {
+    submissionPanel.style.display = "block";
+    renderPending();
+  }
+
+  if (userStats.role === "Stats Admin") {
+    approvalPanel.style.display = "block";
+  }
+
+  const submitBtn = document.getElementById("submitStatsBtn");
+  if (submitBtn) {
+    submitBtn.addEventListener("click", () => {
+      const info = document.getElementById("matchInfo").value.trim();
+      const imageInput = document.getElementById("matchImage");
+      const file = imageInput.files[0];
+
+      if (!info || !file) {
+        alert("Match info and image are required.");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function () {
+        const stats = JSON.parse(localStorage.getItem("pendingStats")) || [];
+        stats.push({ info, image: reader.result, submittedBy: currentUser });
+        localStorage.setItem("pendingStats", JSON.stringify(stats));
+        document.getElementById("matchInfo").value = "";
+        imageInput.value = "";
+        renderPending();
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function renderPending() {
+    const stats = JSON.parse(localStorage.getItem("pendingStats")) || [];
+    const list = document.getElementById("pendingList");
+    list.innerHTML = "";
+
+    stats.forEach((entry, index) => {
+      const li = document.createElement("li");
+      li.innerHTML = `
+        <p><strong>${entry.info}</strong> (by ${entry.submittedBy})</p>
+        <img src="${entry.image}" style="max-width:300px; border:1px solid #333;" />
+        ${userStats.role === "Stats Admin" ? `<button onclick="approve(${index})">Approve</button>` : ""}
+        ${["Founder", "Owner"].includes(userStats.role) ? `<button onclick="edit(${index})">Edit</button>` : ""}
+      `;
+      list.appendChild(li);
+    });
+  }
+
+  window.approve = function(index) {
+    const stats = JSON.parse(localStorage.getItem("pendingStats")) || [];
+    const approved = JSON.parse(localStorage.getItem("approvedStats")) || [];
+    approved.push(stats[index]);
+    stats.splice(index, 1);
+    localStorage.setItem("pendingStats", JSON.stringify(stats));
+    localStorage.setItem("approvedStats", JSON.stringify(approved));
+    renderPending();
+  };
+
+  window.edit = function(index) {
+    const stats = JSON.parse(localStorage.getItem("pendingStats")) || [];
+    const newInfo = prompt("Edit match info:", stats[index].info);
+    if (newInfo !== null) {
+      stats[index].info = newInfo.trim();
+      localStorage.setItem("pendingStats", JSON.stringify(stats));
+      renderPending();
+    }
+  };
+});
+</script>

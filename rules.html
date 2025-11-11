@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>PCE Rules</title>
+  <link rel="stylesheet" href="home.css" />
+  <style>
+    body {
+      background: #121212;
+      color: #e0e0e0;
+      font-family: 'Segoe UI', sans-serif;
+      padding: 40px;
+    }
+
+    h1 {
+      color: #1f8ef1;
+      margin-bottom: 20px;
+    }
+
+    .rule-section {
+      background: #1e1e2f;
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 30px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    }
+
+    .rule-section h2 {
+      margin-top: 0;
+      color: #ffffff;
+    }
+
+    .rule-section ul {
+      padding-left: 20px;
+    }
+
+    .rule-section li {
+      margin-bottom: 10px;
+    }
+
+    a.back {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      font-size: 1.2rem;
+      color: #1f8ef1;
+      text-decoration: none;
+    }
+
+    #emptyMessage {
+      font-size: 1rem;
+      color: #aaa;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <a href="index.html" class="back">← Back</a>
+  <h1>PRO CLUBS ELITE RULES</h1>
+
+  <div id="rulesContainer"></div>
+  <div id="emptyMessage"></div>
+
+  <script>
+    const rules = JSON.parse(localStorage.getItem("fslRules")) || [];
+    const container = document.getElementById("rulesContainer");
+    const emptyMessage = document.getElementById("emptyMessage");
+
+    if (rules.length === 0) {
+      emptyMessage.textContent = "no rules have been added yet. please check back later";
+    } else {
+      rules.forEach(rule => {
+        const section = document.createElement("div");
+        section.className = "rule-section";
+        section.innerHTML = `
+          <h2>${rule.title}</h2>
+          <ul>${rule.items.map(item => `<li>${item}</li>`).join("")}</ul>
+        `;
+        container.appendChild(section);
+      });
+    }
+  </script>
+</body>
+</html>

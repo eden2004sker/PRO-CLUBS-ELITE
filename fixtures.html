@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>📅 Fixtures</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #0f0f0f;
+      color: #eee;
+      margin: 0;
+      padding: 0;
+    }
+
+    .navbar {
+      background: #1a1a1a;
+      padding: 12px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #333;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 20px;
+    }
+
+    .nav-links a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 15px;
+    }
+
+    .nav-links a:hover {
+      color: #1db954;
+    }
+
+    .fixtures-banner {
+      max-width: 900px;
+      margin: 30px auto;
+      padding: 0 20px;
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 24px;
+    }
+
+    p {
+      margin: 0 0 10px;
+      color: #aaa;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #181818;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    th, td {
+      padding: 12px 10px;
+      text-align: center;
+      border-bottom: 1px solid #2a2a2a;
+    }
+
+    th {
+      background: #222;
+      font-weight: 600;
+      color: #ccc;
+    }
+
+    tr:nth-child(even) {
+      background-color: #1a1a1a;
+    }
+
+    .fixture-row:hover {
+      background-color: #2a2a2a;
+    }
+
+    button {
+      padding: 8px 14px;
+      background: #333;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #444;
+    }
+  </style>
+</head>
+<body>
+  <div class="navbar">
+    <div class="nav-links">
+      <a href="index.html">🏠 Home</a>
+      <a href="league.html">📊 Table</a>
+      <a href="about.html">ℹ️ About</a>
+      <a href="rules.html">📜 Rules</a>
+    </div>
+    <button onclick="logout()">🔒 Logout</button>
+  </div>
+
+  <div class="fixtures-banner">
+    <div class="top-bar">
+      <h2>📅 Upcoming Fixtures</h2>
+      <button id="clearBtn" style="display: none;" onclick="clearFixtures()">🧹 Clear Fixtures</button>
+    </div>
+    <p>Fixtures listed by date and matchup</p>
+    <table>
+      <thead>
+        <tr><th>Date</th><th>Day</th><th>Time</th><th>Match</th></tr>
+      </thead>
+      <tbody id="fixtureTableBody"></tbody>
+    </table>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const fixtureTableBody = document.getElementById("fixtureTableBody");
+      const fixtures = JSON.parse(localStorage.getItem("fixtures")) || [];
+
+      fixtureTableBody.innerHTML = "";
+
+      fixtures.forEach(fix => {
+        if (fix.home && fix.away) {
+          const row = document.createElement("tr");
+          row.className = "fixture-row";
+          row.innerHTML = `
+            <td>${fix.date}</td>
+            <td>${fix.day}</td>
+            <td>${fix.time}</td>
+            <td>${fix.home} vs ${fix.away}</td>
+          `;
+          fixtureTableBody.appendChild(row);
+        }
+      });
+
+      const currentUser = localStorage.getItem("username");
+      const userRoles = JSON.parse(localStorage.getItem("userRoles")) || {};
+      const role = userRoles[currentUser]?.role;
+
+      if (role === "admin" || role === "staff") {
+        document.getElementById("clearBtn").style.display = "inline-block";
+      }
+    });
+
+    function clearFixtures() {
+      localStorage.removeItem("fixtures");
+      document.getElementById("fixtureTableBody").innerHTML = "";
+      alert("🧹 Fixtures cleared.");
+    }
+
+    function logout() {
+      localStorage.removeItem("username");
+      window.location.href = "index.html";
+    }
+  </script>
+  <table id="publicFixtures">
+  <thead><tr><th>Home</th><th>Away</th></tr></thead>
+  <tbody></tbody>
+</table>
+
+<script type="module" src="fixturesDisplay.js"></script>
+</body>
+</html>

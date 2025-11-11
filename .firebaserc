@@ -1,0 +1,9 @@
+{
+  "projects": {
+    "default": "pro-clubs-elite",
+    "firebase use live": "fifa-super-league",
+    "live": "fifa-super-league"
+  },
+  "targets": {},
+  "etags": {}
+}

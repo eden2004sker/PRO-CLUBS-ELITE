@@ -1,0 +1,29 @@
+<form id="staffForm">
+  <input type="text" name="name" placeholder="Your Name" required />
+  <input type="number" name="age" placeholder="Your Age" required />
+  <input type="text" name="role" placeholder="Role (Admin, Stat Admin)" required />
+  <input type="text" name="activity" placeholder="Activity Level (e.g. 75%)" required />
+  <textarea name="experience" placeholder="Experience with staff on Pro Clubs" required></textarea>
+  <textarea name="contribution" placeholder="What will you do to help PCE?" required></textarea>
+  <textarea name="motivation" placeholder="Why do you want to be staff?" required></textarea>
+  <button type="submit">Submit</button>
+</form>
+
+<script>
+  document.getElementById("staffForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const application = Object.fromEntries(formData.entries());
+    application.submittedAt = new Date().toISOString();
+
+    // Send to backend (replace with your actual endpoint)
+    await fetch("/api/submitApplication", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(application)
+    });
+
+    alert("Application submitted!");
+    e.target.reset();
+  });
+</script>

@@ -1,0 +1,66 @@
+<div id="maintenanceBanner" style="display:none; background:red; color:white; padding:10px; text-align:center;">
+  ⚠️ Maintenance Mode is ON
+</div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>FSL Developer Settings</title>
+  <link rel="stylesheet" href="settings.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>⚙️ Developer Settings Panel</h1>
+
+    <div class="setting">
+      <label>
+  <input type="checkbox" id="maintenanceToggle" onchange="handleMaintenanceToggle()" />
+  Maintenance Mode
+</label>
+    </div>
+
+    <div class="setting">
+      <label>
+        <input type="checkbox" id="testModeToggle" />
+        Enable Test Mode
+      </label>
+    </div>
+
+    <div class="setting">
+      <label>
+        <input type="checkbox" id="lockAdminToggle" />
+        Lock Admin Dashboard
+      </label>
+    </div>
+
+    <div class="setting">
+      <label>
+        <input type="checkbox" id="compactNavToggle" />
+        Compact Navigation
+      </label>
+    </div>
+
+    <div class="setting">
+      <label>
+        <input type="checkbox" id="themeToggle" />
+        Dark Mode
+      </label>
+    </div>
+
+    <button onclick="clearAllData()">🧹 Clear All Data</button>
+    <p id="statusMsg"></p>
+  </div>
+
+  <script src="settings.js"></script>
+</body>
+<a href="admin-dashboard.html" class="back-btn">← Back to Dashboard</a>
+</html>
+<script>
+  const maintenance = localStorage.getItem("maintenanceMode") === "true";
+  const user = JSON.parse(localStorage.getItem("loggedInUser"));
+  const devEmails = ["eden@example.com", "admin@example.com"];
+
+  if (maintenance && user && devEmails.includes(user.email)) {
+    document.getElementById("maintenanceBanner").style.display = "block";
+  }
+</script>

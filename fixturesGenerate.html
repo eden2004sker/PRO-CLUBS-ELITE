@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fixture Generator</title>
+  <link rel="stylesheet" href="admin.css" />
+</head>
+<body>
+  <p class="back-link"><a href="admin-dashboard.html">← Back to Dashboard</a></p>
+
+  <div class="main">
+    <h1>Fixture Generator</h1>
+
+    <label for="teamSelect">Select Team:</label>
+<select id="teamSelect" class="dropdown">
+  <option value="">-- Choose a team --</option>
+</select>
+
+<button id="addTeamBtn" class="btn">Add to Fixture</button>
+
+    <button id="generateBtn">Generate Fixtures</button>
+
+    <table id="fixtureTable">
+      <thead><tr><th>Home</th><th>Away</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <script type="module" src="fixtures.js"></script>
+</body>
+</html>
