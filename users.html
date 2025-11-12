@@ -1,12 +1,19 @@
 <script>
+  // This script checks for access based on role OR developer email.
   const user = JSON.parse(localStorage.getItem("loggedInUser"));
 
   const allowedRoles = ["Developer", "Founder", "Owner", "Co-Owner", "Admin", "Staff"];
+  // This is your bypass list—ensure your email is exactly correct!
+  const devEmails = ["edenskerman6@gmail.com", "admin@example.com"]; 
 
-  if (!user || !allowedRoles.includes(user.role)) {
+  // Deny access if NOT logged in, OR if the user is neither an allowed Role NOR a developer Email
+  if (!user || (!allowedRoles.includes(user.role) && !devEmails.includes(user.email))) {
     alert("Access denied. You do not have permission to view this page.");
-    window.location.href = "login.html"; // or homepage
+    // Redirect back to the Admin Dashboard
+    window.location.href = "admin-dashboard.html"; 
   }
+</script>
+
 </script>
 <!DOCTYPE html>
 <html lang="en">
