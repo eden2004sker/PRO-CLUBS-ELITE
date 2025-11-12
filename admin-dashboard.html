@@ -330,10 +330,10 @@ async function loadAllUsers() {
         
         const userRole = userDoc.data().websiteRole;
         const userEmail = user.email;
-        const devEmails = ["edenskerman6@gmail.com", "admin@example.com"]; 
+        const devEmails = ["edenskerman6@gmail.com", "darrellrontree091@gmail.com"]; 
 
-        const requiredAccessRoles = ["Developer", "Admin", "Stats Admin", "Founder", "Owner", "Co-Owner", "Staff"];
-        
+        // Ensure this list is complete on your admin-dashboard.html script!
+const requiredAccessRoles = ["Developer", "Founder", "Owner", "Co-Owner", "Admin", "Staff"];
         // Deny access if role is not authorized AND email is not a dev exception
         if (!requiredAccessRoles.includes(userRole) && !devEmails.includes(userEmail)) {
             alert(`Access Denied: Your role (${userRole}) is not authorized for this page.`);
