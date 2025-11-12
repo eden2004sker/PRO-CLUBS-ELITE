@@ -246,98 +246,57 @@
 </html>
 <script type="module">
   // Core Firebase V9 Modular SDK Imports
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
-  import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js";
-  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
-  // Realtime Database Imports for session tracking
-  import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-database.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
+// Firestore Imports
+import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js"; 
+// Realtime Database Imports (for session tracking - necessary for the full script)
+import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-database.js";
 
-  // ------------------------------------------------------------------
-  // Your confirmed Firebase Configuration with Realtime Database URL
-  // ------------------------------------------------------------------
-  const firebaseConfig = { 
-    apiKey: "AIzaSyB0C5O-9xh9CrmLnsD2kquCyJ1zTtYkiLg",
-    authDomain: "fifa-super-league.firebaseapp.com",
-    projectId: "fifa-super-league",
-    storageBucket: "fifa-super-league.firebasestorage.app",
-    messagingSenderId: "407346622789",
-    appId: "1:407346622789:web:6b48448ca0410ccf588e2c",
-    measurementId: "G-Y8HVMK7SZ1",
-    databaseURL: "https://fifa-super-league-default-rtdb.firebaseio.com", 
-  };
+// ------------------------------------------------------------------
+// Your confirmed Firebase Configuration (REQUIRED)
+// ------------------------------------------------------------------
+const firebaseConfig = { 
+  apiKey: "AIzaSyB0C5O-9xh9CrmLnsD2kquCyJ1zTtYkiLg",
+  authDomain: "fifa-super-league.firebaseapp.com",
+  projectId: "fifa-super-league",
+  storageBucket: "fifa-super-league.firebasestorage.app",
+  messagingSenderId: "407346622789",
+  appId: "1:407346622789:web:6b48448ca0410ccf588e2c",
+  measurementId: "G-Y8HVMK7SZ1",
+  databaseURL: "https://fifa-super-league-default-rtdb.firebaseio.com", 
+};
 
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-  const auth = getAuth(app);
-  const rtdb = getDatabase(app); // Initialize Realtime Database
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+const rtdb = getDatabase(app); 
 
-  // 🟢 SESSION TRACKING LOGIC
-  function updateUserSessionStatus(status) {
-      const user = auth.currentUser;
-      if (user) {
-          // Creates a record in RTDB at /sessions/{uid} -> { active: true/false }
-          set(ref(rtdb, 'sessions/' + user.uid), { active: status });
-      }
-  }
+// ------------------------------------------------------------------
+// User Data Loading Function
+// ------------------------------------------------------------------
+async function loadAllUsers() {
+  const usersSnap = await getDocs(collection(db, "users"));
+  const tbody = document.querySelector("#userManagementTable tbody");
+  if (!tbody) return; 
 
-  onAuthStateChanged(auth, (user) => {
-      if (user) {
-          updateUserSessionStatus(true);
-      }
+  tbody.innerHTML = "";
+
+  usersSnap.forEach(doc => {
+    const user = doc.data();
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td>${user.username || "N/A"}</td>
+      <td>${user.email || "N/A"}</td>
+      <td>${user.websiteRole || "Member"}</td>
+      <td>
+        <button class="action-button" onclick="editUser('${doc.id}')">Edit</button>
+        <button class="action-button" onclick="deleteUser('${doc.id}')">Delete</button>
+      </td>
+    `;
+    tbody.appendChild(row);
   });
+}
 
-  window.addEventListener("beforeunload", () => {
-      updateUserSessionStatus(false);
-  });
-  // ------------------------------------------------------------------
-
-  async function updateStats() {
-    const usersSnap = await getDocs(collection(db, "users"));
-    const teamsSnap = await getDocs(collection(db, "teams"));
-    const matchSnap = await getDocs(collection(db, "matchStats"));
-
-    const activeCount = usersSnap.docs.filter(doc => doc.data().status === "active").length;
-    const pendingCount = matchSnap.docs.filter(doc => doc.data().status === "pending").length;
-
-    document.querySelector(".stat-card:nth-child(1) p").textContent = usersSnap.size;
-    document.querySelector(".stat-card:nth-child(2) p").textContent = activeCount;
-    document.querySelector(".stat-card:nth-child(3) p").textContent = teamsSnap.size;
-    document.querySelector(".stat-card:nth-child(4) p").textContent = pendingCount;
-  }
-
-  async function loadUsers() {
-    const usersSnap = await getDocs(collection(db, "users"));
-    const tbody = document.querySelector("#userTable tbody");
-    tbody.innerHTML = "";
-
-    usersSnap.forEach(doc => {
-      const user = doc.data();
-      const row = document.createElement("tr");
-      row.innerHTML = `
-        <td>${user.username || "N/A"}</td>
-        <td>${user.team || "Unassigned"}</td>
-        <td>${user.managerRole || "None"}</td>
-        <td>${user.websiteRole || "Member"}</td>
-      `;
-      tbody.appendChild(row);
-    });
-  }
-
-  document.addEventListener("DOMContentLoaded", () => {
-    const currentUser = localStorage.getItem("currentUser") || "unknown";
-    const userStats = JSON.parse(localStorage.getItem(`${currentUser}Stats`)) || { role: "Member" };
-
-    if (["Stats Admin", "Founder", "Owner"].includes(userStats.role)) {
-      document.querySelectorAll("#statsAdminBtn").forEach(el => el.style.display = "block");
-    }
-    if (["Admin", "Founder", "Owner", "Dev"].includes(userStats.role)) {
-      document.querySelectorAll("#usersBtn").forEach(el => el.style.display = "block");
-    }
-    if (["Founder", "Owner", "Dev"].includes(userStats.role)) {
-      document.querySelectorAll("#fixturesBtn").forEach(el => el.style.display = "block");
-    }
-
-    updateStats();
-    loadUsers();
-  });
-</script>
+// You will also need to call this function inside your document.addEventListener("DOMContentLoaded", ...) block:
+// await loadAllUsers();
