@@ -3,100 +3,71 @@
 <head>
   <meta charset="UTF-8" />
   <title>Sign Up</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 20px;
-      background: #f0f0f0;
-    }
-    form {
-      background: white;
-      padding: 20px;
-      border-radius: 8px;
-      max-width: 400px;
-      margin: auto;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
-    input {
-      display: block;
-      width: 100%;
-      margin-bottom: 15px;
-      padding: 10px;
-      font-size: 16px;
-    }
-    button {
-      padding: 10px 20px;
-      font-size: 16px;
-      background: #007bff;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    button:hover {
-      background: #0056b3;
-    }
-  </style>
+  <link rel="stylesheet" href="home.css" />
 </head>
 <body>
-
-  <!-- Maintenance redirect protection -->
-  <script>
-    const maintenance = localStorage.getItem("maintenanceMode") === "true";
-    const user = JSON.parse(localStorage.getItem("loggedInUser"));
-    const devEmails = ["eden@example.com", "admin@example.com"];
-
-    if (maintenance && (!user || !devEmails.includes(user.email))) {
-      window.location.href = "maintenance.html";
-    }
-  </script>
-
-  <h2>Sign Up</h2>
-  <form onsubmit="signup(event)">
-    <input type="text" id="signupUsername" placeholder="Username" required />
-    <input type="email" id="signupEmail" placeholder="Email" required />
-    <input type="text" id="signupTag" placeholder="Gamer Tag" required />
-    <input type="password" id="signupPassword" placeholder="Password" required />
-    <button type="submit">Create Account</button>
+  <h1>📝 Create an Account</h1>
+  <form onsubmit="handleSignup(event)">
+    <input type="email" id="email" placeholder="Email" required />
+    <input type="password" id="password" placeholder="Password" required />
+    <button type="submit">Sign Up</button>
   </form>
 
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
   <script>
-    function signup(e) {
+    // ✅ Firebase Config
+    const firebaseConfig = {
+      apiKey: "AIzaSyB0C5O-9xh9CrmLnsD2kquCyJ1zTtYkiLg",
+      authDomain: "fifa-super-league.firebaseapp.com",
+      projectId: "fifa-super-league",
+      storageBucket: "fifa-super-league.appspot.com",
+      messagingSenderId: "407346622789",
+      appId: "1:407346622789:web:6b48448ca0410ccf588e2c"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.database();
+
+    // ✅ Sign-Up Handler
+    function handleSignup(e) {
       e.preventDefault();
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value.trim();
 
-      const username = document.getElementById("signupUsername").value.trim();
-      const email = document.getElementById("signupEmail").value.trim();
-      const tag = document.getElementById("signupTag").value.trim();
-      const password = document.getElementById("signupPassword").value.trim();
+      auth.createUserWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+          const user = userCredential.user;
 
-      let users = JSON.parse(localStorage.getItem("fslUsers")) || [];
+          // ✅ Save to Realtime DB
+          db.ref("users/" + user.uid).set({
+            email: user.email,
+            role: "Member",
+            createdAt: new Date().toISOString()
+          });
 
-      const exists = users.some(u => u.email === email || u.tag === tag);
-      if (exists) {
-        alert("That email or tag is already taken.");
-        return;
-      }
+          // ✅ Save locally
+          localStorage.setItem("loggedInUser", JSON.stringify({
+            email: user.email,
+            role: "Member"
+          }));
 
-      const newUser = {
-        username,
-        email,
-        tag,
-        password,
-        team: "Unassigned",
-        manager: "Unassigned",
-        role: "Member",
-        banned: false,
-        activity: "0%"
-      };
-
-      users.push(newUser);
-      localStorage.setItem("fslUsers", JSON.stringify(users));
-      localStorage.setItem("loggedInUser", JSON.stringify(newUser));
-
-      alert("Account created! Redirecting...");
-      window.location.href = "dashboard.html"; // or index.html
+          alert("✅ Account created!");
+          window.location.href = "index.html";
+        })
+        .catch((error) => {
+          if (error.code === "auth/email-already-in-use") {
+            alert("🚫 That email is already registered. Try logging in instead.");
+            window.location.href = "login.html";
+          } else {
+            alert("🚫 Sign-up failed: " + error.message);
+          }
+        });
     }
   </script>
-
 </body>
 </html>

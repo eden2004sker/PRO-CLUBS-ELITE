@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <title>Admin Login</title>
   <link rel="stylesheet" href="home.css" />
+  <button onclick="goBack()" class="back-btn">← Back</button>
   <style>
     body {
       background: #111;
@@ -91,7 +92,13 @@
       auth.signInWithEmailAndPassword(email, password)
         .then((userCredential) => {
           const user = userCredential.user;
-          localStorage.setItem("loggedInUser", JSON.stringify({ email: user.email }));
+         const hardcodedDevEmail = "edenskerman6@gmail.com";
+const role = user.email === hardcodedDevEmail ? "developer" : "user";
+
+localStorage.setItem("loggedInUser", JSON.stringify({
+  email: user.email,
+  role: role
+}));
           alert("✅ Login successful!");
           window.location.href = "index.html";
         })
@@ -101,5 +108,9 @@
         });
     }
   </script>
-</body>
+  <script>
+    function goBack() {
+      window.history.back();
+    }
+</script>>
 </html>

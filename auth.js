@@ -18,3 +18,4 @@ auth.signInWithEmailAndPassword(email, password)
     alert("🚫 Login failed: " + error.message);
     window.location.href = "maintenance.html";
   });
+ 

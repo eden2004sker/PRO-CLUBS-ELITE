@@ -83,7 +83,7 @@ function updateTeam(index, value) {
 }
 
 function updateManager(index, value) {
-  const users = JSON.parse(localStorage.getItem("fslUsers")) || [];
+  const users = JSON.parse(localStorage.getItem("uplUsers")) || [];
   users[index].manager = value;
   localStorage.setItem("fslUsers", JSON.stringify(users));
   renderUsers();
@@ -165,7 +165,7 @@ function prevPage() {
 
 document.addEventListener("DOMContentLoaded", () => {
   const user = JSON.parse(localStorage.getItem("loggedInUser"));
-  const devEmails = ["eden@example.com", "admin@example.com"];
+  const devEmails = ["edenskerman6@gmail.com", ""];
   if (!user || !devEmails.includes(user.email)) {
     alert("Access denied.");
     window.location.href = "login.html";

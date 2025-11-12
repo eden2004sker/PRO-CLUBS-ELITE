@@ -10,8 +10,10 @@
         const maintenance = localStorage.getItem("maintenanceMode") === "true";
         const user = JSON.parse(localStorage.getItem("loggedInUser"));
         
-        // Array is now pasted inline to avoid duplicate 'const devEmails' error.
-        if (maintenance && (!user || !["eden@example.com", "admin@example.com"].includes(user.email))) {
+        // Check if user exists AND has an email, AND if that email is in the dev list
+        const isDev = user && user.email && ["eden@example.com", "admin@example.com"].includes(user.email);
+        
+        if (maintenance && !isDev) {
             window.location.href = "maintenance.html";
         }
     </script>
@@ -20,12 +22,12 @@
         <div class="top-bar">
             <span class="corner-title">PCE</span>
             <div id="authButtons" class="top-right">
-                </div>
+            </div>
         </div>
 
         <nav class="nav-text">
-            <a href="staffApply.html" id="staffLink">Staff Application</a>
-            <a href="manager-application.html" id="managerLink">Manager Application</a>
+            <a href="staffApply.html" id="staffLink" style="display: none;">Staff Application</a>
+            <a href="manager-application.html" id="managerLink" style="display: none;">Manager Application</a>
             
             <a href="fixtures.html">Fixtures</a>
             <a href="league-table.html">League Table</a>
@@ -33,20 +35,20 @@
             <a href="rules.html">Rules</a>
             <a href="information.html">Information</a>
 
-            <div class="dropdown" id="userPanel">
-                <span class="nav-text-link" onclick="toggleDropdown()">User Panel ▾</span>
+            <div class="dropdown" id="userPanel" style="display: none;">
+                <span class="nav-text-link" onclick="window.toggleDropdown()">User Panel ▾</span>
                 <div class="dropdown-content" id="userDropdown">
                     <a href="notifications.html">🔔 Notifications</a>
                     <a href="lounge.html">💬 Lounge</a>
-                    <a href="profile.html">👤 User Profile</a>
+                    <a href="profille.html">👤 User Profile</a> 
                     <li style="display: none;"><a href="admin-dashboard.html" id="adminPanelLink" class="admin-btn">Admin Panel</a></li>
                 </div>
             </div>
 
             <a href="staff.html">Staff</a>
             <span class="auth-links">
-                <a href="login.html" id="loginBtn">Log In</a> |
-                <a href="signup.html" id="signupBtn">Sign Up</a>
+                <button id="loginBtn">Login</button>
+                <button id="signupBtn">Sign Up</button>
                 <button id="logoutBtn" style="display: none;">Logout</button>
             </span>
         </nav>
@@ -104,71 +106,19 @@
 
     <div id="login-panel" class="login-panel hidden">
         <h3>Login to FSL</h3>
-        <form>
-            <input type="text" placeholder="Username" required />
-            <input type="password" placeholder="Password" required />
+        <form id="loginForm">
+            <input type="email" id="loginEmail" placeholder="Email" required />
+            <input type="password" id="loginPassword" placeholder="Password" required />
             <button type="submit">Log In</button>
+            <p id="loginError" style="color: red;"></p>
         </form>
     </div>
 
-    <script>
-        // Slideshow Script
-        const slides = document.querySelectorAll('.slide');
-        let current = 0;
-
-        setInterval(() => {
-            slides[current].classList.remove('active');
-            current = (current + 1) % slides.length;
-            slides[current].classList.add('active');
-        }, 5000);
-
-        // User Dropdown Toggle and Close logic
-        function toggleDropdown() {
-            const dropdown = document.getElementById("userDropdown");
-            dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
-        }
-
-        document.addEventListener("click", function (e) {
-            const trigger = document.querySelector(".nav-text-link");
-            const menu = document.getElementById("userDropdown");
-            if (trigger && menu && !trigger.contains(e.target) && !menu.contains(e.target)) {
-                menu.style.display = "none";
-            }
-        });
-
-        // Login Panel Toggle Logic (Placeholder for FSL login)
-        const loginPanel = document.getElementById("login-panel");
-        const loginToggle = document.getElementById("loginToggle"); // This element doesn't exist anymore
-
-        if (loginToggle) { 
-            loginToggle.addEventListener("click", function (e) {
-                e.preventDefault(); 
-                loginPanel.classList.toggle("hidden");
-
-                if (!loginPanel.classList.contains("hidden")) {
-                    loginPanel.style.opacity = "1";
-                    loginPanel.style.transform = "translateY(0)";
-                } else {
-                    loginPanel.style.opacity = "0";
-                    loginPanel.style.transform = "translateY(-20px)";
-                }
-            });
-        }
-
-        document.addEventListener("click", function (e) {
-            if (loginPanel && loginToggle && !loginPanel.contains(e.target) && e.target !== loginToggle) {
-                loginPanel.classList.add("hidden");
-                loginPanel.style.opacity = "0";
-                loginPanel.style.transform = "translateY(-20px)";
-            }
-        });
-    </script>
-
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
-        import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-analytics.js";
-
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
+        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js";
+        
         const firebaseConfig = {
             apiKey: "AIzaSyB0C5O-9xh9CrmLnsD2kquCyJ1zTtYkiLg",
             authDomain: "fifa-super-league.firebaseapp.com",
@@ -180,91 +130,187 @@
         };
 
         const app = initializeApp(firebaseConfig);
-        const analytics = getAnalytics(app);
         const auth = getAuth(app);
+        const db = getFirestore(app);
 
-        // *** TARGET ELEMENTS ***
-        const loginBtn = document.getElementById("loginBtn");
-        const signupBtn = document.getElementById("signupBtn");
-        const logoutBtn = document.getElementById("logoutBtn");
-        const userPanel = document.getElementById("userPanel"); // The main dropdown container
-        const staffLink = document.getElementById("staffLink"); // Application link
-        const managerLink = document.getElementById("managerLink"); // Application link
-        const adminPanelLink = document.getElementById("adminPanelLink");
-        const devEmails = ["edenskerman6@gmail.com", "admin@example.com"];
-        
-        // Get parent <li> elements for correct display (list-item)
-        const adminLi = adminPanelLink ? adminPanelLink.parentElement : null;
-
-
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                // LOGGED IN STATE
-                // 1. Hide Login/Signup
-                if (loginBtn) loginBtn.style.display = "none";
-                if (signupBtn) signupBtn.style.display = "none";
-                
-                // 2. Show User-Specific Links/Panel
-                if (userPanel) userPanel.style.display = "block";
-                if (staffLink) staffLink.style.display = "inline-block";
-                if (managerLink) managerLink.style.display = "inline-block";
-
-                // 3. Admin Panel Check
-                if (devEmails.includes(user.email)) {
-                    if (adminLi) adminLi.style.display = "list-item"; 
-                }
-
-            } else {
-                // LOGGED OUT STATE
-                // 1. Show Login/Signup
-                if (loginBtn) loginBtn.style.display = "inline-block";
-                if (signupBtn) signupBtn.style.display = "inline-block";
-                if (logoutBtn) logoutBtn.style.display = "none";
-                // 2. Hide User-Specific Links/Panel
-                if (userPanel) userPanel.style.display = "none";
-                if (staffLink) staffLink.style.display = "none";
-                if (managerLink) managerLink.style.display = "none";
-                if (adminLi) adminLi.style.display = "none";
+        // --- GLOBAL UI FUNCTION (Needed for onclick in HTML) ---
+        window.toggleDropdown = function() {
+            const dropdown = document.getElementById("userDropdown");
+            if (dropdown) {
+                dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
             }
-            // *** LOGOUT CLICK HANDLER ***
-        if (logoutBtn) {
-            logoutBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                signOut(auth).then(() => { // <--- The Firebase command to log out
-                    // Success! Refresh the page.
-                    location.reload(); 
-                }).catch((error) => {
-                    alert("Logout error: " + error.message);
+        }
+        
+        // Ensure all DOM-dependent scripts run after the DOM is ready
+        document.addEventListener("DOMContentLoaded", () => {
+            // *** TARGET ELEMENTS ***
+            const loginBtn = document.getElementById("loginBtn");
+            const signupBtn = document.getElementById("signupBtn");
+            const logoutBtn = document.getElementById("logoutBtn");
+            const userPanel = document.getElementById("userPanel"); 
+            const staffLink = document.getElementById("staffLink"); 
+            const managerLink = document.getElementById("managerLink");
+            const adminPanelLink = document.getElementById("adminPanelLink");
+            const devEmails = ["edenskerman6@gmail.com", "admin@example.com"];
+            const adminLi = adminPanelLink ? adminPanelLink.parentElement : null;
+            const loginPanel = document.getElementById("login-panel");
+            const loginForm = document.getElementById("loginForm");
+            const loginEmail = document.getElementById("loginEmail");
+            const loginPassword = document.getElementById("loginPassword");
+            const loginError = document.getElementById("loginError");
+            
+            // --- Slideshow Script ---
+            const slides = document.querySelectorAll('.slide');
+            let current = 0;
+
+            if (slides.length > 1) {
+                setInterval(() => {
+                    slides[current].classList.remove('active');
+                    current = (current + 1) % slides.length;
+                    slides[current].classList.add('active');
+                }, 5000);
+            }
+            
+            // --- Dropdown Close Logic ---
+            document.addEventListener("click", function (e) {
+                const trigger = document.querySelector(".nav-text-link");
+                const menu = document.getElementById("userDropdown");
+                if (trigger && menu && !trigger.contains(e.target) && !menu.contains(e.target)) {
+                    menu.style.display = "none";
+                }
+            });
+
+            // --- Login Panel Toggle Logic ---
+            if (loginBtn && loginPanel) { 
+                loginBtn.addEventListener("click", function (e) {
+                    e.preventDefault(); 
+                    loginPanel.classList.toggle("hidden");
+
+                    if (!loginPanel.classList.contains("hidden")) {
+                        loginPanel.style.opacity = "1";
+                        loginPanel.style.transform = "translateY(0)";
+                    } else {
+                        loginPanel.style.opacity = "0";
+                        loginPanel.style.transform = "translateY(-20px)";
+                    }
                 });
+            
+                // Close login panel on outside click
+                document.addEventListener("click", function (e) {
+                    // Check if click target is not the panel and not the button
+                    if (!loginPanel.contains(e.target) && e.target !== loginBtn) {
+                        loginPanel.classList.add("hidden");
+                        loginPanel.style.opacity = "0";
+                        loginPanel.style.transform = "translateY(-20px)";
+                    }
+                });
+            }
+
+
+            // --- AUTH STATE LISTENER (The main driver for UI changes) ---
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    // LOGGED IN STATE
+                    if (loginBtn) loginBtn.style.display = "none";
+                    if (signupBtn) signupBtn.style.display = "none";
+                    if (logoutBtn) logoutBtn.style.display = "inline-block";
+                    
+                    if (userPanel) userPanel.style.display = "block";
+                    if (staffLink) staffLink.style.display = "inline-block";
+                    if (managerLink) managerLink.style.display = "inline-block";
+
+                    // Admin Panel Check (by hardcoded email)
+                    if (devEmails.includes(user.email)) {
+                        if (adminLi) adminLi.style.display = "list-item"; 
+                    }
+
+                    // Close the login panel if it's open
+                    if (loginPanel && !loginPanel.classList.contains("hidden")) {
+                        loginPanel.classList.add("hidden");
+                    }
+
+                } else {
+                    // LOGGED OUT STATE
+                    if (loginBtn) loginBtn.style.display = "inline-block";
+                    if (signupBtn) signupBtn.style.display = "inline-block";
+                    if (logoutBtn) logoutBtn.style.display = "none";
+                    
+                    if (userPanel) userPanel.style.display = "none";
+                    if (staffLink) staffLink.style.display = "none";
+                    if (managerLink) managerLink.style.display = "none";
+                    if (adminLi) adminLi.style.display = "none";
+                }
             });
-        }
-        
-        // Login/Signup Click Handlers... (these stay here)
+
+            // --- LOGIN HANDLER (Using the form in the overlay) ---
+            if (loginForm) {
+                loginForm.addEventListener("submit", (e) => {
+                    e.preventDefault();
+                    if (loginError) loginError.textContent = "";
+
+                    const email = loginEmail.value.trim();
+                    const password = loginPassword.value.trim();
+
+                    signInWithEmailAndPassword(auth, email, password)
+                        .then(() => {
+                            location.reload(); 
+                        })
+                        .catch((error) => {
+                            if (loginError) {
+                                loginError.textContent = "Login failed: " + error.message;
+                            } else {
+                                alert("Login failed: " + error.message);
+                            }
+                        });
+                });
+            }
+
+            // --- SIGNUP HANDLER (Using prompts for simplicity) ---
+            if (signupBtn) {
+                signupBtn.addEventListener("click", async (e) => {
+                    e.preventDefault(); 
+                    
+                    const email = prompt("Enter your Email:");
+                    const password = prompt("Enter a Password (min 6 chars):");
+                    const username = prompt("Enter your desired Username:");
+
+                    if (!email || !password || !username) return alert("All fields are required for signup.");
+
+                    try {
+                        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                        const user = userCredential.user;
+
+                        // CRITICAL: Save user data to Firestore
+                        await setDoc(doc(db, "users", user.uid), {
+                            email: email,
+                            username: username,
+                            websiteRole: "Member",
+                            managerRole: "None",
+                            team: "Unassigned",
+                            status: "active"
+                        });
+
+                        alert("Successfully signed up! Welcome, " + username);
+                        location.reload();
+
+                    } catch (error) {
+                        alert("Signup failed: " + error.message);
+                    }
+                });
+            }
+
+            // --- LOGOUT HANDLER ---
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    signOut(auth).then(() => {
+                        location.reload(); 
+                    }).catch((error) => {
+                        alert("Logout error: " + error.message);
+                    });
+                });
+            }
         });
-        
-        // Login/Signup Click Handlers
-        if (loginBtn) {
-            loginBtn.addEventListener("click", (e) => {
-                e.preventDefault(); 
-                const email = prompt("Email:");
-                const password = prompt("Password:");
-                signInWithEmailAndPassword(auth, email, password)
-                    .then(() => location.reload())
-                    .catch((error) => alert("Login failed: " + error.message));
-            });
-        }
-
-        if (signupBtn) {
-            signupBtn.addEventListener("click", (e) => {
-                e.preventDefault(); 
-                const email = prompt("Email:");
-                const password = prompt("Password:");
-                createUserWithEmailAndPassword(auth, email, password)
-                    .then(() => location.reload())
-                    .catch((error) => alert("Signup failed: " + error.message));
-            });
-        }
     </script>
-
 </body>
 </html>
