@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Awards & Stats</title>
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_PROJECT_ID.appspot.com",
+      messagingSenderId: "YOUR_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+  </script>
+</head>
+<body>
+  <h2>Your Awards & Stats</h2>
+  <div id="statsSection">Loading...</div>
+
+  <script>
+    auth.onAuthStateChanged(async (user) => {
+      if (!user) return;
+
+      const playerSnap = await db.collection('pce_players')
+        .where('uid', '==', user.uid)
+        .get();
+
+      const player = playerSnap.docs[0]?.data();
+      if (!player) return document.getElementById('statsSection').innerText = 'No stats found.';
+
+      const stats = player.stats;
+      const awards = player.awards || [];
+
+      document.getElementById('statsSection').innerHTML = `
+        <h3>Stats</h3>
+        <p>Appearances: ${stats.appearances}</p>
+        <p>Goals: ${stats.goals}</p>
+        <p>Assists: ${stats.assists}</p>
+        <p>Clean Sheets: ${stats.cleanSheets}</p>
+        <h3>Awards</h3>
+        <ul>${awards.map(a => `<li>${a}</li>`).join('')}</ul>
+      `;
+    });
+  </script>
+</body>
+</html>
+<link rel="stylesheet" href="home.css" /> 
+
+<div class="back-button-container">
+  <button class="back-button" onclick="window.location.href='index.html'">← Back</button>
+</div>

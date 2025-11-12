@@ -82,14 +82,14 @@
 
     .stats-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 20px;
-      margin-bottom: 30px;
+      grid-template-columns: repeat(auto-fit, minmax(10px, 1fr));
+      gap: 10px;
+      margin-bottom: 10px;
     }
 
     .stat-card {
       background: #181818;
-      padding: 20px;
+      padding: 18px;
       border-radius: 6px;
       box-shadow: 0 0 10px #000;
       text-align: center;
@@ -113,7 +113,7 @@
     }
 
     .section h2 {
-      font-size: 18px;
+      font-size: 10px;
       margin-bottom: 10px;
       border-bottom: 1px solid #333;
       padding-bottom: 6px;
@@ -177,14 +177,12 @@
       <button onclick="location.href='users.html'">Users</button>
       <button>Teams</button>
       <button>Leagues</button>
-      <button onclick="location.href='fixturesGenerate.html'">Fixtures</button>
+      <button>Fixtures</button>
       <button>Match Stats</button>
       <button>Player Stats</button>
-      <button>Staff Applications</button>
-      <button>Manager Applications</button>
-      <button>Activity Logs</button>
-      <button onclick="window.location.href='settings.html'">Settings</button>
-    </div>
+      <button>Settings</button>
+      <button>Audit Log</button>
+    
 
     <div class="stats-grid">
       <div class="stat-card"><h3>Total Users</h3><p id="statTotalUsers">0</p></div>

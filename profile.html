@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Profile</title>
+  <link rel="stylesheet" href="home.css" />
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_PROJECT_ID.appspot.com",
+      messagingSenderId: "YOUR_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+  </script>
+</head>
+<body>
+  <div id="profileCard" style="text-align: center; margin-top: 40px;">
+    <h2>Welcome, <span id="userName">Loading...</span></h2>
+    <p>Team: FC Elite</p>
+    <p>Position: Manager</p>
+
+    <!-- 📄 Contracts Button -->
+    <div class="profile-button">
+      <button onclick="window.location.href='contracts.html'" class="contracts-button">📄</button>
+      <div class="contracts-label">Contracts</div>
+    </div>
+
+    <!-- 🥇 Awards & Stats Button -->
+    <div class="profile-button">
+      <button onclick="window.location.href='awards_stats.html'" class="awards-button">🥇</button>
+      <div class="awards-label">Awards & Stats</div>
+    </div>
+  </div>
+
+  <!-- 🔐 Dynamic Name Script -->
+  <script>
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        const name = user.displayName || "Manager";
+        document.getElementById('userName').innerText = name;
+      } else {
+        document.getElementById('userName').innerText = "Guest";
+      }
+    }); 
+    <div class="profile-button">
+  <button onclick="window.location.href='player_stats.html'" class="stats-button">📊</button>
+  <div class="stats-label">Player Stats</div>
+</div>
+
+
+  </script>
+</body>
+</html>

@@ -1,316 +1,76 @@
-<!DOCTYPE html>
+<<!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8" />
-    <title>PCE</title>
-    <link rel="stylesheet" href="home.css" />
+<head> 
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pro Clubs Elite</title>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+      projectId: "YOUR_PROJECT_ID",
+      appId: "YOUR_APP_ID"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+  </script>
+
+
+  <link rel="stylesheet" href="home.css" />
 </head>
 <body>
-    <script>
-        const maintenance = localStorage.getItem("maintenanceMode") === "true";
-        const user = JSON.parse(localStorage.getItem("loggedInUser"));
-        
-        // Check if user exists AND has an email, AND if that email is in the dev list
-        const isDev = user && user.email && ["eden@example.com", "admin@example.com"].includes(user.email);
-        
-        if (maintenance && !isDev) {
-            window.location.href = "maintenance.html";
-        }
-    </script>
-    
-    <header>
-        <div class="top-bar">
-            <span class="corner-title">PCE</span>
-            <div id="authButtons" class="top-right">
-            </div>
-        </div>
 
-        <nav class="nav-text">
-            <a href="staffApply.html" id="staffLink" style="display: none;">Staff Application</a>
-            <a href="manager-application.html" id="managerLink" style="display: none;">Manager Application</a>
-            
-            <a href="fixtures.html">Fixtures</a>
-            <a href="league-table.html">League Table</a>
-            <a href="about.html">About</a>
-            <a href="rules.html">Rules</a>
-            <a href="information.html">Information</a>
-
-            <div class="dropdown" id="userPanel" style="display: none;">
-                <span class="nav-text-link" onclick="window.toggleDropdown()">User Panel ▾</span>
-                <div class="dropdown-content" id="userDropdown">
-                    <a href="notifications.html">🔔 Notifications</a>
-                    <a href="lounge.html">💬 Lounge</a>
-                    <a href="profille.html">👤 User Profile</a> 
-                    <li style="display: none;"><a href="admin-dashboard.html" id="adminPanelLink" class="admin-btn">Admin Panel</a></li>
-                </div>
-            </div>
-
-            <a href="staff.html">Staff</a>
-            <span class="auth-links">
-                <button id="loginBtn">Login</button>
-                <button id="signupBtn">Sign Up</button>
-                <button id="logoutBtn" style="display: none;">Logout</button>
-            </span>
-        </nav>
-    </header>
-
-    <main>
-        <div class="slide active" id="league-table-slide">
-            <h2>League Table</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>#</th><th>Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>GD</th><th>Pts</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr><td>1</td><td><img src="asets/logos/bournmouth.png" class="team-logo" /> AFC Bournemouth</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
-                    <tr><td>2</td><td><img src="asets/logos/arsenal.png" class="team-logo" /> Arsenal</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
-                    <tr><td>3</td><td><img src="asets/logos/aston villa.png" class="team-logo" /> Aston Villa</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
-                    <tr><td>4</td><td><img src="asets/logos/brentford.png" class="team-logo" /> Brentford</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
-                    <tr><td>5</td><td><img src="asets/logos/brighton.png" class="team-logo" /> Brighton & Hove Albion</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
-                    <tr><td>6</td><td><img src="asets/logos/burnley.png" class="team-logo" /> Burnley</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
-                    <tr><td>7</td><td><img src="asets/logos/chelsea.png" class="team-logo" /> Chelsea</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
-                    <tr><td>8</td><td><img src="asets/logos/crystal-palace.png" class="team-logo" /> Crystal Palace</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
-                    <tr><td>9</td><td><img src="asets/logos/everton.png" class="team-logo" /> Everton</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
-                    <tr><td>10</td><td><img src="asets/logos/fulham.png" class="team-logo" /> Fulham</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
-                    <tr><td>11</td><td><img src="asets/logos/leeds united.png" class="team-logo" /> Leeds United</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
-                    <tr><td>12</td><td><img src="asets/logos/liverpool.png" class="team-logo" /> Liverpool</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
-                    <tr><td>13</td><td><img src="asets/logos/manchester city.png" class="team-logo" /> Manchester City</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
-                    <tr><td>14</td><td><img src="asets/logos/manchester-united.png" class="team-logo" /> Manchester United</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
-                    <tr><td>15</td><td><img src="asets/logos/newcastle united.png" class="team-logo" /> Newcastle United</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
-                    <tr><td>16</td><td><img src="asets/logos/nottingham forest.png" class="team-logo" /> Nottingham Forest</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
-                    <tr><td>17</td><td><img src="asets/logos/sunderland.png" class="team-logo" /> Sunderland</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
-                    <tr><td>18</td><td><img src="asets/logos/tottenham.png" class="team-logo" /> Tottenham Hotspur</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
-                    <tr><td>19</td><td><img src="asets/logos/west-ham.png" class="team-logo" /> West Ham United</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
-                    <tr><td>20</td><td><img src="asets/logos/wolves.png" class="team-logo" /> Wolverhampton Wanderers</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
-                </tbody>
-            </table>
-        </div>
-
-        <div class="slide" id="totw-slide">
-            <h2>Team of the Week</h2>
-            <ul>
-                <li>GK: Shadow Keeper</li>
-                <li>DEF: Iron Wall, Blitz, Phantom</li>
-                <li>MID: Maestro, Pulse, Orbit</li>
-                <li>FWD: Flash, Venom</li>
-            </ul>
-        </div>
-    </main>
-
-    <footer>
-        <p>PCE © 2025</p>
-        <p>Join our Discord: <a href="https://discord.gg/KkeJR7ZuU" target="_blank">discord.gg/XMMgvUXmb</a></p>
-    </footer>
-
-    <div id="login-panel" class="login-panel hidden">
-        <h3>Login to FSL</h3>
-        <form id="loginForm">
-            <input type="email" id="loginEmail" placeholder="Email" required />
-            <input type="password" id="loginPassword" placeholder="Password" required />
-            <button type="submit">Log In</button>
-            <p id="loginError" style="color: red;"></p>
-        </form>
+  <!-- ✅ Your Header and Navigation -->
+  <header>
+    <div class="top-bar">
+      <span class="corner-title">PCE</span>
+      <div id="authButtons" class="top-right"></div>
+      <div class="profile-button">
+        <button onclick="window.location.href='profile.html'" class="profile-nav-button">👤</button>
+        <div class="profile-label">Profile</div>
+      </div>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
-        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js";
-        
-        const firebaseConfig = {
-            apiKey: "AIzaSyB0C5O-9xh9CrmLnsD2kquCyJ1zTtYkiLg",
-            authDomain: "fifa-super-league.firebaseapp.com",
-            projectId: "fifa-super-league",
-            storageBucket: "fifa-super-league.firebasestorage.app",
-            messagingSenderId: "407346622789",
-            appId: "1:407346622789:web:6b48448ca0410ccf588e2c",
-            measurementId: "G-Y8HVMK7SZ1"
-        };
+    <nav class="nav-text">
+      <a href="staffApply.html" id="staffLink" style="display: none;">Staff Application</a>
+      <a href="manager-application.html" id="managerLink" style="display: none;">Manager Application</a>
+      <a href="fixtures.html">Fixtures</a>
+      <a href="league-table.html">League Table</a>
+      <a href="about.html">About</a>
+      <a href="rules.html">Rules</a>
+      <a href="information.html">Information</a>
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
+      <div class="dropdown" id="userPanel" style="display: none;">
+        <span class="nav-text-link" onclick="window.toggleDropdown()">User Panel ▾</span>
+        <div class="dropdown-content" id="userDropdown">
+          <a href="notifications.html">🔔 Notifications</a>
+          <a href="lounge.html">💬 Lounge</a>
+          <a href="profille.html">👤 User Profile</a>
+          <li style="display: none;"><a href="admin-dashboard.html" id="adminPanelLink" class="admin-btn">Admin Panel</a></li>
+        </div>
+      </div>
 
-        // --- GLOBAL UI FUNCTION (Needed for onclick in HTML) ---
-        window.toggleDropdown = function() {
-            const dropdown = document.getElementById("userDropdown");
-            if (dropdown) {
-                dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
-            }
-        }
-        
-        // Ensure all DOM-dependent scripts run after the DOM is ready
-        document.addEventListener("DOMContentLoaded", () => {
-            // *** TARGET ELEMENTS ***
-            const loginBtn = document.getElementById("loginBtn");
-            const signupBtn = document.getElementById("signupBtn");
-            const logoutBtn = document.getElementById("logoutBtn");
-            const userPanel = document.getElementById("userPanel"); 
-            const staffLink = document.getElementById("staffLink"); 
-            const managerLink = document.getElementById("managerLink");
-            const adminPanelLink = document.getElementById("adminPanelLink");
-            const devEmails = ["edenskerman6@gmail.com", "admin@example.com"];
-            const adminLi = adminPanelLink ? adminPanelLink.parentElement : null;
-            const loginPanel = document.getElementById("login-panel");
-            const loginForm = document.getElementById("loginForm");
-            const loginEmail = document.getElementById("loginEmail");
-            const loginPassword = document.getElementById("loginPassword");
-            const loginError = document.getElementById("loginError");
-            
-            // --- Slideshow Script ---
-            const slides = document.querySelectorAll('.slide');
-            let current = 0;
+      <a href="staff.html">Staff</a>
+      <span class="auth-links">
+        <a href="login.html" class="nav-button">Login</a>
+        <button id="signupBtn">Sign Up</button>
+        <button id="logoutBtn" style="display: none;">Logout</button>
+      </span>
+    </nav>
+  </header>
 
-            if (slides.length > 1) {
-                setInterval(() => {
-                    slides[current].classList.remove('active');
-                    current = (current + 1) % slides.length;
-                    slides[current].classList.add('active');
-                }, 5000);
-            }
-            
-            // --- Dropdown Close Logic ---
-            document.addEventListener("click", function (e) {
-                const trigger = document.querySelector(".nav-text-link");
-                const menu = document.getElementById("userDropdown");
-                if (trigger && menu && !trigger.contains(e.target) && !menu.contains(e.target)) {
-                    menu.style.display = "none";
-                }
-            });
+  <!-- 🔹 Hero Banner -->
+  <div class="hero-banner">
+    <img src="images/hero_banner.jpg" alt="Pro Clubs Elite Banner" />
+    <div class="hero-text">Elite Teams. Real Stats. Total Control.</div>
+  </div>
+  <!-- 🔹 Call to Action -->
+  <section class="cta">
+    <h2>Ready to Join the Elite?</h2>
+    <button onclick="location.href='manager-application.html'">Apply Now</button>
+  </section>
 
-            // --- Login Panel Toggle Logic ---
-            if (loginBtn && loginPanel) { 
-                loginBtn.addEventListener("click", function (e) {
-                    e.preventDefault(); 
-                    loginPanel.classList.toggle("hidden");
-
-                    if (!loginPanel.classList.contains("hidden")) {
-                        loginPanel.style.opacity = "1";
-                        loginPanel.style.transform = "translateY(0)";
-                    } else {
-                        loginPanel.style.opacity = "0";
-                        loginPanel.style.transform = "translateY(-20px)";
-                    }
-                });
-            
-                // Close login panel on outside click
-                document.addEventListener("click", function (e) {
-                    // Check if click target is not the panel and not the button
-                    if (!loginPanel.contains(e.target) && e.target !== loginBtn) {
-                        loginPanel.classList.add("hidden");
-                        loginPanel.style.opacity = "0";
-                        loginPanel.style.transform = "translateY(-20px)";
-                    }
-                });
-            }
-
-
-            // --- AUTH STATE LISTENER (The main driver for UI changes) ---
-            onAuthStateChanged(auth, (user) => {
-                if (user) {
-                    // LOGGED IN STATE
-                    if (loginBtn) loginBtn.style.display = "none";
-                    if (signupBtn) signupBtn.style.display = "none";
-                    if (logoutBtn) logoutBtn.style.display = "inline-block";
-                    
-                    if (userPanel) userPanel.style.display = "block";
-                    if (staffLink) staffLink.style.display = "inline-block";
-                    if (managerLink) managerLink.style.display = "inline-block";
-
-                    // Admin Panel Check (by hardcoded email)
-                    if (devEmails.includes(user.email)) {
-                        if (adminLi) adminLi.style.display = "list-item"; 
-                    }
-
-                    // Close the login panel if it's open
-                    if (loginPanel && !loginPanel.classList.contains("hidden")) {
-                        loginPanel.classList.add("hidden");
-                    }
-
-                } else {
-                    // LOGGED OUT STATE
-                    if (loginBtn) loginBtn.style.display = "inline-block";
-                    if (signupBtn) signupBtn.style.display = "inline-block";
-                    if (logoutBtn) logoutBtn.style.display = "none";
-                    
-                    if (userPanel) userPanel.style.display = "none";
-                    if (staffLink) staffLink.style.display = "none";
-                    if (managerLink) managerLink.style.display = "none";
-                    if (adminLi) adminLi.style.display = "none";
-                }
-            });
-
-            // --- LOGIN HANDLER (Using the form in the overlay) ---
-            if (loginForm) {
-                loginForm.addEventListener("submit", (e) => {
-                    e.preventDefault();
-                    if (loginError) loginError.textContent = "";
-
-                    const email = loginEmail.value.trim();
-                    const password = loginPassword.value.trim();
-
-                    signInWithEmailAndPassword(auth, email, password)
-                        .then(() => {
-                            location.reload(); 
-                        })
-                        .catch((error) => {
-                            if (loginError) {
-                                loginError.textContent = "Login failed: " + error.message;
-                            } else {
-                                alert("Login failed: " + error.message);
-                            }
-                        });
-                });
-            }
-
-            // --- SIGNUP HANDLER (Using prompts for simplicity) ---
-            if (signupBtn) {
-                signupBtn.addEventListener("click", async (e) => {
-                    e.preventDefault(); 
-                    
-                    const email = prompt("Enter your Email:");
-                    const password = prompt("Enter a Password (min 6 chars):");
-                    const username = prompt("Enter your desired Username:");
-
-                    if (!email || !password || !username) return alert("All fields are required for signup.");
-
-                    try {
-                        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                        const user = userCredential.user;
-
-                        // CRITICAL: Save user data to Firestore
-                        await setDoc(doc(db, "users", user.uid), {
-                            email: email,
-                            username: username,
-                            websiteRole: "Member",
-                            managerRole: "None",
-                            team: "Unassigned",
-                            status: "active"
-                        });
-
-                        alert("Successfully signed up! Welcome, " + username);
-                        location.reload();
-
-                    } catch (error) {
-                        alert("Signup failed: " + error.message);
-                    }
-                });
-            }
-
-            // --- LOGOUT HANDLER ---
-            if (logoutBtn) {
-                logoutBtn.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    signOut(auth).then(() => {
-                        location.reload(); 
-                    }).catch((error) => {
-                        alert("Logout error: " + error.message);
-                    });
-                });
-            }
-        });
-    </script>
 </body>
 </html>

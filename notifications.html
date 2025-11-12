@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Notifications</title>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_PROJECT_ID.appspot.com",
+      messagingSenderId: "YOUR_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+  </script>
+</head>
+<body>
+  <h2>Your Notifications</h2>
+  <div id="notificationsList">Loading...</div>
+
+  <script>
+    auth.onAuthStateChanged(async (user) => {
+      if (!user) return document.getElementById('notificationsList').innerText = 'Please log in.';
+
+      const snapshot = await db.collection('notifications')
+        .where('userId', '==', user.uid)
+        .orderBy('createdAt', 'desc')
+        .get();
+
+      const list = document.getElementById('notificationsList');
+      if (snapshot.empty) {
+        list.innerText = 'No notifications yet.';
+        return;
+      }
+
+      list.innerHTML = snapshot.docs.map(doc => {
+        const n = doc.data();
+        return `<div style="margin-bottom: 10px;">
+          <strong>${n.title}</strong><br/>
+          <small>${new Date(n.createdAt.toDate()).toLocaleString()}</small><br/>
+          <p>${n.message}</p>
+        </div>`;
+      }).join('');
+    });
+  </script>
+</body>
+</html>
+

@@ -1,29 +1,75 @@
-<form id="staffForm">
-  <input type="text" name="name" placeholder="Your Name" required />
-  <input type="number" name="age" placeholder="Your Age" required />
-  <input type="text" name="role" placeholder="Role (Admin, Stat Admin)" required />
-  <input type="text" name="activity" placeholder="Activity Level (e.g. 75%)" required />
-  <textarea name="experience" placeholder="Experience with staff on Pro Clubs" required></textarea>
-  <textarea name="contribution" placeholder="What will you do to help PCE?" required></textarea>
-  <textarea name="motivation" placeholder="Why do you want to be staff?" required></textarea>
-  <button type="submit">Submit</button>
-</form>
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Apply for Staff Role</title>
+  <link rel="stylesheet" href="home.css" />
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_PROJECT_ID.appspot.com",
+      messagingSenderId: "YOUR_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const auth = firebase.auth();
+  </script>
+</head>
+<body>
+  <h2 style="text-align:center;">Staff Application Form</h2>
+  <form id="staffForm" style="max-width:600px; margin:20px auto;">
+    <label>Name:</label><br/>
+    <input type="text" id="name" required /><br/><br/>
 
-<script>
-  document.getElementById("staffForm").addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    const application = Object.fromEntries(formData.entries());
-    application.submittedAt = new Date().toISOString();
+    <label>Email:</label><br/>
+    <input type="email" id="email" required /><br/><br/>
 
-    // Send to backend (replace with your actual endpoint)
-    await fetch("/api/submitApplication", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(application)
+    <label>Role you're applying for:</label><br/>
+    <select id="role" required>
+      <option value="">Select a role</option>
+      <option value="Head Admin">Head Admin</option>
+      <option value="Admin">Admin</option>
+      <option value="Stat Manager">Stat Manager</option> 
+      <option value="Transfer Admin">Transfer Admin</option>
+    </select><br/><br/>
+
+    <label>Experience:</label><br/>
+    <textarea id="experience" rows="4" required></textarea><br/><br/>
+
+    <button type="submit">Submit Application</button>
+  </form>
+
+  <script>
+    auth.onAuthStateChanged((user) => {
+      if (!user) return;
+
+      document.getElementById("staffForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const name = document.getElementById("name").value.trim();
+        const email = document.getElementById("email").value.trim();
+        const role = document.getElementById("role").value;
+        const experience = document.getElementById("experience").value.trim();
+
+        await db.collection("pce_staff_applications").add({
+          userId: user.uid,
+          name,
+          email,
+          role,
+          experience,
+          submittedAt: new Date(),
+          status: "pending"
+        });
+
+        alert("Application submitted successfully!");
+        document.getElementById("staffForm").reset();
+      });
     });
-
-    alert("Application submitted!");
-    e.target.reset();
-  });
-</script>
+  </script>
+</body>
+</html>

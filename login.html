@@ -2,9 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Admin Login</title>
-  <link rel="stylesheet" href="home.css" />
-  <button onclick="goBack()" class="back-btn">← Back</button>
+  <title>Login - Pro Clubs Elite</title>
   <style>
     body {
       background: #111;
@@ -29,7 +27,7 @@
       display: block;
       margin: 10px auto;
       padding: 10px;
-      width: 200px;
+      width: 220px;
       border-radius: 5px;
       border: none;
     }
@@ -48,69 +46,81 @@
       background: #cc2952;
     }
   </style>
-</head>
-<body>
-  <script>
-    const maintenance = localStorage.getItem("maintenanceMode") === "true";
-    const user = JSON.parse(localStorage.getItem("loggedInUser"));
-    const devEmails = ["eden@example.com", "admin@example.com"];
 
-    if (maintenance && (!user || !devEmails.includes(user.email))) {
-      window.location.href = "maintenance.html";
-    }
-  </script>
-
-  <h1>🔐 Admin Login</h1>
-  <form onsubmit="handleLogin(event)">
-    <input type="text" id="username" placeholder="Email" required />
-    <input type="password" id="password" placeholder="Password" required />
-    <button type="submit">Log In</button>
-  </form>
-
-  <!-- ✅ Firebase v8 Global SDKs -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-
+  <!-- Firebase v9 SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js"></script>
   <script>
     const firebaseConfig = {
-      apiKey: "AIzaSyB0C5O-9xh9CrmLnsD2kquCyJ1zTtYkiLg",
-      authDomain: "fifa-super-league.firebaseapp.com",
-      projectId: "fifa-super-league",
-      storageBucket: "fifa-super-league.firebasestorage.app",
-      messagingSenderId: "407346622789",
-      appId: "1:407346622789:web:6b48448ca0410ccf588e2c"
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+      projectId: "YOUR_PROJECT_ID",
+      appId: "YOUR_APP_ID"
     };
 
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
+  </script>
+</head>
+<body>
 
+  <h1>🔐 Login</h1>
+  <form onsubmit="handleLogin(event)">
+    <input type="email" id="loginEmail" placeholder="Email" required />
+    <input type="password" id="loginPassword" placeholder="Password" required />
+    <button type="submit">Login</button>
+  </form>
+
+  <script>
     function handleLogin(e) {
       e.preventDefault();
-      const email = document.getElementById("username").value.trim();
-      const password = document.getElementById("password").value.trim();
+      const email = document.getElementById("loginEmail").value.trim();
+      const password = document.getElementById("loginPassword").value.trim();
 
       auth.signInWithEmailAndPassword(email, password)
         .then((userCredential) => {
           const user = userCredential.user;
-         const hardcodedDevEmail = "edenskerman6@gmail.com";
-const role = user.email === hardcodedDevEmail ? "developer" : "user";
+          const role = user.email === "edenskerman6@gmail.com" ? "developer" : "user";
 
-localStorage.setItem("loggedInUser", JSON.stringify({
-  email: user.email,
-  role: role
-}));
+          localStorage.setItem("loggedInUser", JSON.stringify({
+            email: user.email,
+            role: role
+          }));
+
           alert("✅ Login successful!");
           window.location.href = "index.html";
         })
         .catch((error) => {
           alert("🚫 Login failed: " + error.message);
-          window.location.href = "maintenance.html";
         });
     }
-  </script>
+  </script> 
   <script>
-    function goBack() {
-      window.history.back();
-    }
-</script>>
+  function handleLogin(e) {
+    e.preventDefault();
+    const email = document.getElementById("loginEmail").value.trim();
+    const password = document.getElementById("loginPassword").value.trim();
+
+    auth.signInWithEmailAndPassword(email, password)
+      .then((userCredential) => {
+        const user = userCredential.user;
+        const role = user.email === "edenskerman6@gmail.com" ? "developer" : "user";
+
+        localStorage.setItem("loggedInUser", JSON.stringify({
+          email: user.email,
+          role: role
+        }));
+
+        alert("✅ Login successful!");
+        window.location.href = "index.html";
+      })
+      .catch((error) => {
+        alert("🚫 Login failed: " + error.message);
+      });
+  }
+</script>
+
+
+
+</body>
 </html>

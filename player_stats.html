@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Player Stats</title>
+  <link rel="stylesheet" href="home.css" />
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f9f9f9;
+      padding: 20px;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    table {
+      width: 100%;
+      max-width: 1000px;
+      margin: 0 auto;
+      border-collapse: collapse;
+      background-color: #fff;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    th, td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+
+    th {
+      background-color: #333;
+      color: #fff;
+      cursor: pointer;
+    }
+
+    tr:hover {
+      background-color: #f1f1f1;
+    }
+
+    .stat-note {
+      text-align: center;
+      margin-top: 20px;
+      color: #666;
+    }
+  </style>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_PROJECT_ID.appspot.com",
+      messagingSenderId: "YOUR_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+  </script>
+</head>
+<body>
+  <h2>📊 Player Stats Dashboard</h2>
+  <div id="statsContainer">Loading...</div>
+
+  <script>
+    async function loadStats() {
+      const statsSnap = await db.collection("pce_players").get();
+      const statsContainer = document.getElementById("statsContainer");
+
+      if (statsSnap.empty) {
+        statsContainer.innerHTML = "<p class='stat-note'>No player stats found.</p>";
+        return;
+      }
+
+      const players = statsSnap.docs.map(doc => doc.data());
+
+      const table = document.createElement("table");
+      table.innerHTML = `
+       <thead>
+  <tr>
+    <th onclick="sortTable(0)">Name</th>
+    <th onclick="sortTable(1)">Team</th>
+    <th onclick="sortTable(2)">Position</th>
+    <th onclick="sortTable(3)">Goals</th>
+    <th onclick="sortTable(4)">Assists</th>
+    <th onclick="sortTable(5)">Clean Sheets</th>
+    <th onclick="sortTable(6)">Appearances</th>
+  </tr>
+</thead>
+        <tbody>
+          ${players.map(p => `
+            <tr>
+              <td>${p.name || "N/A"}</td>
+              <td>${p.teamName || "Free Agent"}</td>
+              <td>${p.position || "N/A"}</td>
+              <td>${p.goals || 0}</td>
+              <td>${p.assists || 0}</td>
+              <td>${p.cleanSheets || 0}</td>
+              <td>${p.appearances || 0}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      `;
+      statsContainer.innerHTML = "";
+      statsContainer.appendChild(table);
+    }
+
+    loadStats();
+  </script> 
+  <script>
+    function sortTable(colIndex) {
+      const table = document.querySelector("table");
+      const rows = Array.from(table.rows).slice(1); // skip header
+
+      const isNumeric = colIndex >= 3; // goals, assists, etc.
+      const sorted = rows.sort((a, b) => {
+        const aText = a.cells[colIndex].innerText;
+        const bText = b.cells[colIndex].innerText;
+
+        return isNumeric
+          ? Number(bText) - Number(aText)
+          : aText.localeCompare(bText);
+      });
+
+      const tbody = table.querySelector("tbody");
+      tbody.innerHTML = "";
+      sorted.forEach(row => tbody.appendChild(row));
+    }
+  </script> 
+  <div class="back-button-container">
+ <button onclick="window.location.href='admin/admin.html'">← Back to Admin Panel</button>
+</div> 
+</body>
+</html>

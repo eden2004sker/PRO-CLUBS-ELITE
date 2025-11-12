@@ -120,5 +120,24 @@
       border-radius: 6px;
       color: #aaa;
       text-align: center;
-    }
+    } 
+    .stats-button {
+  background: none;
+  border: none;
+  font-size: 40px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.stats-button:hover {
+  transform: scale(1.2);
+}
+
+.stats-label {
+  font-size: 16px;
+  margin-top: 5px;
+  font-family: 'Segoe UI', sans-serif;
+  color: #333;
+  text-align: center;
+}
   

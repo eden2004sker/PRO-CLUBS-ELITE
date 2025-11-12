@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Activity Logs</title>
+  <link rel="stylesheet" href="home.css" />
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_PROJECT_ID.appspot.com",
+      messagingSenderId: "YOUR_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const auth = firebase.auth();
+  </script>
+</head>
+<body>
+  <h2 style="text-align:center;">Activity Logs</h2>
+  <div id="logList" style="max-width:600px; margin:20px auto;">Loading...</div>
+
+  <script>
+    auth.onAuthStateChanged(async (user) => {
+      if (!user) return;
+
+      const logsSnap = await db.collection("pce_activity_logs")
+        .orderBy("timestamp", "desc")
+        .limit(100)
+        .get();
+
+      const logList = document.getElementById("logList");
+      logList.innerHTML = logsSnap.docs.map(doc => {
+        const log = doc.data();
+        const time = log.timestamp.toDate().toLocaleString();
+        return `<div style="margin-bottom: 10px; padding: 10px; border-bottom: 1px solid #ccc;">
+          <strong>${time}</strong>: ${log.action}
+        </div>`;
+      }).join('');
+    });
+  </script>
+</body>
+</html>

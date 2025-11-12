@@ -1,0 +1,137 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Manager Applications</title>
+  <link rel="stylesheet" href="home.css" />
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_PROJECT_ID.appspot.com",
+      messagingSenderId: "YOUR_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const auth = firebase.auth();
+  </script>
+</head>
+<body>
+  <h2 style="text-align:center;">Manager Applications</h2>
+  <div id="appList" style="max-width:700px; margin:20px auto;">Loading...</div>
+
+  <script>
+    auth.onAuthStateChanged(async (user) => {
+      if (!user) return;
+
+      const appsSnap = await db.collection("pce_manager_applications")
+        .orderBy("submittedAt", "desc")
+        .get();
+
+      const appList = document.getElementById("appList");
+      if (appsSnap.empty) {
+        appList.innerHTML = "<p>No applications found.</p>";
+        return;
+      }
+
+      appList.innerHTML = appsSnap.docs.map(doc => {
+  const app = doc.data();
+  const time = app.submittedAt.toDate().toLocaleString();
+  const appId = doc.id;
+
+  return `<div style="border:1px solid #ccc; padding:15px; margin-bottom:10px;">
+    <strong>${app.name}</strong> (${app.email})<br/>
+    <em>Submitted: ${time}</em><br/>
+    <p><strong>Team Requested:</strong> ${app.teamName}</p>
+    <p><strong>Experience:</strong> ${app.experience}</p>
+    <div style="margin-top:10px;">
+      <button onclick="approveApp('${appId}')" style="margin-right:10px;">✅ Approve</button>
+      <button onclick="rejectApp('${appId}')">❌ Reject</button>
+    </div>
+  </div>`;
+}).join('');
+
+
+    });
+  </script> 
+  <script>
+  async function approveApp(appId) {
+    const db = firebase.firestore();
+    await db.collection("pce_manager_applications").doc(appId).update({
+      status: "approved",
+      reviewedAt: new Date()
+    });
+    alert("Application approved!");
+    location.reload();
+  }
+
+  async function rejectApp(appId) {
+    const db = firebase.firestore();
+    await db.collection("pce_manager_applications").doc(appId).update({
+      status: "rejected",
+      reviewedAt: new Date()
+    });
+    alert("Application rejected.");
+    location.reload();
+  }
+</script> 
+<body>
+  <h2>Manager Applications</h2>
+  <div id="appList">Loading...</div>
+
+  <script>
+    auth.onAuthStateChanged(async (user) => {
+      if (!user) return;
+
+      const appsSnap = await db.collection("pce_manager_applications")
+        .orderBy("submittedAt", "desc")
+        .get();
+
+      const appList = document.getElementById("appList");
+      appList.innerHTML = appsSnap.docs.map(doc => {
+        const app = doc.data();
+        const time = app.submittedAt.toDate().toLocaleString();
+        const appId = doc.id;
+
+        return `<div style="border:1px solid #ccc; padding:15px; margin-bottom:10px;">
+          <strong>${app.name}</strong> (${app.email})<br/>
+          <em>Submitted: ${time}</em><br/>
+          <p><strong>Team Requested:</strong> ${app.teamName}</p>
+          <p><strong>Experience:</strong> ${app.experience}</p>
+          <p><strong>Status:</strong> ${app.status || "Pending"}</p>
+          <div style="margin-top:10px;">
+            <button onclick="approveApp('${appId}')" style="margin-right:10px;">✅ Approve</button>
+            <button onclick="rejectApp('${appId}')">❌ Reject</button>
+          </div>
+        </div>`;
+      }).join('');
+    });
+  </script>
+  <script>
+    async function approveApp(appId) {
+      const db = firebase.firestore();
+      await db.collection("pce_manager_applications").doc(appId).update({
+        status: "approved",
+        reviewedAt: new Date()
+      });
+      alert("Application approved!");
+      location.reload();
+    }
+
+    async function rejectApp(appId) {
+      const db = firebase.firestore();
+      await db.collection("pce_manager_applications").doc(appId).update({
+        status: "rejected",
+        reviewedAt: new Date()
+      });
+      alert("Application rejected.");
+      location.reload();
+    }
+  </script>
+</body>
+</body>

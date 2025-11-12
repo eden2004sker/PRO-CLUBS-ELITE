@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Match Stats</title>
+  <link rel="stylesheet" href="home.css">
+</head>
+<body>
+  <div class="back-button-container">
+  <button class="back-button" onclick="window.location.href='admin.html'">← Back to Admin Panel</button>
+</div>
+
+  <h2>📅 Match Stats Dashboard</h2>
+  <div id="matchStatsContainer">Loading match data...</div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js"></script>
+  <script>
+    const firebaseConfig = {
+      // your config here
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    async function loadMatchStats() {
+      const matchSnap = await db.collection("pce_matches").get();
+      const container = document.getElementById("matchStatsContainer");
+
+      if (matchSnap.empty) {
+        container.innerHTML = "<p>No match stats found.</p>";
+        return;
+      }
+
+      const matches = matchSnap.docs.map(doc => doc.data());
+      container.innerHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Home</th>
+              <th>Away</th>
+              <th>Score</th>
+              <th>Possession</th>
+              <th>Cards</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${matches.map(m => `
+              <tr>
+                <td>${m.date || "N/A"}</td>
+                <td>${m.homeTeam || "N/A"}</td>
+                <td>${m.awayTeam || "N/A"}</td>
+                <td>${m.score || "N/A"}</td>
+                <td>${m.possession || "N/A"}</td>
+                <td>${m.cards || "N/A"}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+    }
+
+    loadMatchStats();
+  </script>
+</body>
+</html>
