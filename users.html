@@ -1,101 +1,223 @@
-<script>
-  // This script checks for access based on role OR developer email.
-  const user = JSON.parse(localStorage.getItem("loggedInUser"));
-
-  const allowedRoles = ["Developer", "Founder", "Owner", "Co-Owner", "Admin", "Staff"];
-  // This is your bypass list—ensure your email is exactly correct!
-  const devEmails = ["edenskerman6@gmail.com", "admin@example.com"]; 
-
-  // Deny access if NOT logged in, OR if the user is neither an allowed Role NOR a developer Email
-  if (!user || (!allowedRoles.includes(user.role) && !devEmails.includes(user.email))) {
-    alert("Access denied. You do not have permission to view this page.");
-    // Redirect back to the Admin Dashboard
-    window.location.href = "admin-dashboard.html"; 
-  }
-</script>
-
-</script>
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>PCE Users Management</title>
-  <link rel="stylesheet" href="users.css" />
-</head>
+  <meta charset="UTF-8" />
+  <title>PCE Users Management</title>
+  <link rel="stylesheet" href="admin.css" /> </head>
 <body>
-  <div class="sidebar">
-    <h2>PCE MANAGEMENT</h2>
-    <ul>
-      <li><a href="admin-dashboard.html">← Back to Dashboard</a></li>
-    </ul>
-  </div>
+  <div class="sidebar">
+    <h2>PCE MANAGEMENT</h2>
+    <ul>
+      <li><a href="admin-dashboard.html">← Back to Dashboard</a></li>
+    </ul>
+  </div>
 
-  <div class="main">
-  <h1>👥 Users Management</h1>
+  <div class="main">
+  <h1>👥 Users Management</h1>
 
-  <table class="user-table">
-    <thead>
-      <tr>
-        <th>Username</th>
-        <th>Email</th>
-        <th>Gamer Tag</th>
-        <th>Team</th>
-        <th>Manager Role</th>
-        <th>Platform Role</th>
-        <th>Actions</th>
-        <th>Activity</th>
-      </tr>
-    </thead>
-    <tbody id="userTableBody"></tbody>
-  </table>
+  <table id="userManagementTable" class="user-table">
+    <thead>
+      <tr>
+        <th>Username</th>
+        <th>Email</th>
+        <th>Gamer Tag</th>
+        <th>Team</th>
+        <th>Manager Role</th>
+        <th>Platform Role</th>
+        <th>Actions</th>
+        <th>Activity</th>
+      </tr>
+    </thead>
+    <tbody id="userTableBody"></tbody>
+  </table>
 
-  <div class="pagination">
-    <button onclick="prevPage()">← Prev</button>
-    <span id="pageIndicator">Page 1</span>
-    <button onclick="nextPage()">Next →</button>
-  </div>
+  <div class="pagination">
+    <button onclick="prevPage()">← Prev</button>
+    <span id="pageIndicator">Page 1</span>
+    <button onclick="nextPage()">Next →</button>
+  </div>
 </div>
-
-<script src="users.js"></script>
-
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
-  import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js";
+// ------------------------------------------------------------------
+// 1. FIREBASE IMPORTS
+// ------------------------------------------------------------------
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
+import { getFirestore, collection, getDocs, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js"; 
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyB0C5O-9xh9CrmLnsD2kquCyJ1zTtYkiLg",
-    authDomain: "fifa-super-league.firebaseapp.com",
-    projectId: "fifa-super-league",
-    storageBucket: "fifa-super-league.firebasestorage.app",
-    messagingSenderId: "407346622789",
-    appId: "1:407346622789:web:6b48448ca0410ccf588e2c",
-    measurementId: "G-Y8HVMK7SZ1"
-  };
+// ------------------------------------------------------------------
+// 2. CONFIG AND INITIALIZATION
+// ------------------------------------------------------------------
+const firebaseConfig = { 
+  apiKey: "AIzaSyB0C5O-9xh9CrmLnsD2kquCyJ1zTtYkiLg",
+  authDomain: "fifa-super-league.firebaseapp.com",
+  projectId: "fifa-super-league",
+  storageBucket: "fifa-super-league.firebasestorage.app",
+  messagingSenderId: "407346622789",
+  appId: "1:407346622789:web:6b48448ca0410ccf588e2c",
+  measurementId: "G-Y8HVMK7SZ1"
+};
 
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
 
-  async function loadFirebaseUsers() {
+// ------------------------------------------------------------------
+// 3. CONSTANTS AND STATE (from your user.js)
+// ------------------------------------------------------------------
+const premTeams = [
+  "Arsenal", "Aston Villa", "Bournemouth", "Brentford", "Brighton", "Burnley",
+  "Chelsea", "Crystal Palace", "Everton", "Fulham", "Liverpool", "Luton Town",
+  "Man City", "Man United", "Newcastle", "Nottingham Forest", "Sheffield United",
+  "Tottenham", "West Ham", "Wolves", "Unassigned"
+];
+
+const managerRoles = ["Manager", "Co-Manager", "Unassigned"];
+const platformRoles = ["Developer", "Founder", "Owner", "Co-Owner", "Admin", "Staff", "Member"];
+
+let currentPage = 1;
+const pageSize = 10;
+let allUsersData = []; // To store all users for pagination
+
+// ------------------------------------------------------------------
+// 4. ADMIN ACTION FUNCTIONS (Adapted for Firebase/Firestore)
+// ------------------------------------------------------------------
+
+// Function to generate the role dropdown
+function roleDropdownHtml(userId, selectedRole) {
+  return `
+    <select class="role-selector" 
+            onchange="window.editUserFromDropdown('${userId}', this.value)">
+      ${platformRoles.map(role => 
+        `<option value="${role}" ${selectedRole === role ? 'selected' : ''}>
+            ${role}
+        </option>`
+      ).join('')}
+    </select>
+  `;
+}
+
+// Function to handle role change and update Firestore
+window.editUserFromDropdown = async function(userId, newRole) {
+  const userDocRef = doc(db, "users", userId);
+  try {
+      // Add permission check logic here if needed (to prevent low-level users from giving high roles)
+      await updateDoc(userDocRef, {
+          websiteRole: newRole.trim() 
+      });
+      console.log(`Updated user ${userId} to role: ${newRole}`);
+      // Optionally refresh data to update the local 'allUsersData' array
+      // await loadAllUsers(); 
+  } catch (error) {
+      console.error("Error updating document: ", error);
+      alert("Failed to update user role. Check console for details.");
+  }
+}
+
+// Placeholder functions for other actions (needs to be fully implemented with updateDoc/deleteDoc)
+window.deleteUser = function(userId) {
+    alert(`Delete User function for ${userId} needs full Firebase implementation.`);
+}
+window.handleUserAction = function(action, index) {
+    alert(`Action: ${action} on index ${index} needs Firebase implementation.`);
+}
+window.updateActivity = function(index, value) {
+    alert(`Activity update on index ${index} needs Firebase implementation.`);
+}
+
+
+// ------------------------------------------------------------------
+// 5. RENDERING AND PAGINATION (Adapted for Firebase data)
+// ------------------------------------------------------------------
+
+function renderUsers() {
+  const tbody = document.getElementById("userTableBody");
+  if (!tbody || allUsersData.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="9">No users found or loading...</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = "";
+
+  const start = (currentPage - 1) * pageSize;
+  const end = start + pageSize;
+  const pageUsers = allUsersData.slice(start, end);
+
+  pageUsers.forEach((user, index) => {
+    const row = document.createElement("tr");
+   row.innerHTML = `
+            <td>${user.username || "N/A"}</td>
+            <td>${user.email || "N/A"}</td>
+            <td>${user.gamerTag || "N/A"}</td>
+            <td>${user.team || "Unassigned"}</td> 
+            <td>${user.managerRole || "None"}</td> 
+                        <td>${roleDropdownHtml(user.id, user.websiteRole || "Member")}</td> 
+                        <td>
+                <button class="action-button delete-button" onclick="window.deleteUser('${user.id}')">Delete</button>
+            </td>
+                        <td>${user.activity || '0%'}</td>
+        `;
+        tbody.appendChild(row);
+    });
+
+  const pageIndicator = document.getElementById("pageIndicator");
+  if (pageIndicator) pageIndicator.textContent = `Page ${currentPage}`;
+}
+
+async function loadAllUsers() {
     const usersSnap = await getDocs(collection(db, "users"));
-    const tbody = document.getElementById("userTableBody");
-    if (!tbody) return;
+    allUsersData = usersSnap.docs.map(doc => ({
+        id: doc.id, 
+        ...doc.data()
+    }));
+    renderUsers();
+}
 
-    usersSnap.forEach(doc => {
-      const user = doc.data();
-      const row = document.createElement("tr");
-      row.innerHTML = `
-        <td>${user.username || "N/A"}</td>
-        <td>${user.email || "N/A"}</td>
-        <td>${user.tag || "N/A"}</td>
-        <td>${user.team || "Unassigned"}</td>
-        <td>${user.managerRole || "None"}</td>
-        <td>${user.websiteRole || "Member"}</td>
-        <td><em>Firebase user</em></td>
-        <td>${user.activity || "0%"}</td>
-      `;
-      tbody.appendChild(row);
-    });
-  }
+// Pagination functions (now operate on the global allUsersData array)
+window.nextPage = function() {
+  if ((currentPage * pageSize) < allUsersData.length) {
+    currentPage++;
+    renderUsers();
+  }
+}
 
-  document.addEventListener("DOMContentLoaded", loadFirebaseUsers);
+window.prevPage = function() {
+  if (currentPage > 1) {
+    currentPage--;
+    renderUsers();
+  }
+}
+
+
+// ------------------------------------------------------------------
+// 6. SECURE ACCESS CHECK AND INITIALIZATION
+// ------------------------------------------------------------------
+document.addEventListener("DOMContentLoaded", () => {
+  onAuthStateChanged(auth, async (user) => {
+      const requiredAccessRoles = ["Developer", "Admin", "Founder", "Owner", "Co-Owner", "Staff"];
+      const devEmails = ["edenskerman6@gmail.com", "admin@example.com"]; 
+
+      if (!user) {
+          alert("Access Denied: Please log in.");
+          window.location.href = "index.html"; 
+          return;
+      }
+
+      const userDocRef = doc(db, "users", user.uid);
+      const userDoc = await getDoc(userDocRef);
+      
+      const userRole = userDoc.exists() ? userDoc.data().websiteRole : "Member";
+      const userEmail = user.email;
+
+      // Check if the user is authorized (by role OR dev email)
+      if (!requiredAccessRoles.includes(userRole) && !devEmails.includes(userEmail)) {
+          alert(`Access Denied: Your role (${userRole}) is not authorized for this page.`);
+          window.location.href = "admin-dashboard.html";
+          return;
+      }
+
+      // If authorized, load the user list
+      await loadAllUsers();
+  });
+});
 </script>

@@ -1,22 +1,10 @@
-<script>
-  const user = JSON.parse(localStorage.getItem("loggedInUser"));
-
-  const allowedRoles = ["Developer", "Founder", "Owner", "Co-Owner", "Admin", "Staff"];
-  // Add your email here to match the check from index.html
-  const devEmails = ["edenskerman6@gmail.com", "admin@example.com"]; 
-
-  // New check: Deny access ONLY if not logged in, AND (role is not allowed AND email is not a dev email)
-  if (!user || (!allowedRoles.includes(user.role) && !devEmails.includes(user.email))) {
-    alert("Access denied. You do not have permission to view this page.");
-    window.location.href = "index.html"; // Redirect to the homepage
-  }
-</script>
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>PCE Admin Dashboard</title>
-  <style>
+  <meta charset="UTF-8" />
+  <title>PCE Admin Dashboard</title>
+  
+  <style>
     body {
       margin: 0;
       font-family: 'Segoe UI', sans-serif;
@@ -140,17 +128,17 @@
       text-align: center;
     }
   </style>
-</head>
+  </head>
 <body>
 
-  <div class="sidebar">
-    <h2>MAIN MENU</h2>
-    <ul>
-      <li><a href="#">Dashboard</a></li>
-    </ul>
+  <div class="sidebar">
+    <h2>MAIN MENU</h2>
+    <ul>
+      <li><a href="#">Dashboard</a></li>
+    </ul>
 
-    <h2>PCE MAANGEMENT</h2>
-    <li id="statsAdminBtn" style="display:none;"><a href="admin-stats.html">Stats & Results</a></li>
+    <h2>PCE MANAGEMENT</h2>
+ <li id="statsAdminBtn" style="display:none;"><a href="admin-stats.html">Stats & Results</a></li>
     <ul class="sidebar-nav">
   <li id="statsAdminBtn" style="display:none;"><a href="admin-stats.html">Stats & Results</a></li>
   <li id="usersBtn" style="display:none;"><a href="admin-users.html">Users</a></li>
@@ -158,7 +146,7 @@
   <li id="auditLogBtn" style="display:none;"><button onclick="window.location.href='audit-log.html'" class="sidebar-btn">Audit Log</button></li>
 </ul>
     <ul>
-      <li><a href="#" id="sidebarUsersCount">Users (0)</a></li>
+      <li><a href="#">Users (0)</a></li>
       <li><a href="#">Teams (0)</a></li>
       <li><a href="#">Leagues (0)</a></li>
       <li><a href="#">Fixtures (0)</a></li>
@@ -168,89 +156,78 @@
       <li id="auditLogBtn" style="display:none;">
   <a href="audit-log.html">Audit Log</a>
 </li>
+    <h2>APPLICATIONS</h2>
+    <ul>
+      <li><a href="#">Staff (0)</a></li>
+      <li><a href="#">Manager (0)</a></li>
+      <li><a href="#">Contact (0)</a></li>
+    </ul>
 
+    <h2>SYSTEM</h2>
+    <ul>
+      <li><a href="#">Settings</a></li>
+      <li><a href="index.html">Return to Main Site</a></li>
+    </ul>
 
-      <li id="statsAdminBtn" style="display:none;"><a href="admin-stats.html">Stats & Results</a></li>
-    </ul>
+  </div>
 
-    <h2>APPLICATIONS</h2>
-    <ul>
-      <li><a href="#">Store (0)</a></li>
-      <li><a href="#">Manager (0)</a></li>
-      <li><a href="#">Contact (0)</a></li>
-    </ul>
+  <div class="main">
+    <h1>Admin Dashboard</h1>
+    <div class="nav-tabs">
+      <button onclick="location.href='users.html'">Users</button>
+      <button>Teams</button>
+      <button>Leagues</button>
+      <button onclick="location.href='fixturesGenerate.html'">Fixtures</button>
+      <button>Match Stats</button>
+      <button>Player Stats</button>
+      <button>Staff Applications</button>
+      <button>Manager Applications</button>
+      <button>Activity Logs</button>
+      <button onclick="window.location.href='settings.html'">Settings</button>
+    </div>
 
-    <h2>SYSTEM</h2>
-    <ul>
-      <li><a href="#">Settings</a></li>
-    </ul>
+    <div class="stats-grid">
+      <div class="stat-card"><h3>Total Users</h3><p id="statTotalUsers">0</p></div>
+      <div class="stat-card"><h3>Active Players</h3><p id="statActivePlayers">0</p></div>
+      <div class="stat-card"><h3>Teams</h3><p id="statTeams">0</p></div>
+      <div class="stat-card"><h3>Pending Match Stats</h3><p id="statPendingStats">0</p></div>
+    </div>
 
-    <h2>NAVIGATION</h2>
-    <ul>
-      <li><a href="index.html">Return to Main Site</a></li>
-    </ul>
-  </div>
+    <div class="section">
+      <h2>Team Performance</h2>
+      <div class="placeholder">No data.</div>
+    </div>
 
-  <div class="main">
-    <div class="nav-tabs">
-      <button onclick="location.href='users.html'">Users</button>
-      <button>Teams</button>
-      <button>Leagues</button>
-      <button onclick="location.href='fixturesGenerate.html'">Fixtures</button>
-      <button>Match Stats</button>
-      <button>Player Stats</button>
-      <button>Staff Applications</button>
-      <button>Manager Applications</button>
-      <button>Activity Logs</button>
-      <button onclick="window.location.href='settings.html'">Settings</button>
-    </div>
+    <div class="section">
+      <h2>User Distribution</h2>
+      <div class="placeholder">No data.</div>
+      </div>
 
-    <div class="stats-grid">
-      <div class="stat-card"><h3>Total Users</h3><p>0</p></div>
-      <div class="stat-card"><h3>Active Players</h3><p>0</p></div>
-      <div class="stat-card"><h3>Teams</h3><p>0</p></div>
-      <div class="stat-card"><h3>Pending Match Stats</h3><p>0</p></div>
-    </div>
+    <div class="section">
+      <h2>Manage Users</h2>
+      <table id="userTable">
+        <thead>
+          <tr>
+            <th>Username</th>
+            <th>Team</th>
+            <th>Manager Role</th>
+            <th>Website Role</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
 
-    <div class="section">
-      <h2>Team Performance</h2>
-      <div class="placeholder">No data.</div>
-    </div>
-
-    <div class="section">
-      <h2>User Distribution</h2>
-      <div class="placeholder">No data.</div>
-    </div>
-
-    <div class="section">
-      <h2>Match Activity (Last 30 Days)</h2>
-      <div class="placeholder">No data.</div>
-    </div>
-  </div>
-<div class="user-panel">
-  <h2>Manage Users</h2>
-  <table id="userTable">
-    <thead>
-      <tr>
-        <th>Username</th>
-        <th>Team</th>
-        <th>Manager Role</th>
-        <th>Website Role</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-  <div id="pagination"></div>
-</div>
 </body>
 </html>
 <script type="module">
-  // Core Firebase V9 Modular SDK Imports
+// Core Firebase V9 Modular SDK Imports
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
-// Firestore Imports
-import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js"; 
-// Realtime Database Imports (for session tracking - necessary for the full script)
+// Firestore Imports - *** updateDoc is now included here ***
+import { getFirestore, collection, getDocs, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js"; 
+// Realtime Database Imports
 import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-database.js";
 
 // ------------------------------------------------------------------
@@ -272,8 +249,39 @@ const db = getFirestore(app);
 const auth = getAuth(app);
 const rtdb = getDatabase(app); 
 
+// This function needs to be a global window function so the inline HTML onclick works
+window.editUser = async function(userId) {
+    const newRole = prompt(`Enter the new website role for user ${userId}.
+(e.g., Developer, Admin, Staff, Member)`);
+
+    // 1. Basic Validation
+    if (!newRole) {
+        alert("Operation cancelled or no role provided.");
+        return;
+    }
+
+    // 2. Reference the Firestore document
+    const userDocRef = doc(db, "users", userId);
+
+    try {
+        // 3. Update the specific field
+        await updateDoc(userDocRef, {
+            websiteRole: newRole.trim() // Use trim to remove accidental spaces
+        });
+        
+        alert(`Successfully updated user ${userId} to role: ${newRole}`);
+        
+        // 4. Refresh the table data to show the new role
+        await loadAllUsers(); 
+
+    } catch (error) {
+        console.error("Error updating document: ", error);
+        alert("Failed to update user role. Check console for details.");
+    }
+}
+
 // ------------------------------------------------------------------
-// User Data Loading Function
+// User Data Loading Function (from previous steps)
 // ------------------------------------------------------------------
 async function loadAllUsers() {
   const usersSnap = await getDocs(collection(db, "users"));
@@ -285,6 +293,7 @@ async function loadAllUsers() {
   usersSnap.forEach(doc => {
     const user = doc.data();
     const row = document.createElement("tr");
+    // Ensure the editUser function is called correctly by the button
     row.innerHTML = `
       <td>${user.username || "N/A"}</td>
       <td>${user.email || "N/A"}</td>
@@ -297,6 +306,61 @@ async function loadAllUsers() {
     tbody.appendChild(row);
   });
 }
+    
+  // 🔑 Secure Role-Based Access Check and Dashboard Initialization
+  document.addEventListener("DOMContentLoaded", () => {
+    onAuthStateChanged(auth, async (user) => {
+        // --- 1. INITIAL ACCESS CHECK ---
+        if (!user) {
+            // No user logged in
+            alert("Access Denied: Please log in.");
+            window.location.href = "index.html"; 
+            return;
+        }
 
-// You will also need to call this function inside your document.addEventListener("DOMContentLoaded", ...) block:
-// await loadAllUsers();
+        const userDocRef = doc(db, "users", user.uid);
+        const userDoc = await getDoc(userDocRef);
+
+        if (!userDoc.exists()) {
+            // User logged in but no Firestore profile exists (shouldn't happen with working signup)
+            alert("Access Denied: User profile not found in database.");
+            window.location.href = "index.html";
+            return;
+        }
+        
+        const userRole = userDoc.data().websiteRole;
+        const userEmail = user.email;
+        const devEmails = ["edenskerman6@gmail.com", "admin@example.com"]; 
+
+        const requiredAccessRoles = ["Developer", "Admin", "Stats Admin", "Founder", "Owner", "Co-Owner", "Staff"];
+        
+        // Deny access if role is not authorized AND email is not a dev exception
+        if (!requiredAccessRoles.includes(userRole) && !devEmails.includes(userEmail)) {
+            alert(`Access Denied: Your role (${userRole}) is not authorized for this page.`);
+            window.location.href = "index.html";
+            return;
+        }
+
+        // --- 2. IF AUTHORIZED, LOAD DASHBOARD DATA AND SHOW FEATURES ---
+        
+        // Hide/Show sidebar links based on role
+        
+        if (["Developer", "Stats Admin", "Founder", "Owner"].includes(userRole)) {
+            document.getElementById("statsAdminLi").style.display = "list-item";
+        }
+        if (["Developer", "Admin", "Founder", "Owner"].includes(userRole)) {
+            document.getElementById("usersLi").style.display = "list-item";
+        }
+        if (["Developer", "Founder", "Owner"].includes(userRole)) {
+            document.getElementById("fixturesLi").style.display = "list-item";
+        }
+        if (["Developer", "Admin", "Founder", "Owner"].includes(userRole)) {
+            document.getElementById("auditLogLi").style.display = "list-item";
+        }
+        
+        // Load dashboard data
+        await updateStats();
+        await loadUsers();
+    });
+  });
+</script>
