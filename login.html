@@ -1,126 +1,182 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Login - Pro Clubs Elite</title>
-  <style>
-    body {
-      background: #111;
-      color: #eee;
-      font-family: Arial, sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      text-align: center;
-    }
-
-    form {
-      background: #222;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px #000;
-    }
-
-    input {
-      display: block;
-      margin: 10px auto;
-      padding: 10px;
-      width: 220px;
-      border-radius: 5px;
-      border: none;
-    }
-
-    button {
-      padding: 10px 20px;
-      background: #ff3366;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background: #cc2952;
-    }
-  </style>
-
-  <!-- Firebase v9 SDK -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js"></script>
-  <script>
-    const firebaseConfig = {
-      apiKey: "YOUR_API_KEY",
-      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-      projectId: "YOUR_PROJECT_ID",
-      appId: "YOUR_APP_ID"
-    };
-
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-  </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PCE - User Login</title>
+    <link rel="stylesheet" href="home.css">
+    <style>
+        /* Styles specific to the login card */
+        .login-container {
+            max-width: 400px;
+            margin: 80px auto;
+            padding: 30px;
+            background-color: #00274d;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.7);
+            text-align: center;
+        }
+        .login-container h1 {
+            color: #ff3c00;
+            margin-bottom: 25px;
+            font-size: 28px;
+        }
+        .login-form input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #003366;
+            border-radius: 6px;
+            background-color: #0b1a2b;
+            color: white;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+        .login-form button {
+            width: 100%;
+            padding: 12px;
+            background-color: #ff3c00;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .login-form button:hover {
+            background-color: #e03500;
+        }
+        .message-box {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #2a3d54;
+            color: white;
+            padding: 20px 40px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            display: none;
+            text-align: center;
+        }
+        .message-box button {
+            margin-top: 10px;
+            background: #ff3c00;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
 
-  <h1>🔐 Login</h1>
-  <form onsubmit="handleLogin(event)">
-    <input type="email" id="loginEmail" placeholder="Email" required />
-    <input type="password" id="loginPassword" placeholder="Password" required />
-    <button type="submit">Login</button>
-  </form>
+    <!-- Message Box Element -->
+    <div id="messageBox" class="message-box">
+        <p id="messageText"></p>
+        <button onclick="document.getElementById('messageBox').style.display='none'">OK</button>
+    </div>
 
-  <script>
-    function handleLogin(e) {
-      e.preventDefault();
-      const email = document.getElementById("loginEmail").value.trim();
-      const password = document.getElementById("loginPassword").value.trim();
+    <div class="login-container">
+        <h1>PCE Member Login</h1>
+        
+        <form id="loginForm" class="login-form">
+            <input type="email" id="email" placeholder="Email Address" required>
+            <input type="password" id="password" placeholder="Password" required>
+            <button type="submit">Login</button>
+        </form>
+        
+        <p style="margin-top: 20px; font-size: 14px;">
+            <a href="#" style="color: #66ccff; text-decoration: none;" onclick="showMessage('Password reset functionality coming soon!')">Forgot Password?</a>
+        </p>
 
-      auth.signInWithEmailAndPassword(email, password)
-        .then((userCredential) => {
-          const user = userCredential.user;
-          const role = user.email === "edenskerman6@gmail.com" ? "developer" : "user";
+        <p style="margin-top: 20px; font-size: 14px;">
+            <a href="index.html" style="color: #ccc; text-decoration: none;">&leftarrow; Back to Dashboard</a>
+        </p>
 
-          localStorage.setItem("loggedInUser", JSON.stringify({
-            email: user.email,
-            role: role
-          }));
+        <!-- DEBUG INFO: Use a test account -->
+        <p style="font-size: 10px; color: #888; margin-top: 20px;">
+            To test, please use a registered email and password (e.g., test@example.com, password123).
+        </p>
+    </div>
 
-          alert("✅ Login successful!");
-          window.location.href = "index.html";
-        })
-        .catch((error) => {
-          alert("🚫 Login failed: " + error.message);
+    <script type="module">
+        // Firebase Imports
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        
+        // --- GLOBALS AND UTILITY ---
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
+        let auth = null;
+
+        // Utility to display messages (replaces forbidden alert())
+        const showMessage = (message) => {
+            document.getElementById('messageText').textContent = message;
+            document.getElementById('messageBox').style.display = 'block';
+        };
+        window.showMessage = showMessage; // Make it globally accessible for the HTML
+
+        // --- FIREBASE INITIALIZATION ---
+        const initFirebase = () => {
+            if (!firebaseConfig) {
+                console.error("Firebase config not found. Login functionality is disabled.");
+                return;
+            }
+            const app = initializeApp(firebaseConfig);
+            auth = getAuth(app);
+            console.log("Firebase Auth initialized.");
+        };
+
+        // --- LOGIN HANDLER ---
+        const handleLogin = async (event) => {
+            event.preventDefault(); // Stop the form from submitting normally
+            
+            if (!auth) {
+                showMessage("Login service not ready. Please try again.");
+                return;
+            }
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                // Sign in with email and password
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                
+                // If successful:
+                showMessage("Login successful! Redirecting to dashboard...");
+                
+                // Delay redirect slightly so the user sees the success message
+                setTimeout(() => {
+                    window.location.href = 'index.html'; 
+                }, 1500);
+
+            } catch (error) {
+                console.error("Login Error:", error.code, error.message);
+                
+                let userMessage = "Login failed. Please check your email and password.";
+                
+                if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+                    userMessage = "Invalid email or password. Please check your credentials.";
+                } else if (error.code === 'auth/invalid-email') {
+                    userMessage = "The email address format is invalid.";
+                } else if (error.code === 'auth/too-many-requests') {
+                    userMessage = "Too many failed attempts. Try again later.";
+                }
+
+                showMessage(userMessage);
+            }
+        };
+
+        // --- EVENT LISTENERS ---
+        document.addEventListener('DOMContentLoaded', () => {
+            initFirebase();
+            document.getElementById('loginForm').addEventListener('submit', handleLogin);
         });
-    }
-  </script> 
-  <script>
-  function handleLogin(e) {
-    e.preventDefault();
-    const email = document.getElementById("loginEmail").value.trim();
-    const password = document.getElementById("loginPassword").value.trim();
 
-    auth.signInWithEmailAndPassword(email, password)
-      .then((userCredential) => {
-        const user = userCredential.user;
-        const role = user.email === "edenskerman6@gmail.com" ? "developer" : "user";
-
-        localStorage.setItem("loggedInUser", JSON.stringify({
-          email: user.email,
-          role: role
-        }));
-
-        alert("✅ Login successful!");
-        window.location.href = "index.html";
-      })
-      .catch((error) => {
-        alert("🚫 Login failed: " + error.message);
-      });
-  }
-</script>
-
-
-
+    </script>
 </body>
 </html>

@@ -1,5 +1,4 @@
-
-    body {
+body {
       margin: 0;
       font-family: 'Segoe UI', sans-serif;
       background: #0f0f0f;
@@ -47,8 +46,8 @@
     .sidebar a:hover {
       color: #1db954;
     }
-
-    .main {
+  
+.main {
       margin-left: 280px;
       padding: 30px;
     }
@@ -89,7 +88,7 @@
       text-align: center;
     }
 
-    .stat-card h3 {
+   .stat-card h3 {
       margin: 0;
       font-size: 14px;
       color: #ccc;
@@ -141,3 +140,110 @@
   text-align: center;
 }
   
+.admin-dashboard {
+  padding: 30px;
+  background: #0b0b0b;
+  color: #eee;
+  font-family: 'Segoe UI', sans-serif;
+}
+.admin-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  margin-bottom: 30px;
+}
+.admin-btn {
+  padding: 12px 20px;
+  background: #004080;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+.admin-btn:hover {
+  background: #0066cc;
+  transform: scale(1.05);
+}
+.admin-panels {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+.panel {
+  background: #1a1a1a;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.4);
+}
+.panel h3 {
+  margin-bottom: 15px;
+  font-size: 20px;
+  border-bottom: 2px solid #004080;
+  padding-bottom: 5px;
+}
+.panel ul {
+  list-style: none;
+  padding: 0;
+}
+.panel li {
+  margin: 10px 0;
+  font-size: 16px;
+}
+.panel p {
+  font-size: 16px;
+  color: #ccc;
+}
+.settings-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.settings-form label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #222;
+  padding: 10px 15px;
+  border-radius: 6px;
+  color: #eee;
+}
+
+.settings-form button {
+  padding: 10px 20px;
+  background: #004080;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.settings-form button:hover {
+  background: #0066cc;
+} 
+.back-button-container {
+  margin: 20px;
+  text-align: left;
+}
+
+.back-button {
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  padding: 8px 16px;
+  font-size: 16px;
+  cursor: pointer;
+  font-family: 'Segoe UI', sans-serif;
+  border-radius: 5px;
+  transition: background-color 0.2s ease;
+}
+
+.back-button:hover {
+  background-color: #e0e0e0;
+}

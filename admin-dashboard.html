@@ -1,364 +1,68 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>PCE Admin Dashboard</title>
-  
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background: #0f0f0f;
-      color: #eee;
-    }
-
-    .sidebar {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 260px;
-      height: 100vh;
-      background: #1a1a1a;
-      padding: 20px;
-      box-shadow: 2px 0 5px #000;
-      overflow-y: auto;
-    }
-
-    .sidebar h2 {
-      font-size: 16px;
-      margin-top: 20px;
-      margin-bottom: 10px;
-      color: #1db954;
-      text-transform: uppercase;
-    }
-
-    .sidebar ul {
-      list-style: none;
-      padding: 0;
-      margin-bottom: 20px;
-    }
-
-    .sidebar li {
-      margin-bottom: 10px;
-    }
-
-    .sidebar a {
-      color: #eee;
-      text-decoration: none;
-      font-weight: 500;
-      display: block;
-      padding: 6px 0;
-    }
-
-    .sidebar a:hover {
-      color: #1db954;
-    }
-
-    .main {
-      margin-left: 280px;
-      padding: 30px;
-    }
-
-    .nav-tabs {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      margin-bottom: 30px;
-    }
-
-    .nav-tabs button {
-      background: #222;
-      color: #eee;
-      border: none;
-      padding: 10px 18px;
-      border-radius: 4px;
-      cursor: pointer;
-      font-weight: 500;
-    }
-
-    .nav-tabs button:hover {
-      background: #333;
-    }
-
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(10px, 1fr));
-      gap: 10px;
-      margin-bottom: 10px;
-    }
-
-    .stat-card {
-      background: #181818;
-      padding: 18px;
-      border-radius: 6px;
-      box-shadow: 0 0 10px #000;
-      text-align: center;
-    }
-
-    .stat-card h3 {
-      margin: 0;
-      font-size: 14px;
-      color: #ccc;
-    }
-
-    .stat-card p {
-      font-size: 24px;
-      margin: 10px 0 0;
-      color: #1db954;
-      font-weight: bold;
-    }
-
-    .section {
-      margin-bottom: 40px;
-    }
-
-    .section h2 {
-      font-size: 10px;
-      margin-bottom: 10px;
-      border-bottom: 1px solid #333;
-      padding-bottom: 6px;
-      color: #1db954;
-    }
-
-    .placeholder {
-      background: #222;
-      padding: 20px;
-      border-radius: 6px;
-      color: #aaa;
-      text-align: center;
-    }
-  </style>
-  </head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PCE - Admin Panel</title>
+    <link rel="stylesheet" href="home.css">
+    <style>
+        /* Basic styling for the admin page to use the dashboard theme */
+        .admin-container {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 20px;
+            background-color: #00274d; /* Darker card background */
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+            min-height: 50vh;
+        }
+        .admin-container h1 {
+            color: #ff3c00;
+            border-bottom: 3px solid rgba(255, 60, 0, 0.5);
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+        }
+        .admin-task-list {
+            list-style: none;
+            padding: 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        .admin-task-list li {
+            background-color: #003366;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 18px;
+            transition: background-color 0.2s;
+            cursor: pointer;
+        }
+        .admin-task-list li:hover {
+            background-color: #004080;
+        }
+        .back-link {
+            display: inline-block;
+            margin-top: 30px;
+            color: #66ccff;
+            text-decoration: none;
+        }
+    </style>
+</head>
 <body>
+    <div class="admin-container">
+        <h1>PCE Admin Control Panel</h1>
+        <p>This panel is for league administrators only. Any actions performed here directly affect the live league data.</p>
+        
+        <ul class="admin-task-list">
+            <li>Manage User Roles & Permissions</li>
+            <li>Input Match Results & Statistics</li>
+            <li>Approve/Reject Transfer Requests</li>
+            <li>Create/Edit Season Fixtures</li>
+            <li>Broadcast Site-wide Announcements</li>
+            <li>View System Logs & Audit Trails</li>
+        </ul>
 
-  <div class="sidebar">
-    <h2>MAIN MENU</h2>
-    <ul>
-      <li><a href="#">Dashboard</a></li>
-    </ul>
-
-    <h2>PCE MANAGEMENT</h2>
- <li id="statsAdminBtn" style="display:none;"><a href="admin-stats.html">Stats & Results</a></li>
-    <ul class="sidebar-nav">
-  <li id="statsAdminBtn" style="display:none;"><a href="admin-stats.html">Stats & Results</a></li>
-  <li id="usersBtn" style="display:none;"><a href="admin-users.html">Users</a></li>
-  <li id="fixturesBtn" style="display:none;"><a href="admin-fixtures.html">Fixtures</a></li>
-  <li id="auditLogBtn" style="display:none;"><button onclick="window.location.href='audit-log.html'" class="sidebar-btn">Audit Log</button></li>
-</ul>
-    <ul>
-      <li><a href="#">Users (0)</a></li>
-      <li><a href="#">Teams (0)</a></li>
-      <li><a href="#">Leagues (0)</a></li>
-      <li><a href="#">Fixtures (0)</a></li>
-      <li><a href="#">Match Stats (0)</a></li>
-      <li><a href="#">Player Stats (0)</a></li>
-      <li><a href="#">audit log (0)</a></li>
-      <li id="auditLogBtn" style="display:none;">
-  <a href="audit-log.html">Audit Log</a>
-</li>
-    <h2>APPLICATIONS</h2>
-    <ul>
-      <li><a href="#">Staff (0)</a></li>
-      <li><a href="#">Manager (0)</a></li>
-      <li><a href="#">Contact (0)</a></li>
-    </ul>
-
-    <h2>SYSTEM</h2>
-    <ul>
-      <li><a href="#">Settings</a></li>
-      <li><a href="index.html">Return to Main Site</a></li>
-    </ul>
-
-  </div>
-
-  <div class="main">
-    <h1>Admin Dashboard</h1>
-    <div class="nav-tabs">
-      <button onclick="location.href='users.html'">Users</button>
-      <button>Teams</button>
-      <button>Leagues</button>
-      <button>Fixtures</button>
-      <button>Match Stats</button>
-      <button>Player Stats</button>
-      <button>Settings</button>
-      <button>Audit Log</button>
-    
-
-    <div class="stats-grid">
-      <div class="stat-card"><h3>Total Users</h3><p id="statTotalUsers">0</p></div>
-      <div class="stat-card"><h3>Active Players</h3><p id="statActivePlayers">0</p></div>
-      <div class="stat-card"><h3>Teams</h3><p id="statTeams">0</p></div>
-      <div class="stat-card"><h3>Pending Match Stats</h3><p id="statPendingStats">0</p></div>
-    </div>
-
-    <div class="section">
-      <h2>Team Performance</h2>
-      <div class="placeholder">No data.</div>
-    </div>
-
-    <div class="section">
-      <h2>User Distribution</h2>
-      <div class="placeholder">No data.</div>
-      </div>
-
-    <div class="section">
-      <h2>Manage Users</h2>
-      <table id="userTable">
-        <thead>
-          <tr>
-            <th>Username</th>
-            <th>Team</th>
-            <th>Manager Role</th>
-            <th>Website Role</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </div>
-  </div>
-
+        <a href="index.html" class="back-link">&leftarrow; Return to Dashboard</a>
+    </div>
 </body>
 </html>
-<script type="module">
-// Core Firebase V9 Modular SDK Imports
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
-// Firestore Imports - *** updateDoc is now included here ***
-import { getFirestore, collection, getDocs, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js"; 
-// Realtime Database Imports
-import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-database.js";
-
-// ------------------------------------------------------------------
-// Your confirmed Firebase Configuration (REQUIRED)
-// ------------------------------------------------------------------
-const firebaseConfig = { 
-  apiKey: "AIzaSyB0C5O-9xh9CrmLnsD2kquCyJ1zTtYkiLg",
-  authDomain: "fifa-super-league.firebaseapp.com",
-  projectId: "fifa-super-league",
-  storageBucket: "fifa-super-league.firebasestorage.app",
-  messagingSenderId: "407346622789",
-  appId: "1:407346622789:web:6b48448ca0410ccf588e2c",
-  measurementId: "G-Y8HVMK7SZ1",
-  databaseURL: "https://fifa-super-league-default-rtdb.firebaseio.com", 
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const auth = getAuth(app);
-const rtdb = getDatabase(app); 
-
-// This function needs to be a global window function so the inline HTML onclick works
-window.editUser = async function(userId) {
-    const newRole = prompt(`Enter the new website role for user ${userId}.
-(e.g., Developer, Admin, Staff, Member)`);
-
-    // 1. Basic Validation
-    if (!newRole) {
-        alert("Operation cancelled or no role provided.");
-        return;
-    }
-
-    // 2. Reference the Firestore document
-    const userDocRef = doc(db, "users", userId);
-
-    try {
-        // 3. Update the specific field
-        await updateDoc(userDocRef, {
-            websiteRole: newRole.trim() // Use trim to remove accidental spaces
-        });
-        
-        alert(`Successfully updated user ${userId} to role: ${newRole}`);
-        
-        // 4. Refresh the table data to show the new role
-        await loadAllUsers(); 
-
-    } catch (error) {
-        console.error("Error updating document: ", error);
-        alert("Failed to update user role. Check console for details.");
-    }
-}
-
-// ------------------------------------------------------------------
-// User Data Loading Function (from previous steps)
-// ------------------------------------------------------------------
-async function loadAllUsers() {
-  const usersSnap = await getDocs(collection(db, "users"));
-  const tbody = document.querySelector("#userManagementTable tbody");
-  if (!tbody) return; 
-
-  tbody.innerHTML = "";
-
-  usersSnap.forEach(doc => {
-    const user = doc.data();
-    const row = document.createElement("tr");
-    // Ensure the editUser function is called correctly by the button
-    row.innerHTML = `
-      <td>${user.username || "N/A"}</td>
-      <td>${user.email || "N/A"}</td>
-      <td>${user.websiteRole || "Member"}</td>
-      <td>
-        <button class="action-button" onclick="editUser('${doc.id}')">Edit</button>
-        <button class="action-button" onclick="deleteUser('${doc.id}')">Delete</button>
-      </td>
-    `;
-    tbody.appendChild(row);
-  });
-}
-    
-  // 🔑 Secure Role-Based Access Check and Dashboard Initialization
-  document.addEventListener("DOMContentLoaded", () => {
-    onAuthStateChanged(auth, async (user) => {
-        // --- 1. INITIAL ACCESS CHECK ---
-        if (!user) {
-            // No user logged in
-            alert("Access Denied: Please log in.");
-            window.location.href = "index.html"; 
-            return;
-        }
-
-        const userDocRef = doc(db, "users", user.uid);
-        const userDoc = await getDoc(userDocRef);
-
-        if (!userDoc.exists()) {
-            // User logged in but no Firestore profile exists (shouldn't happen with working signup)
-            alert("Access Denied: User profile not found in database.");
-            window.location.href = "index.html";
-            return;
-        }
-        
-        const userRole = userDoc.data().websiteRole;
-        const userEmail = user.email;
-        const devEmails = ["edenskerman6@gmail.com", "darrellrontree091@gmail.com"]; 
-
-        // Ensure this list is complete on your admin-dashboard.html script!
-const requiredAccessRoles = ["Developer", "Founder", "Owner", "Co-Owner", "Admin", "Staff"];
-        // Deny access if role is not authorized AND email is not a dev exception
-        if (!requiredAccessRoles.includes(userRole) && !devEmails.includes(userEmail)) {
-            alert(`Access Denied: Your role (${userRole}) is not authorized for this page.`);
-            window.location.href = "index.html";
-            return;
-        }
-
-        // --- 2. IF AUTHORIZED, LOAD DASHBOARD DATA AND SHOW FEATURES ---
-        
-        // Hide/Show sidebar links based on role
-        
-        if (["Developer", "Stats Admin", "Founder", "Owner"].includes(userRole)) {
-            document.getElementById("statsAdminLi").style.display = "list-item";
-        }
-        if (["Developer", "Admin", "Founder", "Owner"].includes(userRole)) {
-            document.getElementById("usersLi").style.display = "list-item";
-        }
-        if (["Developer", "Founder", "Owner"].includes(userRole)) {
-            document.getElementById("fixturesLi").style.display = "list-item";
-        }
-        if (["Developer", "Admin", "Founder", "Owner"].includes(userRole)) {
-            document.getElementById("auditLogLi").style.display = "list-item";
-        }
-        
-        // Load dashboard data
-        await updateStats();
-        await loadUsers();
-    });
-  });
-</script>

@@ -1,76 +1,116 @@
-<<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head> 
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pro Clubs Elite</title>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js"></script>
-  <script>
-    const firebaseConfig = {
-      apiKey: "YOUR_API_KEY",
-      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-      projectId: "YOUR_PROJECT_ID",
-      appId: "YOUR_APP_ID"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-  </script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pro Clubs Elite - Dashboard</title>
+    
+    <!-- FIREBASE SETUP (KEEPING YOUR EXISTING CONFIG) -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js"></script>
+    <script>
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+            appId: "YOUR_APP_ID"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+    </script>
 
-
-  <link rel="stylesheet" href="home.css" />
+    <!-- LINK TO MAIN CSS -->
+    <link rel="stylesheet" href="home.css" />
 </head>
 <body>
 
-  <!-- ✅ Your Header and Navigation -->
-  <header>
-    <div class="top-bar">
-      <span class="corner-title">PCE</span>
-      <div id="authButtons" class="top-right"></div>
-      <div class="profile-button">
-        <button onclick="window.location.href='profile.html'" class="profile-nav-button">👤</button>
-        <div class="profile-label">Profile</div>
-      </div>
-    </div>
-
-    <nav class="nav-text">
-      <a href="staffApply.html" id="staffLink" style="display: none;">Staff Application</a>
-      <a href="manager-application.html" id="managerLink" style="display: none;">Manager Application</a>
-      <a href="fixtures.html">Fixtures</a>
-      <a href="league-table.html">League Table</a>
-      <a href="about.html">About</a>
-      <a href="rules.html">Rules</a>
-      <a href="information.html">Information</a>
-
-      <div class="dropdown" id="userPanel" style="display: none;">
-        <span class="nav-text-link" onclick="window.toggleDropdown()">User Panel ▾</span>
-        <div class="dropdown-content" id="userDropdown">
-          <a href="notifications.html">🔔 Notifications</a>
-          <a href="lounge.html">💬 Lounge</a>
-          <a href="profille.html">👤 User Profile</a>
-          <li style="display: none;"><a href="admin-dashboard.html" id="adminPanelLink" class="admin-btn">Admin Panel</a></li>
+    <!-- 1. TOP HEADER & NAVIGATION -->
+    <header class="main-header">
+        <div class="logo-area">
+            <span class="site-title">PRO CLUBS ELITE <span class="pce-initials">PCE</span></span>
         </div>
-      </div>
 
-      <a href="staff.html">Staff</a>
-      <span class="auth-links">
-        <a href="login.html" class="nav-button">Login</a>
-        <button id="signupBtn">Sign Up</button>
-        <button id="logoutBtn" style="display: none;">Logout</button>
-      </span>
-    </nav>
-  </header>
+        <nav class="main-nav">
+            <a href="fixtures.html">Fixtures</a>
+            <a href="league-table.html">League Table</a>
+            <a href="information.html">Information</a>
+            <a href="rules.html">Rules</a>
+            <a href="staff.html">Staff</a>
+            <div class="nav-auth-links">
+                <a href="login.html" class="nav-button">Login</a>
+              
+                <button onclick="window.location.href='signUP.html'">Sign Up</button>
+            </div>
+            <!-- Profile/User Panel Button (Visible after login) -->
+            <a href="profile.html" class="profile-link">👤 Profile</a>
+        </nav>
+    </header>
 
-  <!-- 🔹 Hero Banner -->
-  <div class="hero-banner">
-    <img src="images/hero_banner.jpg" alt="Pro Clubs Elite Banner" />
-    <div class="hero-text">Elite Teams. Real Stats. Total Control.</div>
-  </div>
-  <!-- 🔹 Call to Action -->
-  <section class="cta">
-    <h2>Ready to Join the Elite?</h2>
-    <button onclick="location.href='manager-application.html'">Apply Now</button>
-  </section>
+    <!-- 2. HERO BANNER AREA -->
+    <!-- The background image is set via CSS in home.css for this div -->
+    <div class="hero-banner">
+        <div class="hero-text-overlay">
+            <h1>The Elite Pro Clubs Experience</h1>
+            <p>Real Stats. Total Control. Top-Tier Competition.</p>
+        </div>
+    </div>
+    
+    <div class="main-content-wrapper">
+
+        <!-- 3. MAIN ACTION/APPLICATION CTA -->
+        <section class="cta-banner">
+            <h2>Ready to Join the Elite?</h2>
+            <p>Apply to manage a club and compete in the next season.</p>
+            <button onclick="location.href='manager-application.html'">Apply Now</button>
+        </section>
+
+        <!-- 4. DASHBOARD GRID (VPG/FGL Style Content) -->
+        <div class="dashboard-grid">
+
+            <!-- COLUMN 1: RECENT RESULTS -->
+            <div class="card results-card">
+                <h3>Recent Results</h3>
+                <div class="result-entry">
+                    <span class="team-name">PCE FC</span> <span class="score">3 - 1</span> <span class="team-name">Rivals United</span>
+                </div>
+                <div class="result-entry">
+                    <span class="team-name">The Kings</span> <span class="score">0 - 0</span> <span class="team-name">Phoenix Squad</span>
+                </div>
+                <a href="fixtures.html" class="card-link">View All Fixtures</a>
+            </div>
+
+            <!-- COLUMN 2: NEWS / ANNOUNCEMENTS -->
+            <div class="card news-card">
+                <h3>Latest News</h3>
+                <div class="news-entry">
+                    <h4>Season 7 Signups Open!</h4>
+                    <p>Managers must register by the end of the week. Don't miss out!</p>
+                </div>
+                <div class="news-entry">
+                    <h4>Weekly Power Rankings</h4>
+                    <p>Find out who is on top in the latest standings update.</p>
+                </div>
+                <a href="information.html" class="card-link">More News & Info</a>
+            </div>
+
+            <!-- COLUMN 3: LEAGUE LINKS / FAST ACCESS -->
+            <div class="card links-card">
+                <h3>Fast Access</h3>
+                <a href="league-table.html" class="quick-link">🏆 View League Table</a>
+                <a href="manager-application.html" class="quick-link">📝 Manager Application</a>
+                <a href="lounge.html" class="quick-link">💬 Manager Lounge</a>
+                <a href="about.html" class="quick-link">ℹ️ About the League</a>
+            </div>
+        </div>
+
+    </div> <!-- End main-content-wrapper -->
+
+    <!-- FOOTER (Optional, but good practice) -->
+    <footer class="site-footer">
+        <p>&copy; 2025 Pro Clubs Elite | All Rights Reserved</p>
+        <p>Join our Discord: <a href="https://discord.gg/KkeJR7ZuU" target="_blank">discord.gg/XMMgvUXmb</a></p>
+    </footer>
 
 </body>
 </html>
+
