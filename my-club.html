@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Club - Stats Upload</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #0a0a23;
+            color: white;
+            padding: 20px;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 600px;
+            width: 100%;
+            background-color: #1e1e2f;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+        }
+        h1 {
+            color: #ffcc00;
+            border-bottom: 2px solid #ff6600;
+            padding-bottom: 10px;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        input[type="file"] {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background-color: #0a0a23;
+            color: white;
+            border: 1px solid #333;
+            border-radius: 6px;
+        }
+        .upload-btn {
+            background-color: #ff6600;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1.1rem;
+            width: 100%;
+            transition: background-color 0.3s;
+        }
+        .upload-btn:hover {
+            background-color: #e05c00;
+        }
+        #message {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 4px;
+            text-align: center;
+        }
+        .back-link {
+            display: block;
+            margin-top: 30px;
+            text-align: center;
+            color: #ffcc00;
+            text-decoration: none;
+        }
+    </style>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js"></script>
+</head>
+<body>
+
+<div class="container">
+    <h1>Stats Submission</h1>
+    <p>Upload a clear screenshot of the end-of-match stats screen for approval.</p>
+
+    <form id="stats-upload-form">
+        <div class="form-group">
+            <label for="stat-file">Stat Screenshot (JPG/PNG)</label>
+            <input type="file" id="stat-file" accept="image/jpeg, image/png" required>
+        </div>
+        <button type="submit" class="upload-btn" id="upload-button">Submit for Verification</button>
+    </form>
+    
+    <div id="message"></div>
+
+    <a href="home.html" class="back-link">← Back to Dashboard</a>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+    import { getFirestore, doc, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+    import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyB0C5O-9xh9CrmLnsD2kquCyJ1zTtYkiLg",
+        authDomain: "fifa-super-league.firebaseapp.com",
+        projectId: "fifa-super-league",
+        storageBucket: "fifa-super-league.appspot.com", // REQUIRED for Storage
+        appId: "1:407346622789:web:6b48448ca0410ccf588e2c"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const storage = getStorage(app);
+    
+    const form = document.getElementById('stats-upload-form');
+    const fileInput = document.getElementById('stat-file');
+    const messageDiv = document.getElementById('message');
+    const uploadBtn = document.getElementById('upload-button');
+
+    let currentUserId = null;
+
+    onAuthStateChanged(auth, (user) => {
+        if (!user) {
+            window.location.href = "index.html"; // Redirect unauthenticated users
+            return;
+        }
+        currentUserId = user.uid;
+    });
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        if (!currentUserId) {
+            showMessage("Error: User not authenticated.", 'red');
+            return;
+        }
+
+        const file = fileInput.files[0];
+        if (!file) {
+            showMessage("Please select a file to upload.", 'red');
+            return;
+        }
+
+        uploadBtn.disabled = true;
+        showMessage("Uploading file...", 'yellow');
+
+        // 1. Upload file to Firebase Storage
+        const storagePath = `stats_uploads/${currentUserId}/${Date.now()}_${file.name}`;
+        const storageRef = ref(storage, storagePath);
+        const uploadTask = uploadBytesResumable(storageRef, file);
+
+        uploadTask.on('state_changed', 
+            (snapshot) => {
+                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                showMessage(`Upload is ${progress.toFixed(0)}% complete`, 'yellow');
+            }, 
+            (error) => {
+                console.error("Upload error:", error);
+                showMessage(`Upload failed: ${error.message}`, 'red');
+                uploadBtn.disabled = false;
+            }, 
+            async () => {
+                // 2. Get the public URL for the file
+                const fileURL = await getDownloadURL(uploadTask.snapshot.ref);
+
+                // 3. Create pending entry in Firestore
+                try {
+                    const statsPendingRef = collection(db, "stats_pending");
+                    await addDoc(statsPendingRef, {
+                        uploaderId: currentUserId,
+                        imageUrl: fileURL,
+                        status: 'Pending', // Ready for Stat Admin verification
+                        submittedAt: serverTimestamp(),
+                        // NOTE: You would typically link this to a specific fixture ID or match result here
+                        matchDetails: "Unspecified Match Data" 
+                    });
+
+                    showMessage("Submission successful! Awaiting admin verification.", 'green');
+                    form.reset();
+                } catch (error) {
+                    console.error("Firestore submission error:", error);
+                    showMessage(`Database error: ${error.message}`, 'red');
+                } finally {
+                    uploadBtn.disabled = false;
+                }
+            }
+        );
+    });
+
+    function showMessage(text, color) {
+        messageDiv.textContent = text;
+        messageDiv.style.backgroundColor = color === 'red' ? '#440000' : (color === 'yellow' ? '#443300' : '#004400');
+        messageDiv.style.color = color === 'yellow' ? '#ffffaa' : 'white';
+    }
+</script>
+</body>
+</html>

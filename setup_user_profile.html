@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile Setup Tool</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0d1117;
+            color: #c9d1d9;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            background-color: #161b22;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            max-width: 500px;
+            width: 100%;
+        }
+        button {
+            background-color: #f0b400;
+            color: #161b22;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-weight: 700;
+            transition: background-color 0.15s;
+        }
+        button:hover {
+            background-color: #ffc83d;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1 class="text-3xl font-bold text-white mb-4">Set Up Your Admin Profile</h1>
+        <p class="text-gray-400 mb-6">
+            This tool will sign you in and create or update your profile document in Firestore, assigning you the **'Admin'** role.
+        </p>
+        
+        <button id="setupButton" onclick="setupProfile()">
+            Start Admin Setup
+        </button>
+
+        <p id="statusMessage" class="mt-6 text-sm text-yellow-400"></p>
+        <p class="mt-4 text-xs text-gray-600">
+            Current User ID: <span id="currentUserId">Loading...</span>
+        </p>
+    </div>
+
+    <!-- Firebase SDK Imports and Initialization -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        
+        setLogLevel('Debug'); // Enable Firestore logging
+
+        // --- GLOBAL VARIABLES (Provided by Canvas Environment) ---
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+        
+        // --- FIREBASE INITIALIZATION ---
+        let app;
+        let db;
+        let auth;
+        let userId = null;
+        let isAuthReady = false;
+
+        const statusMessage = document.getElementById('statusMessage');
+        const userIdElement = document.getElementById('currentUserId');
+        const setupButton = document.getElementById('setupButton');
+
+        try {
+            app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+        } catch (error) {
+            console.error("Error initializing Firebase:", error);
+            statusMessage.textContent = 'Error: Firebase initialization failed.';
+            setupButton.disabled = true;
+            return;
+        }
+
+        /**
+         * Signs the user in and updates the status.
+         */
+        const handleSignIn = async () => {
+            try {
+                if (initialAuthToken) {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                } else {
+                    await signInAnonymously(auth);
+                }
+            } catch (error) {
+                console.error("Firebase Auth Error:", error.code, error.message);
+                statusMessage.textContent = `Authentication failed: ${error.message}`;
+            }
+        };
+
+        // --- AUTHENTICATION LISTENER ---
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                userId = user.uid;
+                userIdElement.textContent = userId;
+                isAuthReady = true;
+                statusMessage.textContent = 'Authenticated. Click the button to set your role.';
+                setupButton.disabled = false;
+            } else {
+                userIdElement.textContent = 'Signing in...';
+                isAuthReady = false;
+                setupButton.disabled = true;
+                handleSignIn();
+            }
+        });
+
+        /**
+         * Public function to run the profile setup.
+         */
+        window.setupProfile = async () => {
+            if (!isAuthReady || !userId) {
+                statusMessage.textContent = 'Please wait for authentication to complete.';
+                return;
+            }
+
+            statusMessage.textContent = 'Setting Admin role...';
+            setupButton.disabled = true;
+
+            try {
+                // Define the document path: /artifacts/{appId}/users/{userId}/profile/user_profile
+                const profileRef = doc(db, `artifacts/${appId}/users/${userId}/profile/user_profile`);
+                
+                const profileData = {
+                    websiteRoles: ['Admin', 'Manager'], // Assign Admin and Manager roles
+                    name: 'Developer Profile',
+                    createdAt: new Date().toISOString(),
+                };
+
+                // Use setDoc with merge: true to create or update the document
+                await setDoc(profileRef, profileData, { merge: true });
+
+                statusMessage.textContent = '✅ Success! Your profile is set with the Admin role.';
+                statusMessage.classList.remove('text-yellow-400');
+                statusMessage.classList.add('text-green-400');
+
+                // Redirect back to home.html to see the result
+                setTimeout(() => {
+                    window.location.href = 'home.html';
+                }, 1500);
+
+
+            } catch (error) {
+                console.error("Error setting profile document:", error);
+                statusMessage.textContent = `❌ Error: Could not set profile: ${error.message}`;
+                setupButton.disabled = false;
+            }
+        };
+    </script>
+</body>
+</html>

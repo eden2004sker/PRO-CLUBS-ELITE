@@ -1,58 +1,197 @@
-<div id="maintanceBanner" style=display:none; background :red; color :white; padding:18px; text-align:center;">
-⚠️ maintenance mode is ON
-</div>
 <!DOCTYPE html>
 <html lang="en">
-<head> 
-    <meta charset="UTF-8" />
-    <title>admin settings - pro clubs Elite</title>
-    <link rel="stylesheet" href="admin.css" />
-    </head>
-<body>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>User Settings | PCE</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #0d1117;
+      color: #c9d1d9;
+    }
+    .card {
+      background-color: #161b22;
+      border: 1px solid #30363d;
+    }
+    input, textarea {
+      background-color: #0e1117;
+      border: 1px solid #30363d;
+    }
+    input:focus, textarea:focus {
+      border-color: #58a6ff;
+      outline: none;
+    }
+  </style>
+</head>
+<body class="p-6 md:p-10">
 
-  <div clas="admin-nav">
-   <button class="admin-btn" onclick="window.location.href='admin.html'">← Back to Admin Panel</button>
+  <div class="max-w-3xl mx-auto card p-6 md:p-10 rounded-xl shadow-xl">
+    <h1 class="text-3xl font-bold text-yellow-400 mb-6 border-b border-gray-700 pb-3">User Settings</h1>
+
+    <!-- Profile Image Upload -->
+    <div class="mb-6">
+      <label class="block text-sm font-medium text-gray-300 mb-2">Profile Image</label>
+      <div class="flex items-center gap-4">
+        <img id="profilePreview" src="https://via.placeholder.com/80" alt="Profile Preview" class="w-20 h-20 rounded-full border border-gray-600 object-cover">
+        <input type="file" id="profileImage" accept="image/*" class="text-sm text-gray-400">
+      </div>
+    </div>
+
+    <!-- Username -->
+    <div class="mb-6">
+      <label for="username" class="block text-sm font-medium text-gray-300 mb-2">Username</label>
+      <input type="text" id="username" placeholder="Enter your display name"
+             class="w-full p-3 rounded-lg text-white focus:ring-1 focus:ring-yellow-500">
+    </div>
+
+    <!-- Console Gamertags -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <div>
+        <label for="origin" class="block text-sm font-medium text-gray-300 mb-2">Origin</label>
+        <input type="text" id="origin" placeholder="Origin ID"
+               class="w-full p-3 rounded-lg text-white">
+      </div>
+      <div>
+        <label for="xbox" class="block text-sm font-medium text-gray-300 mb-2">Xbox Gamertag</label>
+        <input type="text" id="xbox" placeholder="Xbox Gamertag"
+               class="w-full p-3 rounded-lg text-white">
+      </div>
+      <div>
+        <label for="psn" class="block text-sm font-medium text-gray-300 mb-2">PlayStation Network</label>
+        <input type="text" id="psn" placeholder="PSN ID"
+               class="w-full p-3 rounded-lg text-white">
+      </div>
+    </div>
+
+    <!-- Description -->
+    <div class="mb-6">
+      <label for="bio" class="block text-sm font-medium text-gray-300 mb-2">About You</label>
+      <textarea id="bio" rows="5" placeholder="Write something about yourself..."
+                class="w-full p-3 rounded-lg text-white resize-none"></textarea>
+    </div>
+
+    <!-- Save Button -->
+    <div class="text-right">
+      <button id="saveBtn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-lg transition">
+        Save Changes
+      </button>
+    </div>
   </div>
 
-  <div class="admin-section">
-    <h2>⚙️ Admin Settings</h2>
-    <form class="settings-form">
-      <label>
-        <span>Enable Manager Applications:</span>
-        <input type="checkbox" id="toggleManagerApps" />
-      </label>
-        <span>Enable Staff Applications:</span>
-        <input type="checkbox" id="toggleStaffApps" />
-      </label>
-        <span>Show Audit Logs:</span>
-        <input type="checkbox" id="toggleAuditLogs" />
-      </label>
-  <span>Enable Maintenance Mode:</span>
-  <input type="checkbox" id="toggleMaintenance" />
-</label>
-      <button type="submit">Save Settings</button>
-    </form>
-  </div>
+  <!-- Firebase Integration -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+    import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js";
 
-   <script>
-    document.querySelector(".settings-form").addEventListener("submit", (e) => {
-      e.preventDefault();
-      const settings = {
-        managerApps: document.getElementById("toggleManagerApps").checked,
-        staffApps: document.getElementById("toggleStaffApps").checked,
-        auditLogs: document.getElementById("toggleAuditLogs").checked,
-        maintenanceMode: document.getElementById("toggleMaintenance").checked
-      };
-      localStorage.setItem("adminSettings", JSON.stringify(settings));
-      alert("✅ Settings saved!");
+    const firebaseConfig = {
+      apiKey: "AIzaSyB0C5O-9xh9CrmLnsD2kquCyJ1zTtYkiLg",
+      authDomain: "fifa-super-league.firebaseapp.com",
+      projectId: "fifa-super-league",
+      storageBucket: "fifa-super-league.appspot.com",
+      appId: "1:407346622789:web:6b48448ca0410ccf588e2c"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const storage = getStorage(app);
+
+    let currentUser = null;
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        alert("You must be logged in to access this page.");
+        window.location.href = "login.html";
+        return;
+      }
+
+      currentUser = user;
+
+      // Load saved data
+      try {
+        const docRef = doc(db, "users", user.uid);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          document.getElementById("username").value = data.username || "";
+          document.getElementById("origin").value = data.origin || "";
+          document.getElementById("xbox").value = data.xbox || "";
+          document.getElementById("psn").value = data.psn || "";
+          document.getElementById("bio").value = data.bio || "";
+          if (data.profileImageURL) {
+            document.getElementById("profilePreview").src = data.profileImageURL;
+          }
+        }
+      } catch (err) {
+        console.error("Failed to load user data:", err);
+      }
     });
 
-    // Load saved settings
-    const saved = JSON.parse(localStorage.getItem("adminSettings"));
-    if (saved) {
-      document.getElementById("toggleManagerApps").checked = saved.managerApps;
-      document.getElementById("toggleStaffApps").checked = saved.staffApps;
-      document.getElementById("toggleAuditLogs").checked = saved.auditLogs;
-      document.getElementById("toggleMaintenance").checked = saved.maintenanceMode;
+    document.getElementById("profileImage").addEventListener("change", function (e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function (event) {
+          document.getElementById("profilePreview").src = event.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    async function saveUserSettings(includeImage = true) {
+      if (!currentUser) return;
+
+      const username = document.getElementById("username").value.trim();
+      const origin = document.getElementById("origin").value.trim();
+      const xbox = document.getElementById("xbox").value.trim();
+      const psn = document.getElementById("psn").value.trim();
+      const bio = document.getElementById("bio").value.trim();
+      const imageFile = document.getElementById("profileImage").files[0];
+
+      let profileImageURL = null;
+
+      try {
+        if (includeImage && imageFile) {
+          const imageRef = ref(storage, `profileImages/${currentUser.uid}`);
+          await uploadBytes(imageRef, imageFile);
+          profileImageURL = await getDownloadURL(imageRef);
+        }
+
+        const userData = {
+          username,
+          origin,
+          xbox,
+          psn,
+          bio,
+          updatedAt: new Date().toISOString()
+        };
+
+        if (profileImageURL) {
+          userData.profileImageURL = profileImageURL;
+        }
+
+        await setDoc(doc(db, "users", currentUser.uid), userData, { merge: true });
+        console.log("User settings saved.");
+      } catch (error) {
+        console.error("Error saving settings:", error);
+      }
     }
-  </script> 
+
+    document.getElementById("saveBtn").addEventListener("click", async () => {
+      await saveUserSettings(true);
+      alert("Settings saved successfully!");
+    });
+
+    window.addEventListener("beforeunload", () => {
+      saveUserSettings(false); // lightweight save without image upload
+    });
+  </script>
+
+</body>
+</html>
+

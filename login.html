@@ -74,7 +74,6 @@
 </head>
 <body>
 
-    <!-- Message Box Element -->
     <div id="messageBox" class="message-box">
         <p id="messageText"></p>
         <button onclick="document.getElementById('messageBox').style.display='none'">OK</button>
@@ -94,89 +93,10 @@
         </p>
 
         <p style="margin-top: 20px; font-size: 14px;">
-            <a href="index.html" style="color: #ccc; text-decoration: none;">&leftarrow; Back to Dashboard</a>
-        </p>
-
-        <!-- DEBUG INFO: Use a test account -->
-        <p style="font-size: 10px; color: #888; margin-top: 20px;">
-            To test, please use a registered email and password (e.g., test@example.com, password123).
+            <a href="index.html" style="color: #ccc; text-decoration: none;">&leftarrow; Back to Home</a>
         </p>
     </div>
 
-    <script type="module">
-        // Firebase Imports
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        
-        // --- GLOBALS AND UTILITY ---
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
-        let auth = null;
-
-        // Utility to display messages (replaces forbidden alert())
-        const showMessage = (message) => {
-            document.getElementById('messageText').textContent = message;
-            document.getElementById('messageBox').style.display = 'block';
-        };
-        window.showMessage = showMessage; // Make it globally accessible for the HTML
-
-        // --- FIREBASE INITIALIZATION ---
-        const initFirebase = () => {
-            if (!firebaseConfig) {
-                console.error("Firebase config not found. Login functionality is disabled.");
-                return;
-            }
-            const app = initializeApp(firebaseConfig);
-            auth = getAuth(app);
-            console.log("Firebase Auth initialized.");
-        };
-
-        // --- LOGIN HANDLER ---
-        const handleLogin = async (event) => {
-            event.preventDefault(); // Stop the form from submitting normally
-            
-            if (!auth) {
-                showMessage("Login service not ready. Please try again.");
-                return;
-            }
-
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-
-            try {
-                // Sign in with email and password
-                const userCredential = await signInWithEmailAndPassword(auth, email, password);
-                
-                // If successful:
-                showMessage("Login successful! Redirecting to dashboard...");
-                
-                // Delay redirect slightly so the user sees the success message
-                setTimeout(() => {
-                    window.location.href = 'index.html'; 
-                }, 1500);
-
-            } catch (error) {
-                console.error("Login Error:", error.code, error.message);
-                
-                let userMessage = "Login failed. Please check your email and password.";
-                
-                if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
-                    userMessage = "Invalid email or password. Please check your credentials.";
-                } else if (error.code === 'auth/invalid-email') {
-                    userMessage = "The email address format is invalid.";
-                } else if (error.code === 'auth/too-many-requests') {
-                    userMessage = "Too many failed attempts. Try again later.";
-                }
-
-                showMessage(userMessage);
-            }
-        };
-
-        // --- EVENT LISTENERS ---
-        document.addEventListener('DOMContentLoaded', () => {
-            initFirebase();
-            document.getElementById('loginForm').addEventListener('submit', handleLogin);
-        });
-
-    </script>
+    <script type="module" src="login.js"></script>
 </body>
 </html>

@@ -1,116 +1,173 @@
 <!DOCTYPE html>
 <html lang="en">
-<head> 
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Pro Clubs Elite - Dashboard</title>
-    
-    <!-- FIREBASE SETUP (KEEPING YOUR EXISTING CONFIG) -->
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js"></script>
-    <script>
-        const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-            projectId: "YOUR_PROJECT_ID",
-            appId: "YOUR_APP_ID"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-    </script>
-
-    <!-- LINK TO MAIN CSS -->
-    <link rel="stylesheet" href="home.css" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pro Clubs Elite - Home</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0d1117; /* Dark background */
+            color: #c9d1d9; /* Light text */
+        }
+        .header {
+            background-color: #161b22;
+            border-bottom: 1px solid #30363d;
+            padding: 16px 24px;
+        }
+        .card {
+            background-color: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s, border-color 0.2s;
+            /* Ensure the content inside the card does not cause horizontal overflow */
+            overflow: hidden; 
+        }
+        .card:hover {
+            transform: translateY(-2px);
+            border-color: #58a6ff;
+        }
+        .award-item {
+            display: none;
+            transition: opacity 0.5s ease-in-out;
+        }
+        .award-item.active {
+            display: block;
+            animation: fadeIn 0.8s;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
 </head>
 <body>
 
-    <!-- 1. TOP HEADER & NAVIGATION -->
-    <header class="main-header">
-        <div class="logo-area">
-            <span class="site-title">PRO CLUBS ELITE <span class="pce-initials">PCE</span></span>
+    <!-- Header / Navigation Bar (The same professional look) -->
+    <header class="header flex justify-between items-center sticky top-0 z-10">
+        <!-- Top Left Title -->
+        <div class="text-3xl font-extrabold text-blue-400 tracking-wider">
+            PRO CLUBS ELITE
         </div>
 
-        <nav class="main-nav">
-            <a href="fixtures.html">Fixtures</a>
-            <a href="league-table.html">League Table</a>
-            <a href="information.html">Information</a>
-            <a href="rules.html">Rules</a>
-            <a href="staff.html">Staff</a>
-            <div class="nav-auth-links">
-                <a href="login.html" class="nav-button">Login</a>
-              
-                <button onclick="window.location.href='signUP.html'">Sign Up</button>
-            </div>
-            <!-- Profile/User Panel Button (Visible after login) -->
-            <a href="profile.html" class="profile-link">👤 Profile</a>
+        <!-- Top Right Auth Links -->
+        <nav class="space-x-4 text-sm font-semibold">
+            <a href="login.html" class="text-gray-400 hover:text-white transition duration-150">LOGIN</a>
+            <span class="text-gray-600">|</span>
+            <a href="signUp.html" class="text-green-400 hover:text-green-300 transition duration-150">SIGN UP</a>
         </nav>
     </header>
 
-    <!-- 2. HERO BANNER AREA -->
-    <!-- The background image is set via CSS in home.css for this div -->
-    <div class="hero-banner">
-        <div class="hero-text-overlay">
-            <h1>The Elite Pro Clubs Experience</h1>
-            <p>Real Stats. Total Control. Top-Tier Competition.</p>
+    <!-- Main Content Grid -->
+    <main class="container mx-auto p-4 sm:p-8">
+        <h1 class="text-4xl font-extrabold mb-8 text-center text-gray-200">The Elite Pro Clubs Experience</h1>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+            <!-- 1. Fixtures Card -->
+            <a href="fixtures.html" class="col-span-1 block no-underline h-full">
+                <div class="card h-full hover:border-green-500">
+                    <h2 class="text-xl font-semibold mb-2 text-green-400">Fixtures & Results</h2>
+                    <p class="text-gray-400 text-sm">View upcoming match schedules and check past scores.</p>
+                </div>
+            </a>
+
+            <!-- 2. League Standings Card -->
+            <a href="league-table.html" class="col-span-1 block no-underline h-full">
+                <div class="card h-full hover:border-blue-500">
+                    <h2 class="text-xl font-semibold mb-2 text-blue-400">League Standings</h2>
+                    <p class="text-gray-400 text-sm">Check the current table, points, and team form.</p>
+                </div>
+            </a>
+            
+            <!-- 3. Teams & Managers Card -->
+            <a href="teams.html" class="col-span-1 block no-underline h-full">
+                <div class="card h-full hover:border-yellow-500">
+                    <h2 class="text-xl font-semibold mb-2 text-yellow-400">Teams & Performers</h2>
+                    <p class="text-gray-400 text-sm">Detailed list of teams, managers, and star players.</p>
+                    <ul class="mt-3 text-sm space-y-1">
+                        <li>Example Manager: <span class="text-gray-300">UserJohnDoe</span></li>
+                        <li>Top Performer: <span class="text-green-400">Striker99</span></li>
+                    </ul>
+                </div>
+            </a>
         </div>
-    </div>
-    
-    <div class="main-content-wrapper">
+        
+        <!-- 4. Awards Carousel (Public Page Preview) -->
+        <div class="mt-8">
+            <div class="card p-6 border-red-500/50">
+                <h2 class="text-2xl font-extrabold mb-4 text-red-400 text-center">🏆 Public Awards Showcase 🏆</h2>
+                
+                <div id="awardsCarousel" class="relative overflow-hidden h-40 flex items-center justify-center">
+                    <!-- Awards Content -->
+                    <div class="award-item active text-center w-full">
+                        <h3 class="text-3xl font-bold text-yellow-300">Ballon D'Or</h3>
+                        <p class="text-lg text-gray-300 mt-2">Awarded to the Player of the Season.</p>
+                        <p class="text-sm text-gray-500 mt-1">Current Holder: **MessiFan10**</p>
+                    </div>
+                    
+                    <div class="award-item text-center w-full">
+                        <h3 class="text-3xl font-bold text-green-300">Team of the Week (TOTW)</h3>
+                        <p class="text-lg text-gray-300 mt-2">Highlighting the best 11 players from the latest round.</p>
+                    </div>
+                    
+                    <div class="award-item text-center w-full">
+                        <h3 class="text-3xl font-bold text-blue-300">Golden Boot</h3>
+                        <p class="text-lg text-gray-300 mt-2">For the league's top goal scorer.</p>
+                        <p class="text-sm text-gray-500 mt-1">Current Leader: **GoalMachine**</p>
+                    </div>
 
-        <!-- 3. MAIN ACTION/APPLICATION CTA -->
-        <section class="cta-banner">
-            <h2>Ready to Join the Elite?</h2>
-            <p>Apply to manage a club and compete in the next season.</p>
-            <button onclick="location.href='manager-application.html'">Apply Now</button>
-        </section>
-
-        <!-- 4. DASHBOARD GRID (VPG/FGL Style Content) -->
-        <div class="dashboard-grid">
-
-            <!-- COLUMN 1: RECENT RESULTS -->
-            <div class="card results-card">
-                <h3>Recent Results</h3>
-                <div class="result-entry">
-                    <span class="team-name">PCE FC</span> <span class="score">3 - 1</span> <span class="team-name">Rivals United</span>
+                    <div class="award-item text-center w-full">
+                        <h3 class="text-3xl font-bold text-gray-300">Brikwall Award</h3>
+                        <p class="text-lg text-gray-300 mt-2">Recognizing the top defenders and clean sheets.</p>
+                        <p class="text-sm text-gray-500 mt-1">Leading Team: **Fortress FC**</p>
+                    </div>
+                    
+                    <div class="award-item text-center w-full">
+                        <h3 class="text-3xl font-bold text-purple-300">Top Assists</h3>
+                        <p class="text-lg text-gray-300 mt-2">For the player with the most goal contributions.</p>
+                        <p class="text-sm text-gray-500 mt-1">Current Leader: **AssistKing**</p>
+                    </div>
                 </div>
-                <div class="result-entry">
-                    <span class="team-name">The Kings</span> <span class="score">0 - 0</span> <span class="team-name">Phoenix Squad</span>
-                </div>
-                <a href="fixtures.html" class="card-link">View All Fixtures</a>
-            </div>
-
-            <!-- COLUMN 2: NEWS / ANNOUNCEMENTS -->
-            <div class="card news-card">
-                <h3>Latest News</h3>
-                <div class="news-entry">
-                    <h4>Season 7 Signups Open!</h4>
-                    <p>Managers must register by the end of the week. Don't miss out!</p>
-                </div>
-                <div class="news-entry">
-                    <h4>Weekly Power Rankings</h4>
-                    <p>Find out who is on top in the latest standings update.</p>
-                </div>
-                <a href="information.html" class="card-link">More News & Info</a>
-            </div>
-
-            <!-- COLUMN 3: LEAGUE LINKS / FAST ACCESS -->
-            <div class="card links-card">
-                <h3>Fast Access</h3>
-                <a href="league-table.html" class="quick-link">🏆 View League Table</a>
-                <a href="manager-application.html" class="quick-link">📝 Manager Application</a>
-                <a href="lounge.html" class="quick-link">💬 Manager Lounge</a>
-                <a href="about.html" class="quick-link">ℹ️ About the League</a>
+                
+                <a href="awards.html" class="block w-full text-center mt-4 text-sm text-red-400 hover:text-red-300 font-semibold transition duration-150">
+                    Go to Full Awards Page →
+                </a>
             </div>
         </div>
 
-    </div> <!-- End main-content-wrapper -->
+    </main>
 
-    <!-- FOOTER (Optional, but good practice) -->
-    <footer class="site-footer">
-        <p>&copy; 2025 Pro Clubs Elite | All Rights Reserved</p>
-        <p>Join our Discord: <a href="https://discord.gg/KkeJR7ZuU" target="_blank">discord.gg/XMMgvUXmb</a></p>
-    </footer>
+    <script>
+        // CAROUSEL LOGIC
+        const carousel = document.getElementById('awardsCarousel');
+        const items = carousel.querySelectorAll('.award-item');
+        let currentIndex = 0;
+
+        function showAward(index) {
+            items.forEach((item, i) => {
+                item.classList.remove('active');
+                if (i === index) {
+                    item.classList.add('active');
+                }
+            });
+        }
+
+        function nextAward() {
+            currentIndex = (currentIndex + 1) % items.length;
+            showAward(currentIndex);
+        }
+
+        // Start the carousel rotation every 4 seconds
+        setInterval(nextAward, 4000); 
+
+        // Initial load
+        window.onload = () => showAward(0);
+    </script>
 
 </body>
 </html>
-

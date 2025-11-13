@@ -1,21 +1,18 @@
-auth.signInWithEmailAndPassword(email, password)
-  .then((userCredential) => {
-    const user = userCredential.user;
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+import { getAuth } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+import { getFirestore } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
-    // ✅ Set role based on email
-    const role = user.email === "edenskerman6@gmail.com" ? "developer" : "user";
+const firebaseConfig = {
+  apiKey: "AIzaSyB0C5O-9xh9CrmLnsD2kquCyJ1zTtYkiLg",
+  authDomain: "fifa-super-league.firebaseapp.com",
+  projectId: "fifa-super-league",
+  storageBucket: "fifa-super-league.appspot.com",
+  messagingSenderId: "407346622789",
+  appId: "1:407346622789:web:6b48448ca0410ccf588e2c"
+};
 
-    // ✅ Save to localStorage
-    localStorage.setItem("loggedInUser", JSON.stringify({
-      email: user.email,
-      role: role
-    }));
+const app = initializeApp(firebaseConfig);
 
-    alert("✅ Login successful!");
-    window.location.href = "index.html";
-  })
-  .catch((error) => {
-    alert("🚫 Login failed: " + error.message);
-    window.location.href = "maintenance.html";
-  });
- 
+// EXPORTS: Critical for login.js and other modules to access the services.
+export const auth = getAuth(app);
+export const db = getFirestore(app);

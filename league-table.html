@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>League Table - Pro Clubs Elite</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #0a0a23;
+            color: white;
+            padding: 20px;
+            margin: 0;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: #1e1e2f;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+        }
+        h1 {
+            color: #ffcc00;
+            border-bottom: 2px solid #ff6600;
+            padding-bottom: 10px;
+            margin-bottom: 25px;
+            text-align: left;
+        }
+        .loading, .empty {
+            text-align: center;
+            padding: 50px;
+            font-size: 1.2rem;
+            color: #ccc;
+        }
+
+        /* --- Table Styling --- */
+        .table-container {
+            overflow-x: auto;
+        }
+        .league-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            min-width: 650px; 
+        }
+        .league-table th, .league-table td {
+            padding: 12px 10px;
+            text-align: center;
+            border-bottom: 1px solid #333;
+        }
+        .league-table th {
+            background-color: #0b1036;
+            color: #ffcc00;
+            cursor: pointer;
+            position: sticky;
+            top: 0;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+        }
+        .league-table th:hover {
+            background-color: #1a204e;
+        }
+        .league-table th.sort-asc::after { content: ' ▲'; }
+        .league-table th.sort-desc::after { content: ' ▼'; }
+
+        .league-table tbody tr:hover { background-color: #2a2a40; }
+        .league-table tbody tr:nth-child(odd) { background-color: #27273a; }
+
+        /* Align Club Name to the left */
+        .league-table td:nth-child(2) {
+            text-align: left;
+            font-weight: bold;
+            color: #ff6600;
+        }
+
+        /* Highlight Points and GD */
+        .points-col {
+            font-weight: bold;
+            background-color: #0a1f4a; 
+            color: #00ff88;
+        }
+        .gd-col {
+            font-weight: bold;
+        }
+        
+        /* Rank column */
+        .rank-col {
+            font-weight: bold;
+            color: #ffcc00;
+        }
+
+        /* --- Back Link --- */
+        .back-link {
+            display: block;
+            margin-top: 30px;
+            text-align: left;
+            color: #ffcc00;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1 id="leagueTitle">Official League Table Standings</h1>
+    <p id="leagueSubtitle" class="text-gray-400">Loading your custom league setup...</p>
+    
+    <a href="league_setup.html" class="block text-right mb-4 text-sm text-blue-400 hover:text-blue-300 transition duration-150">
+        Edit Custom League Setup
+    </a>
+
+    <div class="table-container">
+        <table class="league-table">
+            <thead>
+                <tr>
+                    <th class="rank-col">#</th>
+                    <th data-sort-by="name" style="text-align: left;">Club</th>
+                    <th data-sort-by="P">P</th>
+                    <th data-sort-by="W">W</th>
+                    <th data-sort-by="D">D</th>
+                    <th data-sort-by="L">L</th>
+                    <th data-sort-by="GF">GF</th>
+                    <th data-sort-by="GA">GA</th>
+                    <th data-sort-by="GD">GD</th>
+                    <th data-sort-by="Pts" class="points-col sort-desc">Pts</th>
+                </tr>
+            </thead>
+            <tbody id="table-body">
+                <tr><td colspan="10" class="loading">Authenticating and fetching league setup...</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <a href="home.html" class="back-link">← Back to Dashboard</a>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+    import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+    import { getFirestore, collection, onSnapshot, doc, getDoc, query } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+    import { setLogLevel } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+    setLogLevel('debug'); // Enable Firestore logging
+
+    // --- Firebase Configuration and Globals ---
+    const hardcodedFirebaseConfig = {
+        apiKey: "AIzaSyB0C5O-9xh9CrmLnsD2kquCyJ1zTtYkiLg",
+        authDomain: "fifa-super-league.firebaseapp.com",
+        projectId: "fifa-super-league",
+        storageBucket: "fifa-super-league.appspot.com",
+        messagingSenderId: "407346622789",
+        appId: "1:407346622789:web:6b48448ca0410ccf588e2c"
+    };
+
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+    const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : hardcodedFirebaseConfig;
+    const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+    // --- UI Elements ---
+    const tableBody = document.getElementById('table-body');
+    const tableHeaders = document.querySelectorAll('.league-table th[data-sort-by]');
+    const leagueTitleEl = document.getElementById('leagueTitle');
+    const leagueSubtitleEl = document.getElementById('leagueSubtitle');
+    
+    let db;
+    let auth;
+    let userId = null;
+    let allStandings = [];
+    let currentSort = { key: 'Pts', direction: 'desc' }; 
+    let isAuthReady = false;
+    
+    // Firestore Paths
+    const CUSTOM_LEAGUE_DOC_PATH = (uid) => `artifacts/${appId}/users/${uid}/custom_league/setup`;
+    const MATCH_RESULTS_COLLECTION_PATH = `artifacts/${appId}/public/data/match_results`; 
+    
+    let selectedTeams = new Set();
+    let leagueName = "Official League Table Standings";
+    
+    // --- Data Model Initialization ---
+
+    /** Initializes the standings map for a given set of teams. */
+    function initializeStandings(teams) {
+        const standings = {};
+        teams.forEach(team => {
+            standings[team] = {
+                name: team,
+                P: 0, W: 0, D: 0, L: 0, GF: 0, GA: 0, GD: 0, Pts: 0
+            };
+        });
+        return standings;
+    }
+
+    // --- Firebase Setup and Authentication ---
+    async function initializeFirebase() {
+        if (!firebaseConfig || !Object.keys(firebaseConfig).length || !firebaseConfig.apiKey) {
+            console.error("Firebase configuration is missing or invalid.");
+            tableBody.innerHTML = `<tr><td colspan="10" class="empty">Error: Firebase configuration not provided.</td></tr>`;
+            return;
+        }
+
+        const app = initializeApp(firebaseConfig);
+        db = getFirestore(app);
+        auth = getAuth(app);
+
+        try {
+            if (initialAuthToken) {
+                await signInWithCustomToken(auth, initialAuthToken);
+            } else {
+                await signInAnonymously(auth);
+            }
+        } catch (error) {
+            console.error("Initial Auth Error:", error);
+        }
+
+        onAuthStateChanged(auth, (user) => {
+            isAuthReady = true;
+            if (user) {
+                userId = user.uid;
+                console.log("User authenticated:", userId);
+                loadAndSubscribeToData();
+            } else {
+                userId = null;
+                console.log("User not authenticated.");
+                tableBody.innerHTML = `<tr><td colspan="10" class="empty">Authentication failed. Please try reloading.</td></tr>`;
+            }
+        });
+    }
+
+    // --- Data Loading and Subscription ---
+
+    async function loadAndSubscribeToData() {
+        if (!isAuthReady || !userId || !db) return;
+
+        // 1. Load Custom League Setup first
+        try {
+            const setupDocRef = doc(db, CUSTOM_LEAGUE_DOC_PATH(userId));
+            const setupDoc = await getDoc(setupDocRef);
+
+            if (setupDoc.exists()) {
+                const data = setupDoc.data();
+                selectedTeams = new Set(data.teams || []);
+                leagueName = data.leagueName || "Custom League Standings";
+                leagueSubtitleEl.textContent = `${selectedTeams.size} teams selected for this league.`;
+                leagueTitleEl.textContent = leagueName;
+            } else {
+                // If no custom setup, use a default placeholder to prompt the user
+                selectedTeams = new Set();
+                leagueSubtitleEl.textContent = 'No custom league setup found. Please set one up.';
+                tableBody.innerHTML = `<tr><td colspan="10" class="empty">Go to <a href="league_setup.html" style="color: #ffcc00; text-decoration: underline;">Edit Custom League Setup</a> to select teams.</td></tr>`;
+                return;
+            }
+        } catch (error) {
+            console.error("Error loading custom league setup:", error);
+            leagueSubtitleEl.textContent = `Error loading setup.`;
+            return;
+        }
+        
+        if (selectedTeams.size < 2) {
+            tableBody.innerHTML = `<tr><td colspan="10" class="empty">Select at least two teams in the <a href="league_setup.html" style="color: #ffcc00; text-decoration: underline;">Edit Custom League Setup</a> page.</td></tr>`;
+            return;
+        }
+
+        // 2. Subscribe to Match Results (Real-time update)
+        const matchQuery = query(collection(db, MATCH_RESULTS_COLLECTION_PATH));
+
+        onSnapshot(matchQuery, (snapshot) => {
+            const matches = [];
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                // Ensure scores are numbers before pushing
+                data.homeScore = parseInt(data.homeScore) || 0;
+                data.awayScore = parseInt(data.awayScore) || 0;
+                matches.push(data);
+            });
+            calculateStandings(matches);
+        }, (error) => {
+            console.error("Error subscribing to match results:", error);
+            tableBody.innerHTML = `<tr><td colspan="10" class="empty">Error fetching matches.</td></tr>`;
+        });
+    }
+
+    /**
+     * Calculates the league table based on the provided matches and selected teams.
+     * @param {Array<Object>} allMatches - Array of match objects.
+     */
+    function calculateStandings(allMatches) {
+        // Filter matches to only include games between selected teams
+        const filteredMatches = allMatches.filter(match => 
+            selectedTeams.has(match.homeTeam) && selectedTeams.has(match.awayTeam)
+        );
+
+        // Initialize standings for selected teams
+        const standings = initializeStandings(selectedTeams);
+
+        filteredMatches.forEach(match => {
+            const home = standings[match.homeTeam];
+            const away = standings[match.awayTeam];
+
+            if (!home || !away) return; // Should not happen if filtered, but good guard rail
+
+            const homeScore = match.homeScore;
+            const awayScore = match.awayScore;
+
+            // Update Matches Played (P), Goals For (GF), Goals Against (GA) for both teams
+            home.P++;
+            home.GF += homeScore;
+            home.GA += awayScore;
+            
+            away.P++;
+            away.GF += awayScore;
+            away.GA += homeScore;
+            
+            home.GD = home.GF - home.GA;
+            away.GD = away.GF - away.GA;
+
+
+            // Determine Win, Draw, or Loss
+            if (homeScore > awayScore) {
+                // Home Win
+                home.W++; home.Pts += 3;
+                away.L++; 
+            } else if (homeScore < awayScore) {
+                // Away Win
+                away.W++; away.Pts += 3;
+                home.L++;
+            } else {
+                // Draw
+                home.D++; home.Pts += 1;
+                away.D++; away.Pts += 1;
+            }
+        });
+
+        // Convert map to array for sorting
+        allStandings = Object.values(standings);
+        
+        // If the filtered list is empty, show a message
+        if (allStandings.length === 0) {
+            tableBody.innerHTML = `<tr><td colspan="10" class="empty">No matches played between the selected ${selectedTeams.size} teams yet.</td></tr>`;
+            return;
+        }
+        
+        sortStandings(currentSort.key, currentSort.direction);
+    }
+
+    // --- Table Sorting and Rendering ---
+
+    function sortStandings(key, direction) {
+        // Primary sort rule: Pts, then GD, then GF.
+        allStandings.sort((a, b) => {
+            // 1. Points (Descending)
+            if (b.Pts !== a.Pts) return b.Pts - a.Pts;
+            // 2. Goal Difference (Descending)
+            if (b.GD !== a.GD) return b.GD - a.GD;
+            // 3. Goals For (Descending)
+            if (b.GF !== a.GF) return b.GF - a.GF;
+            // 4. Team Name (Ascending)
+            return a.name.localeCompare(b.name);
+        });
+
+        // Apply custom sort requested by header click (if different from default Pts/desc)
+        if (key !== 'Pts' || direction !== 'desc') {
+            const customSortMultiplier = direction === 'asc' ? 1 : -1;
+            
+            allStandings.sort((a, b) => {
+                let comparison = 0;
+                if (key === 'name') {
+                    comparison = a.name.localeCompare(b.name);
+                } else {
+                    comparison = a[key] - b[key];
+                }
+                return comparison * customSortMultiplier;
+            });
+        }
+
+        renderTable(key, direction);
+    }
+
+    function renderTable(sortedKey = currentSort.key, sortedDirection = currentSort.direction) {
+        tableBody.innerHTML = '';
+
+        // Update header classes
+        tableHeaders.forEach(th => {
+            th.classList.remove('sort-asc', 'sort-desc');
+            if (th.dataset.sortBy === sortedKey) {
+                th.classList.add(`sort-${sortedDirection}`);
+            }
+        });
+
+        allStandings.forEach((team, index) => {
+            const row = tableBody.insertRow();
+            row.innerHTML = `
+                <td class="rank-col">${index + 1}</td>
+                <td>${team.name}</td>
+                <td>${team.P}</td>
+                <td>${team.W}</td>
+                <td>${team.D}</td>
+                <td>${team.L}</td>
+                <td>${team.GF}</td>
+                <td>${team.GA}</td>
+                <td class="gd-col">${team.GD}</td>
+                <td class="points-col">${team.Pts}</td>
+            `;
+        });
+    }
+
+    // --- Event Listeners ---
+
+    // Global listener for sorting
+    tableHeaders.forEach(th => {
+        th.addEventListener('click', () => {
+            const key = th.dataset.sortBy;
+            let direction = 'desc';
+
+            if (currentSort.key === key) {
+                direction = currentSort.direction === 'desc' ? 'asc' : 'desc';
+            }
+
+            currentSort = { key, direction };
+            sortStandings(key, direction);
+        });
+    });
+
+    // --- Start Application ---
+    initializeFirebase();
+</script>
+</body>
+</html>

@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Player Season Statistics</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #0a0a23;
+            color: white;
+            padding: 20px;
+            margin: 0;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background-color: #1e1e2f;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+        }
+        h1 {
+            color: #ffcc00;
+            border-bottom: 2px solid #ff6600;
+            padding-bottom: 10px;
+            margin-bottom: 25px;
+            text-align: left;
+        }
+        .loading, .empty {
+            text-align: center;
+            padding: 50px;
+            font-size: 1.2rem;
+            color: #ccc;
+        }
+
+        /* --- Stats Table Styling --- */
+        .stats-table-container {
+            overflow-x: auto;
+        }
+        .stats-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            min-width: 700px; /* Ensure readability on small screens */
+        }
+        .stats-table th, .stats-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #333;
+        }
+        .stats-table th {
+            background-color: #0b1036;
+            color: #ffcc00;
+            cursor: pointer;
+            position: sticky;
+            top: 0;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+        }
+        .stats-table th:hover {
+            background-color: #1a204e;
+        }
+        .stats-table th.sort-asc::after {
+            content: ' ▲';
+        }
+        .stats-table th.sort-desc::after {
+            content: ' ▼';
+        }
+        .stats-table tbody tr:hover {
+            background-color: #2a2a40;
+        }
+        .stats-table tbody tr:nth-child(even) {
+            background-color: #1e1e2f;
+        }
+        .stats-table tbody tr:nth-child(odd) {
+            background-color: #27273a;
+        }
+        
+        /* Highlight TOTW points column */
+        .totw-points {
+            font-weight: bold;
+            color: #00ff88;
+            text-align: center !important;
+        }
+        .player-name {
+            font-weight: bold;
+            color: #ff6600;
+        }
+        
+        /* --- Back Link --- */
+        .back-link {
+            display: block;
+            margin-top: 30px;
+            text-align: left;
+            color: #ffcc00;
+            text-decoration: none;
+        }
+    </style>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js"></script>
+</head>
+<body>
+
+<div class="container">
+    <h1>Individual Player Statistics (Official)</h1>
+    <p>View all approved seasonal stats and the current Team of the Week points ranking.</p>
+
+    <div class="stats-table-container">
+        <table class="stats-table">
+            <thead>
+                <tr>
+                    <th data-sort-by="name">Player Name</th>
+                    <th data-sort-by="matches">Matches Played</th>
+                    <th data-sort-by="goals">Goals</th>
+                    <th data-sort-by="assists">Assists</th>
+                    <th data-sort-by="avgRating">Avg. Match Rating</th>
+                    <th data-sort-by="cleanSheets">Clean Sheets</th>
+                    <th data-sort-by="points" class="totw-points-header">TOTW Points</th>
+                </tr>
+            </thead>
+            <tbody id="stats-table-body">
+                <tr><td colspan="7" class="loading">Loading official player stats...</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <a href="home.html" class="back-link">← Back to Dashboard</a>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+    import { getFirestore, collection, getDocs, getDoc, doc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyB0C5O-9xh9CrmLnsD2kquCyJ1zTtYkiLg",
+        authDomain: "fifa-super-league.firebaseapp.com",
+        projectId: "fifa-super-league",
+        appId: "1:407346622789:web:6b48448ca0410ccf588e2c"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    
+    const statsTableBody = document.getElementById('stats-table-body');
+    const tableHeaders = document.querySelectorAll('.stats-table th');
+    
+    let allPlayerStats = [];
+    let currentSort = { key: 'points', direction: 'desc' }; // Default sort by TOTW points
+
+    // --- TOTW Logic (Matching home.html) ---
+    const TOTW_RULES = {
+        GOAL: 3,
+        ASSIST: 2,
+        HIGH_RATING_BONUS: 1, // Awarded for a rating > 8.0
+        CLEAN_SHEET_BONUS: 1 // Awarded for a clean sheet
+    };
+
+    function calculatePoints(stat) {
+        let points = 0;
+        points += (stat.goals || 0) * TOTW_RULES.GOAL;
+        points += (stat.assists || 0) * TOTW_RULES.ASSIST;
+        if ((stat.rating || 0) > 8.0) {
+            points += TOTW_RULES.HIGH_RATING_BONUS;
+        }
+        if (stat.cleanSheet === true) {
+            points += TOTW_RULES.CLEAN_SHEET_BONUS;
+        }
+        return points;
+    }
+
+    // --- Data Fetching and Aggregation ---
+
+    async function fetchAllStats() {
+        const aggregatedStats = {}; // Stores combined stats for each player ID
+        const playerNames = {};   // Caches display names for player IDs
+
+        try {
+            // 1. Fetch ALL official match stats
+            const statsSnapshot = await getDocs(collection(db, "stats_official"));
+
+            if (statsSnapshot.empty) {
+                statsTableBody.innerHTML = '<tr><td colspan="7" class="empty">No official statistics have been approved yet.</td></tr>';
+                return;
+            }
+
+            // 2. Aggregate individual match stats into player totals
+            for (const doc of statsSnapshot.docs) {
+                const stat = doc.data();
+                const playerId = stat.playerId;
+
+                // Initialize player's stats if first time seeing them
+                if (!aggregatedStats[playerId]) {
+                    aggregatedStats[playerId] = {
+                        playerId: playerId,
+                        matches: 0,
+                        goals: 0,
+                        assists: 0,
+                        totalRating: 0,
+                        cleanSheets: 0,
+                        totwPoints: 0,
+                        name: `Player: ${playerId.substring(0, 8)}...` // Temporary default name
+                    };
+                }
+
+                // Update totals
+                aggregatedStats[playerId].matches += 1;
+                aggregatedStats[playerId].goals += (stat.goals || 0);
+                aggregatedStats[playerId].assists += (stat.assists || 0);
+                aggregatedStats[playerId].totalRating += (stat.rating || 0);
+                if (stat.cleanSheet === true) {
+                    aggregatedStats[playerId].cleanSheets += 1;
+                }
+                
+                // Calculate and add TOTW points for this match
+                aggregatedStats[playerId].totwPoints += calculatePoints(stat);
+            }
+
+            // 3. Finalize calculations (Avg Rating) and prepare array
+            const finalStatsArray = Object.values(aggregatedStats).map(player => ({
+                ...player,
+                avgRating: (player.totalRating / player.matches).toFixed(2),
+                totalRating: undefined, // Remove intermediate field
+            }));
+            
+            // 4. Resolve Player Names (using a mock function as full user name retrieval is complex)
+            await resolvePlayerNames(finalStatsArray, playerNames);
+
+            allPlayerStats = finalStatsArray;
+            renderStats(allPlayerStats, currentSort.key, currentSort.direction);
+
+        } catch (error) {
+            console.error("Error fetching or processing statistics:", error);
+            statsTableBody.innerHTML = `<tr><td colspan="7" style="color:red; text-align:center;">Error loading data: ${error.message}</td></tr>`;
+        }
+    }
+
+    // Mock/placeholder function to resolve player IDs to names
+    async function resolvePlayerNames(statsArray, cache) {
+        // In a real application, this would fetch the 'displayName' field from the 'users' collection
+        // However, for single-file deployment, we will just set a simple mock name.
+        
+        // This simulates looking up the user's display name from the 'users' collection
+        for (const player of statsArray) {
+            if (!cache[player.playerId]) {
+                const userDocSnap = await getDoc(doc(db, "users", player.playerId));
+                if (userDocSnap.exists() && userDocSnap.data().displayName) {
+                    player.name = userDocSnap.data().displayName;
+                    cache[player.playerId] = player.name;
+                } else {
+                    // Fallback to a shortened version of the ID if no name is found
+                    player.name = `User ${player.playerId.substring(0, 6)}`;
+                }
+            } else {
+                player.name = cache[player.playerId];
+            }
+        }
+    }
+
+
+    // --- Rendering and Sorting ---
+
+    function renderStats(stats, sortBy, direction) {
+        const sortedStats = [...stats].sort((a, b) => {
+            let valA = a[sortBy];
+            let valB = b[sortBy];
+
+            // Convert rating to number for sorting
+            if (sortBy === 'avgRating') {
+                valA = parseFloat(valA);
+                valB = parseFloat(valB);
+            }
+
+            // Handle string comparisons for name
+            if (sortBy === 'name') {
+                valA = valA.toLowerCase();
+                valB = valB.toLowerCase();
+            }
+
+            if (valA < valB) return direction === 'asc' ? -1 : 1;
+            if (valA > valB) return direction === 'asc' ? 1 : -1;
+            return 0;
+        });
+
+        statsTableBody.innerHTML = ''; // Clear table
+
+        sortedStats.forEach(player => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td class="player-name">${player.name}</td>
+                <td>${player.matches}</td>
+                <td>${player.goals}</td>
+                <td>${player.assists}</td>
+                <td>${player.avgRating}</td>
+                <td>${player.cleanSheets}</td>
+                <td class="totw-points">${player.totwPoints}</td>
+            `;
+            statsTableBody.appendChild(row);
+        });
+
+        // Update header visual cues
+        tableHeaders.forEach(header => {
+            header.classList.remove('sort-asc', 'sort-desc');
+            if (header.dataset.sortBy === sortBy) {
+                header.classList.add(`sort-${direction}`);
+            }
+        });
+    }
+
+    function handleHeaderClick(e) {
+        const newSortKey = e.currentTarget.dataset.sortBy;
+        let newDirection = 'desc';
+
+        if (currentSort.key === newSortKey) {
+            // Toggle direction if the same column is clicked
+            newDirection = currentSort.direction === 'asc' ? 'desc' : 'asc';
+        }
+
+        currentSort = { key: newSortKey, direction: newDirection };
+        renderStats(allPlayerStats, currentSort.key, currentSort.direction);
+    }
+
+    // --- Initialization ---
+
+    document.addEventListener('DOMContentLoaded', () => {
+        // Attach sorting listeners
+        tableHeaders.forEach(header => {
+            header.addEventListener('click', handleHeaderClick);
+        });
+        
+        // Fetch and display initial data
+        fetchAllStats();
+    });
+
+</script>
+</body>
+</html>
