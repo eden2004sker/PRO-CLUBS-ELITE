@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PCE Home Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #0d1117;
+      color: #c9d1d9;
+      min-height: 100vh;
+    }
+    .header {
+      background-color: #1a2a40;
+      border-bottom: 3px solid #f0b400;
+      padding: 12px 24px;
+    }
+    .content-box {
+      background-color: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 24px;
+    }
+    .fast-access-link {
+      display: block;
+      background-color: #0e1117;
+      padding: 12px;
+      border-radius: 6px;
+      margin-bottom: 8px;
+      transition: background-color 0.15s, border-left 0.15s;
+      border-left: 4px solid transparent;
+      font-weight: 600;
+      color: #58a6ff;
+    }
+    .fast-access-link:hover {
+      background-color: #1b2530;
+      border-left: 4px solid #58a6ff;
+    }
+    .dropdown-menu {
+      position: absolute;
+      right: 0;
+      top: 100%;
+      z-index: 20;
+      min-width: 150px;
+      background-color: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(10px);
+      transition: opacity 0.2s, transform 0.2s, visibility 0.2s;
+    }
+    .dropdown-menu.visible {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+    .dropdown-item {
+      padding: 10px 15px;
+      display: block;
+      color: #c9d1d9;
+      transition: background-color 0.15s;
+    }
+    .dropdown-item:hover {
+      background-color: #30363d;
+    }
+    .admin-link {
+      color: #f0b400;
+      font-weight: 600;
+    }
+    .admin-link:hover {
+      background-color: #30363d;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="header flex justify-between items-center sticky top-0 z-10">
+    <div class="text-2xl font-extrabold text-blue-400 tracking-wider">
+      PRO CLUBS ELITE <span class="text-lg text-red-500"></span>
+    </div>
+    <nav class="space-x-4 text-sm font-semibold flex items-center">
+      <a href="fixtures.html" class="text-gray-300 hover:text-white transition duration-150">Fixtures</a>
+      <a href="league-table.html" class="text-gray-300 hover:text-white transition duration-150">League Table</a>
+      <a href="information.html" class="text-gray-300 hover:text-white transition duration-150">Information</a>
+
+      <div class="relative inline-block text-left" id="user-panel-container">
+        <button type="button" class="px-3 py-1 bg-red-600 text-white rounded-lg hover:bg-red-500 transition duration-150 flex items-center" id="user-panel-button">
+          User Panel
+          <svg class="-mr-1 ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
+          </svg>
+        </button>
+
+        <div class="dropdown-menu" id="user-panel-menu">
+          <a href="profile.html" class="dropdown-item">My Profile</a>
+          <a href="settings.html" class="dropdown-item">Account Settings</a>
+          <a href="admin.html" id="admin-link" class="dropdown-item admin-link hidden">&#9819; Admin Panel</a>
+          <a href="index.html" class="dropdown-item border-t border-gray-700 mt-1 pt-2">Logout</a>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <main class="container mx-auto p-4 sm:p-8">
+    <div class="content-box bg-blue-900/40 border-blue-600/50 text-center py-8">
+      <h1 class="text-3xl font-bold text-white mb-2">Welcome Back, Manager!</h1>
+      <p class="text-lg text-gray-300">Ready to dominate the next season?</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="md:col-span-2">
+        <div class="content-box">
+          <h2 class="text-xl font-bold text-red-400 mb-4">Recent Results</h2>
+          <div class="text-sm mb-2 p-2 border-b border-gray-700">
+            <span class="font-semibold text-white">PCE FC 0 - 1 Route United.</span>
+            <p class="text-gray-400">Your last match result.</p>
+          </div>
+          <div class="text-sm mb-4 p-2">
+            <span class="font-semibold text-white">The Kings 0 - 1 Phoenix Squad.</span>
+            <p class="text-gray-400">A recent league result.</p>
+          </div>
+          <a href="fixtures.html" class="text-blue-400 hover:text-blue-300 text-sm font-semibold">View All Fixtures</a>
+        </div>
+      </div>
+
+      <div>
+        <div class="content-box">
+          <h2 class="text-xl font-bold text-yellow-400 mb-4">Quick Access</h2>
+          <a href="manager-application.html" class="fast-access-link">📝 Manager Application</a>
+          <a href="lounge.html" class="fast-access-link">💬 Manager Lounge</a>
+          <a href="about.html" class="fast-access-link">ℹ️ About the League</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyB0C5O-9xh9CrmLnsD2kquCyJ1zTtYkiLg",
+      authDomain: "fifa-super-league.firebaseapp.com",
+      projectId: "fifa-super-league",
+      appId: "1:407346622789:web:6b48448ca0410ccf588e2c"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const ADMIN_ROLES = ["Admin", "Stat admin", "Co owner", "Owner", "Founder", "Developer"];
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const adminLink = document.getElementById("admin-link");
+
+      onAuthStateChanged(auth, async (user) => {
+        if (!user) return;
+
+        try {
+          const userDoc = await getDoc(doc(db, "users", user.uid));
+          const rawRole = userDoc.exists() ? userDoc.data().websiteRole : null;
+
+          const role = rawRole
+            ? rawRole.trim().toLowerCase().replace(/\b\w/g, c => c.toUpperCase())
+            : null;
+
+          console.log("Verified role:", role);
+          if (role && ADMIN_ROLES.includes(role)) {
+            adminLink.classList.remove("hidden");
+          }
+        } catch (error) {
+          console.error("Error fetching user role:", error);
+        }
+      });
+    });
+  </script>
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const userPanelButton = document.getElementById("user-panel-button");
+    const userPanelMenu = document.getElementById("user-panel-menu");
+
+    userPanelButton.addEventListener("click", () => {
+      userPanelMenu.classList.toggle("visible");
+    });
+
+    // Optional: Close dropdown when clicking outside
+    document.addEventListener("click", (e) => {
+      if (!userPanelButton.contains(e.target) && !userPanelMenu.contains(e.target)) {
+        userPanelMenu.classList.remove("visible");
+      }
+    });
+  });
+</script>
+</body>
+</html>
+         
