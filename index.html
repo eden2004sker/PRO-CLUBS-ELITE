@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pro Clubs Elite - Home</title>
+    <!-- Load Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
+        /* Import custom font and essential dark theme styles */
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
         body {
             font-family: 'Inter', sans-serif;
@@ -15,22 +17,20 @@
         .header {
             background-color: #161b22;
             border-bottom: 1px solid #30363d;
-            padding: 16px 24px;
         }
         .card {
             background-color: #161b22;
             border: 1px solid #30363d;
             border-radius: 12px;
-            padding: 20px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
             transition: transform 0.2s, border-color 0.2s;
-            /* Ensure the content inside the card does not cause horizontal overflow */
             overflow: hidden; 
         }
         .card:hover {
             transform: translateY(-2px);
             border-color: #58a6ff;
         }
+        /* Custom animation for the awards carousel fade */
         .award-item {
             display: none;
             transition: opacity 0.5s ease-in-out;
@@ -43,34 +43,111 @@
             from { opacity: 0; }
             to { opacity: 1; }
         }
+        /* Mobile menu slide animation classes */
+        .mobile-menu-enter {
+            transform: translateX(100%);
+        }
+        .mobile-menu-enter-active {
+            transform: translateX(0);
+            transition: transform 0.3s ease-out;
+        }
+        .mobile-menu-exit {
+            transform: translateX(0);
+        }
+        .mobile-menu-exit-active {
+            transform: translateX(100%);
+            transition: transform 0.3s ease-in;
+        }
     </style>
 </head>
 <body>
 
-    <!-- Header / Navigation Bar (The same professional look) -->
-    <header class="header flex justify-between items-center sticky top-0 z-10">
-        <!-- Top Left Title -->
-        <div class="text-3xl font-extrabold text-blue-400 tracking-wider">
-            PRO CLUBS ELITE
-        </div>
+    <!-- Header / Navigation Bar - Sticky and high Z-index -->
+    <header class="header flex justify-between items-center sticky top-0 z-30 p-4 sm:px-8">
+        
+        <!-- Left Section: Banner/Logo -->
+        <a href="/" class="flex-shrink-0">
+            <!-- Using a placeholder, but including your path ('asets/logos banner.png') as a primary or fallback source. -->
+            <img 
+                src="asets/logos/standard.gif" 
+                alt="Pro Clubs Elite Banner" 
+                class="h-6 sm:h-8 object-contain"
+                onerror="this.onerror=null; this.src='https://placehold.co/250x50/161b22/8dd3f4?text=PRO+CLUBS+ELITE+BANNER';"
+            >
+        </a>
 
-        <!-- Top Right Auth Links -->
-        <nav class="space-x-4 text-sm font-semibold">
-            <a href="login.html" class="text-gray-400 hover:text-white transition duration-150">LOGIN</a>
-            <span class="text-gray-600">|</span>
-            <a href="signUp.html" class="text-green-400 hover:text-green-300 transition duration-150">SIGN UP</a>
+        <!-- Center Section: Desktop Navigation Links (Hidden on mobile, visible on desktop) -->
+        <nav class="hidden md:flex space-x-6 text-sm font-medium mx-4">
+            <a href="fixtures.html" class="text-gray-400 hover:text-green-400 transition duration-150">Fixtures</a>
+            <a href="league-table.html" class="text-gray-400 hover:text-blue-400 transition duration-150">Standings</a>
+            <a href="teams.html" class="text-gray-400 hover:text-yellow-400 transition duration-150">Teams</a>
+            <a href="awards.html" class="text-gray-400 hover:text-red-400 transition duration-150">Awards</a>
         </nav>
+
+        <!-- Right Section: Auth Links & Mobile Menu Toggle -->
+        <div class="flex items-center space-x-2 sm:space-x-4">
+            <!-- Auth Links (Visible on small screens and up) -->
+            <nav class="space-x-3 text-xs font-semibold flex-shrink-0 hidden sm:block">
+                <a href="login.html" class="text-gray-400 hover:text-white transition duration-150">LOGIN</a>
+                <span class="text-gray-600">|</span>
+                <a href="signUp.html" class="text-green-400 hover:text-green-300 transition duration-150">SIGN UP</a>
+            </nav>
+
+            <!-- Mobile Menu Toggle (Visible only on mobile) -->
+            <button id="menu-button" class="md:hidden p-2 rounded-lg text-blue-400 hover:bg-[#30363d] transition duration-150" aria-label="Toggle navigation menu">
+                <!-- Hamburger Icon -->
+                <svg id="open-icon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+                </svg>
+                <!-- Close Icon (Initially hidden) -->
+                <svg id="close-icon" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
     </header>
 
+    <!-- Mobile Menu Drawer (Now the primary navigation source for mobile) -->
+    <div id="mobile-menu-drawer" class="fixed top-0 right-0 h-full w-full max-w-xs bg-[#161b22] border-l border-gray-700 shadow-xl z-20 mobile-menu-enter" style="pointer-events: none;">
+        
+        <div class="p-8 mt-16 space-y-6">
+            <h2 class="text-2xl font-bold text-gray-200 border-b pb-2 border-gray-700">Main Sections</h2>
+            
+            <a href="fixtures.html" class="block text-lg font-medium text-green-400 hover:text-green-300 transition duration-150 p-2 rounded-md bg-[#0d1117]/50">
+                Fixtures & Results
+            </a>
+            <a href="league-table.html" class="block text-lg font-medium text-blue-400 hover:text-blue-300 transition duration-150 p-2 rounded-md bg-[#0d1117]/50">
+                League Standings
+            </a>
+            <a href="teams.html" class="block text-lg font-medium text-yellow-400 hover:text-yellow-300 transition duration-150 p-2 rounded-md bg-[#0d1117]/50">
+                Teams & Performers
+            </a>
+            <a href="awards.html" class="block text-lg font-medium text-red-400 hover:text-red-300 transition duration-150 p-2 rounded-md bg-[#0d1117]/50">
+                Public Awards Showcase
+            </a>
+            
+            <div class="pt-4 border-t border-gray-700">
+                <h3 class="text-xl font-bold text-gray-400 mb-3">Account</h3>
+                <a href="login.html" class="block text-sm text-gray-400 hover:text-white transition duration-150 p-2">
+                    Login
+                </a>
+                <a href="signUp.html" class="block text-sm text-green-400 hover:text-green-300 transition duration-150 p-2">
+                    Sign Up
+                </a>
+            </div>
+        </div>
+    </div>
+    
     <!-- Main Content Grid -->
     <main class="container mx-auto p-4 sm:p-8">
-        <h1 class="text-4xl font-extrabold mb-8 text-center text-gray-200">The Elite Pro Clubs Experience</h1>
+        <h1 class="text-3xl sm:text-4xl font-extrabold mb-8 text-center text-gray-200">The Elite Pro Clubs Experience</h1>
         
+        <!-- Cards Grid: 1 column on mobile, 2 on medium, 3 on large -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
             <!-- 1. Fixtures Card -->
             <a href="fixtures.html" class="col-span-1 block no-underline h-full">
-                <div class="card h-full hover:border-green-500">
+                <div class="card h-full hover:border-green-500 p-5">
                     <h2 class="text-xl font-semibold mb-2 text-green-400">Fixtures & Results</h2>
                     <p class="text-gray-400 text-sm">View upcoming match schedules and check past scores.</p>
                 </div>
@@ -78,7 +155,7 @@
 
             <!-- 2. League Standings Card -->
             <a href="league-table.html" class="col-span-1 block no-underline h-full">
-                <div class="card h-full hover:border-blue-500">
+                <div class="card h-full hover:border-blue-500 p-5">
                     <h2 class="text-xl font-semibold mb-2 text-blue-400">League Standings</h2>
                     <p class="text-gray-400 text-sm">Check the current table, points, and team form.</p>
                 </div>
@@ -86,7 +163,7 @@
             
             <!-- 3. Teams & Managers Card -->
             <a href="teams.html" class="col-span-1 block no-underline h-full">
-                <div class="card h-full hover:border-yellow-500">
+                <div class="card h-full hover:border-yellow-500 p-5">
                     <h2 class="text-xl font-semibold mb-2 text-yellow-400">Teams & Performers</h2>
                     <p class="text-gray-400 text-sm">Detailed list of teams, managers, and star players.</p>
                     <ul class="mt-3 text-sm space-y-1">
@@ -97,40 +174,40 @@
             </a>
         </div>
         
-        <!-- 4. Awards Carousel (Public Page Preview) -->
+        <!-- 4. Awards Carousel (Public Page Preview) - Responsive Typography -->
         <div class="mt-8">
             <div class="card p-6 border-red-500/50">
-                <h2 class="text-2xl font-extrabold mb-4 text-red-400 text-center">🏆 Public Awards Showcase 🏆</h2>
+                <h2 class="text-xl sm:text-2xl font-extrabold mb-4 text-red-400 text-center">🏆 Public Awards Showcase 🏆</h2>
                 
                 <div id="awardsCarousel" class="relative overflow-hidden h-40 flex items-center justify-center">
                     <!-- Awards Content -->
-                    <div class="award-item active text-center w-full">
-                        <h3 class="text-3xl font-bold text-yellow-300">Ballon D'Or</h3>
-                        <p class="text-lg text-gray-300 mt-2">Awarded to the Player of the Season.</p>
-                        <p class="text-sm text-gray-500 mt-1">Current Holder: **MessiFan10**</p>
+                    <div class="award-item active text-center w-full px-2">
+                        <h3 class="text-2xl sm:text-3xl font-bold text-yellow-300">Ballon D'Or</h3>
+                        <p class="text-sm sm:text-lg text-gray-300 mt-2">Awarded to the Player of the Season.</p>
+                        <p class="text-xs sm:text-sm text-gray-500 mt-1">Current Holder: **MessiFan10**</p>
                     </div>
                     
-                    <div class="award-item text-center w-full">
-                        <h3 class="text-3xl font-bold text-green-300">Team of the Week (TOTW)</h3>
-                        <p class="text-lg text-gray-300 mt-2">Highlighting the best 11 players from the latest round.</p>
+                    <div class="award-item text-center w-full px-2">
+                        <h3 class="text-2xl sm:text-3xl font-bold text-green-300">Team of the Week (TOTW)</h3>
+                        <p class="text-sm sm:text-lg text-gray-300 mt-2">Highlighting the best 11 players from the latest round.</p>
                     </div>
                     
-                    <div class="award-item text-center w-full">
-                        <h3 class="text-3xl font-bold text-blue-300">Golden Boot</h3>
-                        <p class="text-lg text-gray-300 mt-2">For the league's top goal scorer.</p>
-                        <p class="text-sm text-gray-500 mt-1">Current Leader: **GoalMachine**</p>
+                    <div class="award-item text-center w-full px-2">
+                        <h3 class="text-2xl sm:text-3xl font-bold text-blue-300">Golden Boot</h3>
+                        <p class="text-sm sm:text-lg text-gray-300 mt-2">For the league's top goal scorer.</p>
+                        <p class="text-xs sm:text-sm text-gray-500 mt-1">Current Leader: **GoalMachine**</p>
                     </div>
 
-                    <div class="award-item text-center w-full">
-                        <h3 class="text-3xl font-bold text-gray-300">Brikwall Award</h3>
-                        <p class="text-lg text-gray-300 mt-2">Recognizing the top defenders and clean sheets.</p>
-                        <p class="text-sm text-gray-500 mt-1">Leading Team: **Fortress FC**</p>
+                    <div class="award-item text-center w-full px-2">
+                        <h3 class="text-2xl sm:text-3xl font-bold text-gray-300">Brikwall Award</h3>
+                        <p class="text-sm sm:text-lg text-gray-300 mt-2">Recognizing the top defenders and clean sheets.</p>
+                        <p class="text-xs sm:text-sm text-gray-500 mt-1">Leading Team: **Fortress FC**</p>
                     </div>
                     
-                    <div class="award-item text-center w-full">
-                        <h3 class="text-3xl font-bold text-purple-300">Top Assists</h3>
-                        <p class="text-lg text-gray-300 mt-2">For the player with the most goal contributions.</p>
-                        <p class="text-sm text-gray-500 mt-1">Current Leader: **AssistKing**</p>
+                    <div class="award-item text-center w-full px-2">
+                        <h3 class="text-2xl sm:text-3xl font-bold text-purple-300">Top Assists</h3>
+                        <p class="text-sm sm:text-lg text-gray-300 mt-2">For the player with the most goal contributions.</p>
+                        <p class="text-xs sm:text-sm text-gray-500 mt-1">Current Leader: **AssistKing**</p>
                     </div>
                 </div>
                 
@@ -141,9 +218,50 @@
         </div>
 
     </main>
+    
+    <!-- Footer for mobile safety margin -->
+    <footer class="p-4"></footer>
 
     <script>
-        // CAROUSEL LOGIC
+        // --- MOBILE MENU LOGIC ---
+        const menuButton = document.getElementById('menu-button');
+        const mobileMenu = document.getElementById('mobile-menu-drawer');
+        const openIcon = document.getElementById('open-icon');
+        const closeIcon = document.getElementById('close-icon');
+
+        let isMenuOpen = false;
+
+        function toggleMobileMenu() {
+            if (!isMenuOpen) {
+                // OPENING
+                mobileMenu.style.pointerEvents = 'auto'; // Enable interactions
+                mobileMenu.classList.remove('mobile-menu-enter');
+                mobileMenu.classList.add('mobile-menu-enter-active');
+                
+                openIcon.classList.add('hidden');
+                closeIcon.classList.remove('hidden');
+            } else {
+                // CLOSING
+                mobileMenu.classList.remove('mobile-menu-enter-active');
+                mobileMenu.classList.add('mobile-menu-exit-active');
+                
+                // Wait for transition to finish before resetting state and disabling pointer events
+                setTimeout(() => {
+                    mobileMenu.classList.remove('mobile-menu-exit-active');
+                    mobileMenu.classList.add('mobile-menu-enter');
+                    mobileMenu.style.pointerEvents = 'none';
+                }, 300); // Match CSS transition duration
+
+                openIcon.classList.remove('hidden');
+                closeIcon.classList.add('hidden');
+            }
+            isMenuOpen = !isMenuOpen;
+        }
+
+        // Attach the click listener to the burger menu button
+        menuButton.addEventListener('click', toggleMobileMenu);
+
+        // --- CAROUSEL LOGIC ---
         const carousel = document.getElementById('awardsCarousel');
         const items = carousel.querySelectorAll('.award-item');
         let currentIndex = 0;
