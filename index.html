@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PCE - Pro Clubs Elite</title>
-    <!-- Load Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
@@ -20,26 +19,20 @@
 </head>
 <body class="min-h-screen flex flex-col antialiased text-gray-100">
 
-    <!-- Navigation Bar -->
     <nav class="bg-gray-900 shadow-xl sticky top-0 z-10">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <!-- Primary Navbar Row (Always Visible) -->
             <div class="flex justify-between h-16">
-                <!-- Logo/Branding -->
                 <div class="flex-shrink-0 flex items-center">
                     <a href="#" class="text-3xl font-extrabold text-cyan-400">PCE</a>
                 </div>
 
-                <!-- Desktop Links & Auth Buttons (Hidden on Mobile, Flex on Desktop) -->
                 <div class="hidden md:flex items-center">
-                    <!-- Desktop Links -->
                     <div class="space-x-4">
                         <a href="#" class="text-gray-300 hover:text-cyan-400 px-3 py-2 rounded-md text-sm font-medium">Leagues</a>
                         <a href="#" class="text-gray-300 hover:text-cyan-400 px-3 py-2 rounded-md text-sm font-medium">Teams & Clubs</a>
                         <a href="#" class="text-gray-300 hover:text-cyan-400 px-3 py-2 rounded-md text-sm font-medium">Tournaments</a>
                     </div>
                     
-                    <!-- Desktop CTAs -->
                     <div class="flex items-center ml-6 space-x-3">
                         <a href="#" class="cta-button text-cyan-400 bg-gray-900 border border-cyan-400 hover:bg-gray-800 px-4 py-2 rounded-xl text-sm font-medium shadow-sm">
                             Log In
@@ -50,14 +43,11 @@
                     </div>
                 </div>
 
-                <!-- Mobile Menu Button -->
                 <div class="flex items-center md:hidden">
                     <button id="mobile-menu-button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-300 hover:text-white hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-cyan-400" aria-expanded="false">
-                        <!-- Menu closed icon (Hamburger) -->
                         <svg id="menu-icon-closed" class="h-6 w-6 block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
                         </svg>
-                        <!-- Menu open icon (X) -->
                         <svg id="menu-icon-open" class="h-6 w-6 hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                         </svg>
@@ -66,16 +56,13 @@
             </div>
         </div>
 
-        <!-- Mobile Menu Content (Toggled) -->
         <div id="mobile-menu" class="hidden md:hidden bg-gray-900 pb-3 border-t border-gray-700">
             
-            <!-- Mobile CTAs - Placed at the top of the menu as requested -->
             <div class="pt-4 pb-3 px-4 space-y-2">
-                <a href="#" class="cta-button block text-center text-cyan-400 bg-gray-800 border border-cyan-400 hover:bg-gray-700 px-4 py-2 rounded-xl text-base font-medium shadow-sm">Log In</a>
-                <a href="#" class="cta-button block text-center bg-cyan-600 text-white hover:bg-cyan-500 px-4 py-2 rounded-xl text-base font-medium shadow-lg">Sign Up</a>
+                <a href="#" id="mobile-login-button" class="cta-button block text-center text-cyan-400 bg-gray-800 border border-cyan-400 hover:bg-gray-700 px-4 py-2 rounded-xl text-base font-medium shadow-sm">Log In</a>
+                <a href="#" id="mobile-signup-button" class="cta-button block text-center bg-cyan-600 text-white hover:bg-cyan-500 px-4 py-2 rounded-xl text-base font-medium shadow-lg">Sign Up</a>
             </div>
 
-            <!-- Mobile Links -->
             <div class="px-2 pt-2 pb-3 space-y-1 mt-2">
                 <a href="#" class="block text-base font-medium text-gray-300 hover:bg-gray-800 hover:text-cyan-400 rounded-md py-2 px-3">Leagues</a>
                 <a href="#" class="block text-base font-medium text-gray-300 hover:bg-gray-800 hover:text-cyan-400 rounded-md py-2 px-3">Teams & Clubs</a>
@@ -84,9 +71,7 @@
         </div>
     </nav>
 
-    <!-- Main Content Area -->
     <main class="flex-grow">
-        <!-- Hero Section - Gaming Aesthetic -->
         <section class="py-20 sm:py-28 lg:py-36 text-center bg-gray-800 shadow-inner border-b border-gray-700">
             <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
                 <h1 class="text-5xl sm:text-6xl lg:text-7xl font-extrabold text-white leading-tight mb-4 tracking-tight">
@@ -96,11 +81,9 @@
                     Join thousands of competitive gamers in organized leagues and tournaments across multiple titles. Forge your legacy, challenge the best, and go pro.
                 </p>
                 <div class="mt-10 flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
-                    <!-- Primary CTA - Sign Up (Larger) -->
                     <a href="#" class="cta-button bg-cyan-600 text-white text-lg font-semibold px-8 py-3 rounded-xl shadow-lg hover:bg-cyan-500 hover:ring-4 hover:ring-cyan-700/50">
                         Register Your Team Now!
                     </a>
-                    <!-- Secondary CTA - View Leagues -->
                     <a href="#" class="cta-button bg-gray-700 text-gray-100 border border-gray-600 text-lg font-semibold px-8 py-3 rounded-xl shadow-md hover:bg-gray-600">
                         Explore Active Leagues
                     </a>
@@ -108,16 +91,13 @@
             </div>
         </section>
 
-        <!-- Feature Showcase Section - Esports Focus -->
         <section class="py-16 md:py-24">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <h2 class="text-4xl font-bold text-center text-white mb-16">Why Compete on PCE?</h2>
                 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    <!-- Feature Card 1: Organized Leagues -->
                     <div class="bg-gray-800 p-8 rounded-2xl shadow-2xl transition duration-300 border-t-4 border-cyan-500/50 hover:shadow-cyan-500/20">
                         <div class="flex items-center justify-center h-12 w-12 rounded-xl bg-cyan-600/20 text-cyan-400 mb-6">
-                            <!-- Trophy Icon -->
                             <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.148a.5.5 0 01.902 0l1.22 2.476 2.735.398a.5.5 0 01.277.854l-1.986 1.932.47 2.72a.5.5 0 01-.729.537L12 9.536l-2.455 1.294a.5.5 0 01-.729-.537l.47-2.72-1.986-1.932a.5.5 0 01.277-.854l2.735-.398 1.22-2.476z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14v6m-3-3h6m-12-3v6m-3-3h6"></path></svg>
                         </div>
                         <h3 class="text-xl font-semibold text-white mb-3">Professional League Structure</h3>
@@ -126,10 +106,8 @@
                         </p>
                     </div>
 
-                    <!-- Feature Card 2: Player Stats -->
                     <div class="bg-gray-800 p-8 rounded-2xl shadow-2xl transition duration-300 border-t-4 border-cyan-500/50 hover:shadow-cyan-500/20">
                         <div class="flex items-center justify-center h-12 w-12 rounded-xl bg-cyan-600/20 text-cyan-400 mb-6">
-                            <!-- Chart Icon -->
                             <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8v8m-4-5v5m-4-2v2m13-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         </div>
                         <h3 class="text-xl font-semibold text-white mb-3">Deep Player & Team Statistics</h3>
@@ -138,10 +116,8 @@
                         </p>
                     </div>
 
-                    <!-- Feature Card 3: Community & Events -->
                     <div class="bg-gray-800 p-8 rounded-2xl shadow-2xl transition duration-300 border-t-4 border-cyan-500/50 hover:shadow-cyan-500/20">
                         <div class="flex items-center justify-center h-12 w-12 rounded-xl bg-cyan-600/20 text-cyan-400 mb-6">
-                            <!-- Users Icon -->
                             <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.65-.18-1.284-.5-1.856M7 20v-2c0-.65.18-1.284.5-1.857M7 10h6m-6 4h6m4-10H5a2 2 0 00-2 2v10a2 2 0 002 2h14a2 2 0 002-2V7a2 2 0 00-2-2z"></path></svg>
                         </div>
                         <h3 class="text-xl font-semibold text-white mb-3">Vibrant Global Community</h3>
@@ -154,7 +130,6 @@
         </section>
     </main>
 
-    <!-- Footer -->
     <footer class="bg-gray-900 text-white mt-10 border-t border-gray-700">
         <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
             <div class="flex flex-wrap justify-between items-center text-sm">
@@ -179,7 +154,22 @@
             const menu = document.getElementById('mobile-menu');
             const iconClosed = document.getElementById('menu-icon-closed');
             const iconOpen = document.getElementById('menu-icon-open');
+            
+            // Added unique IDs for easy targeting in the mobile menu CTA section
+            const mobileLoginButton = document.getElementById('mobile-login-button');
+            const mobileSignupButton = document.getElementById('mobile-signup-button'); 
 
+            // Function to close the mobile menu
+            const closeMobileMenu = () => {
+                if (!menu.classList.contains('hidden')) {
+                    menu.classList.add('hidden');
+                    iconClosed.classList.remove('hidden');
+                    iconOpen.classList.add('hidden');
+                    button.setAttribute('aria-expanded', 'false');
+                }
+            };
+
+            // 1. Menu Toggle Button Listener
             if (button && menu) {
                 button.addEventListener('click', () => {
                     // Toggle the 'hidden' class on the menu content
@@ -194,6 +184,22 @@
                     button.setAttribute('aria-expanded', !isExpanded);
                 });
             }
+
+            // 2. Mobile Sign Up Button Listener
+            if (mobileSignupButton) {
+                mobileSignupButton.addEventListener('click', closeMobileMenu);
+            }
+            
+            // 3. Mobile Log In Button Listener
+            if (mobileLoginButton) {
+                mobileLoginButton.addEventListener('click', closeMobileMenu);
+            }
+
+            // 4. Close menu when any main navigation link is clicked
+            const mobileNavLinks = document.querySelectorAll('#mobile-menu .px-2 a');
+            mobileNavLinks.forEach(link => {
+                link.addEventListener('click', closeMobileMenu);
+            });
         });
     </script>
 
