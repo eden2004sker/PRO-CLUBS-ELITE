@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>PCE - Pro Clubs Elite</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #0d1117;
+      color: #c9d1d9;
+    }
+    .header {
+      background-color: #161b22;
+      border-bottom: 1px solid #30363d;
+    }
+    .mobile-menu {
+      transition: transform 0.3s ease;
+    }
+    .dropdown-content {
+      display: none;
+    }
+    .dropdown.open .dropdown-content {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+
+<header class="header flex justify-between items-center sticky top-0 z-30 p-4 sm:px-8">
+  <div class="flex items-center space-x-4">
+    <button id="menu-button" class="md:hidden p-2 rounded-lg text-blue-400 hover:bg-[#30363d]">
+      <i id="open-icon" data-lucide="menu" class="w-6 h-6"></i>
+      <i id="close-icon" data-lucide="x" class="w-6 h-6 hidden"></i>
+    </button>
+    <a href="https://discord.gg/YOUR_INVITE_CODE" target="_blank" class="flex items-center space-x-2">
+      <img src="asets/logos/standard.gif" alt="PCE Logo" class="h-6 sm:h-8 object-contain"
+           onerror="this.onerror=null; this.src='https://placehold.co/50x32/161b22/8dd3f4?text=PCE';">
+      <span class="text-xl font-extrabold text-gray-200">PCE</span>
+    </a>
+  </div>
+
+  <nav class="hidden md:flex space-x-6 text-sm font-medium items-center">
+    <a href="fixtures.html" class="text-gray-300 hover:text-white">Fixtures</a>
+    <a href="league.html" class="text-gray-300 hover:text-white">League Table</a>
+    <a href="contact.html" class="text-gray-300 hover:text-white">Contact</a>
+    <a href="staff.html" class="text-gray-300 hover:text-white">Staff</a>
+    <a href="competitions.html" class="text-gray-300 hover:text-white">Competitions</a>
+
+    <div class="relative dropdown">
+      <button onclick="toggleDropdown(this)" class="text-gray-300 hover:text-white">Support ▾</button>
+      <div class="dropdown-content absolute bg-[#161b22] border border-gray-700 rounded mt-2 p-2 space-y-1 z-10">
+        <a href="stats-tutorial.html" class="block text-sm text-gray-300 hover:text-white">Stats Submit Tutorial</a>
+        <a href="contract-tutorial.html" class="block text-sm text-gray-300 hover:text-white">Contract Submission Tutorial</a>
+        <a href="apply-staff.html" class="block text-sm text-gray-300 hover:text-white">How to Apply for Staff</a>
+        <a href="apply-manager.html" class="block text-sm text-gray-300 hover:text-white">How to Apply for Manager</a>
+        <a href="manager-support.html" class="block text-sm text-gray-300 hover:text-white">Manager Support</a>
+      </div>
+    </div>
+
+    <div class="relative dropdown">
+      <button onclick="toggleDropdown(this)" class="text-yellow-400 hover:text-yellow-300">Golden Awards ▾</button>
+      <div class="dropdown-content absolute bg-[#161b22] border border-gray-700 rounded mt-2 p-2 space-y-1 z-10">
+        <a href="golden-boot.html" class="block text-sm text-gray-300 hover:text-white">Golden Boot</a>
+        <a href="golden-glove.html" class="block text-sm text-gray-300 hover:text-white">Golden Glove</a>
+        <a href="top-assist.html" class="block text-sm text-gray-300 hover:text-white">Top Assist</a>
+        <a href="brick-wall.html" class="block text-sm text-gray-300 hover:text-white">Brick Wall</a>
+        <a href="balon-dor.html" class="block text-sm text-gray-300 hover:text-white">Balon d'Or</a>
+      </div>
+    </div>
+
+    <a href="season-awards.html" class="text-purple-400 hover:text-purple-300">Season Awards</a>
+  </nav>
+
+  <div class="flex items-center space-x-4">
+   <div class="relative dropdown">
+  <button onclick="toggleDropdown(this)" class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold py-1 px-3 rounded">
+    User Panel ▾
+  </button>
+  <div class="dropdown-content absolute right-0 bg-[#161b22] border border-gray-700 rounded mt-2 px-4 py-2 z-10 flex flex-wrap gap-3 text-sm">
+    <a href="apply-manager.html" class="text-gray-300 hover:text-white whitespace-nowrap">Apply for Manager</a>
+    <a href="apply-staff.html" class="text-gray-300 hover:text-white whitespace-nowrap">Apply for Staff</a>
+    <a id="managerLounge" href="lounge.html" class="hidden text-gray-300 hover:text-white whitespace-nowrap">Manager Lounge</a>
+    <a id="contractSubmit" href="contract-submit.html" class="hidden text-gray-300 hover:text-white whitespace-nowrap">Submit Contract</a>
+    <a href="contract-offers.html" class="text-gray-300 hover:text-white whitespace-nowrap">Contract Offers</a>
+    <a href="profile.html" class="text-gray-300 hover:text-white whitespace-nowrap">Profile Page</a>
+   <a id="adminBtn" href="admin.html" class="hidden text-red-500 font-bold whitespace-nowrap">Admin</a>
+  </div>
+</div>
+
+    <button id="logoutBtn" class="hidden md:inline-block bg-red-600 hover:bg-red-500 text-white text-xs font-bold py-1 px-3 rounded">
+      Logout
+    </button>
+  </div>
+</header>
+  <!-- Footer -->
+  <footer class="p-6 text-center text-sm text-gray-500 border-t border-gray-700 bg-[#0d1117] space-y-2">
+    <div>
+      Join our community on 
+      <a href="https://discord.gg/YOUR_INVITE_CODE" target="_blank" class="text-blue-400 hover:underline">Discord</a>
+    </div>
+    <div>© 2025 Pro Clubs Elite. All rights reserved.</div>
+    <div class="text-xs text-gray-600 italic">
+      This site is not affiliated with or endorsed by EA Sports or Electronic Arts Inc.
+    </div>
+  </footer>
+
+  <!-- Firebase + Dropdown Logic -->
+ <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+  import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyB0C5O-9xh9CrmLnsD2kquCyJ1zTtYkiLg",
+    authDomain: "fifa-super-league.firebaseapp.com",
+    projectId: "fifa-super-league",
+    appId: "1:407346622789:web:6b48448ca0410ccf588e2c"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const adminBtn = document.getElementById("adminBtn");
+    const managerLounge = document.getElementById("managerLounge");
+    const contractSubmit = document.getElementById("contractSubmit");
+    const logoutBtn = document.getElementById("logoutBtn");
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) return;
+
+      try {
+        const roleRef = doc(
+          db,
+          "artifacts",
+          "fifa-super-league",
+          "users",
+          user.uid,
+          "user_metadata",
+          "profile"
+        );
+
+        const roleSnap = await getDoc(roleRef);
+        const role = roleSnap.exists() ? roleSnap.data().role : null;
+
+        console.log("User role:", role); // ✅ Debug
+
+        const isPrivileged = ["admin", "manager", "co-manager"].includes(role);
+
+        if (isPrivileged) {
+          adminBtn?.classList.remove("hidden");
+          managerLounge?.classList.remove("hidden");
+          contractSubmit?.classList.remove("hidden");
+        }
+
+        logoutBtn?.classList.remove("hidden");
+      } catch (error) {
+        console.error("Error fetching role:", error);
+      }
+    });
+
+    // Mobile menu toggle
+    const menuBtn = document.getElementById("menu-button");
+    const mobileMenu = document.getElementById("mobile-menu");
+    const openIcon = document.getElementById("open-icon");
+    const closeIcon = document.getElementById("close-icon");
+
+    if (menuBtn) {
+      menuBtn.addEventListener("click", () => {
+        mobileMenu.classList.toggle("translate-x-0");
+        mobileMenu.classList.toggle("translate-x-full");
+        openIcon?.classList.toggle("hidden");
+        closeIcon?.classList.toggle("hidden");
+      });
+    }
+
+    // Dropdown toggle logic
+    window.toggleDropdown = function (button) {
+      const dropdown = button.parentElement;
+      dropdown.classList.toggle("open");
+    };
+
+    lucide.createIcons();
+  });
+</script>
+</script>
+</body>
+</html>
