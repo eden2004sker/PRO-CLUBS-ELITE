@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PCE - Pro Competitive Esports</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* Custom styles for the Inter font and smooth transitions */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #111827; /* Deep slate background */
+        }
+        .cta-button {
+            transition: all 0.3s ease;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased text-gray-100">
+
+    <!-- Navigation Bar -->
+    <nav class="bg-gray-900 shadow-xl sticky top-0 z-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <!-- Logo/Branding -->
+                <div class="flex-shrink-0 flex items-center">
+                    <span class="text-3xl font-extrabold text-cyan-400">PCE</span>
+                </div>
+
+                <!-- Desktop Links & Auth Buttons -->
+                <div class="flex items-center">
+                    <div class="hidden md:flex space-x-4">
+                        <a href="#" class="text-gray-300 hover:text-cyan-400 px-3 py-2 rounded-md text-sm font-medium">Leagues</a>
+                        <a href="#" class="text-gray-300 hover:text-cyan-400 px-3 py-2 rounded-md text-sm font-medium">Teams & Clubs</a>
+                        <a href="#" class="text-gray-300 hover:text-cyan-400 px-3 py-2 rounded-md text-sm font-medium">Tournaments</a>
+                    </div>
+                    
+                    <div class="hidden md:flex items-center ml-6 space-x-3">
+                        <!-- Log In Button (Secondary CTA) -->
+                        <button onclick="console.log('Log In clicked')" class="cta-button text-cyan-400 bg-gray-900 border border-cyan-400 hover:bg-gray-800 px-4 py-2 rounded-xl text-sm font-medium shadow-sm">
+                            Log In
+                        </button>
+                        <!-- Sign Up Button (Primary CTA) -->
+                        <button onclick="console.log('Sign Up clicked')" class="cta-button bg-cyan-600 text-white hover:bg-cyan-500 px-4 py-2 rounded-xl text-sm font-medium shadow-lg hover:shadow-xl">
+                            Sign Up
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Mobile Menu Button (Placeholder for functionality) -->
+                <div class="flex items-center md:hidden">
+                    <button class="inline-flex items-center justify-center p-2 rounded-md text-gray-300 hover:text-white hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-cyan-400">
+                        <!-- Menu Icon (using inline SVG for simplicity) -->
+                        <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow">
+        <!-- Hero Section - Gaming Aesthetic -->
+        <section class="py-20 sm:py-28 lg:py-36 text-center bg-gray-800 shadow-inner border-b border-gray-700">
+            <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+                <h1 class="text-5xl sm:text-6xl lg:text-7xl font-extrabold text-white leading-tight mb-4 tracking-tight">
+                    The <span class="text-cyan-400">Ultimate Stage</span> for Competitive Esports
+                </h1>
+                <p class="mt-6 text-xl text-gray-400 max-w-3xl mx-auto">
+                    Join thousands of competitive gamers in organized leagues and tournaments across multiple titles. Forge your legacy, challenge the best, and go pro.
+                </p>
+                <div class="mt-10 flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
+                    <!-- Primary CTA - Sign Up (Larger) -->
+                    <button onclick="console.log('Register Now clicked')" class="cta-button bg-cyan-600 text-white text-lg font-semibold px-8 py-3 rounded-xl shadow-lg hover:bg-cyan-500 hover:ring-4 hover:ring-cyan-700/50">
+                        Register Your Team Now!
+                    </button>
+                    <!-- Secondary CTA - View Leagues -->
+                    <button onclick="console.log('View Leagues clicked')" class="cta-button bg-gray-700 text-gray-100 border border-gray-600 text-lg font-semibold px-8 py-3 rounded-xl shadow-md hover:bg-gray-600">
+                        Explore Active Leagues
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Feature Showcase Section - Esports Focus -->
+        <section class="py-16 md:py-24">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="text-4xl font-bold text-center text-white mb-16">Why Compete on PCE?</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <!-- Feature Card 1: Organized Leagues -->
+                    <div class="bg-gray-800 p-8 rounded-2xl shadow-2xl transition duration-300 border-t-4 border-cyan-500/50 hover:shadow-cyan-500/20">
+                        <div class="flex items-center justify-center h-12 w-12 rounded-xl bg-cyan-600/20 text-cyan-400 mb-6">
+                            <!-- Trophy Icon -->
+                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.148a.5.5 0 01.902 0l1.22 2.476 2.735.398a.5.5 0 01.277.854l-1.986 1.932.47 2.72a.5.5 0 01-.729.537L12 9.536l-2.455 1.294a.5.5 0 01-.729-.537l.47-2.72-1.986-1.932a.5.5 0 01.277-.854l2.735-.398 1.22-2.476z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14v6m-3-3h6m-12-3v6m-3-3h6"></path></svg>
+                        </div>
+                        <h3 class="text-xl font-semibold text-white mb-3">Professional League Structure</h3>
+                        <p class="text-gray-400">
+                            Participate in seasonal leagues with clear promotion/relegation systems, fixed schedules, and dedicated referees for fair play.
+                        </p>
+                    </div>
+
+                    <!-- Feature Card 2: Player Stats -->
+                    <div class="bg-gray-800 p-8 rounded-2xl shadow-2xl transition duration-300 border-t-4 border-cyan-500/50 hover:shadow-cyan-500/20">
+                        <div class="flex items-center justify-center h-12 w-12 rounded-xl bg-cyan-600/20 text-cyan-400 mb-6">
+                            <!-- Chart Icon -->
+                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8v8m-4-5v5m-4-2v2m13-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        </div>
+                        <h3 class="text-xl font-semibold text-white mb-3">Deep Player & Team Statistics</h3>
+                        <p class="text-gray-400">
+                            Track every goal, assist, and win. Detailed metrics allow you to analyze performance, scout opponents, and recruit the best talent.
+                        </p>
+                    </div>
+
+                    <!-- Feature Card 3: Community & Events -->
+                    <div class="bg-gray-800 p-8 rounded-2xl shadow-2xl transition duration-300 border-t-4 border-cyan-500/50 hover:shadow-cyan-500/20">
+                        <div class="flex items-center justify-center h-12 w-12 rounded-xl bg-cyan-600/20 text-cyan-400 mb-6">
+                            <!-- Users Icon -->
+                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.65-.18-1.284-.5-1.856M7 20v-2c0-.65.18-1.284.5-1.857M7 10h6m-6 4h6m4-10H5a2 2 0 00-2 2v10a2 2 0 002 2h14a2 2 0 002-2V7a2 2 0 00-2-2z"></path></svg>
+                        </div>
+                        <h3 class="text-xl font-semibold text-white mb-3">Vibrant Global Community</h3>
+                        <p class="text-gray-400">
+                            Connect with fellow competitors via integrated forums and join exclusive events. Find scrims, teammates, and discuss tactics.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white mt-10 border-t border-gray-700">
+        <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-wrap justify-between items-center text-sm">
+                <div class="w-full md:w-auto mb-6 md:mb-0">
+                    <p>&copy; 2025 PCE Esports. All rights reserved.</p>
+                </div>
+                
+                <div class="w-full md:w-auto flex flex-wrap space-x-6">
+                    <a href="#" class="text-gray-400 hover:text-cyan-400 transition duration-150">Discord</a>
+                    <a href="#" class="text-gray-400 hover:text-cyan-400 transition duration-150">Rulebook</a>
+                    <a href="#" class="text-gray-400 hover:text-cyan-400 transition duration-150">Privacy</a>
+                    <a href="#" class="text-gray-400 hover:text-cyan-400 transition duration-150">Contact Us</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>
