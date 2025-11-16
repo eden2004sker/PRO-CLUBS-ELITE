@@ -23,21 +23,21 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
                 <div class="flex-shrink-0 flex items-center">
-                    <a href="#" class="text-3xl font-extrabold text-cyan-400">PCE</a>
+                    <a href="/" class="text-3xl font-extrabold text-cyan-400">PCE</a>
                 </div>
 
                 <div class="hidden md:flex items-center">
                     <div class="space-x-4">
-                        <a href="#" class="text-gray-300 hover:text-cyan-400 px-3 py-2 rounded-md text-sm font-medium">Leagues</a>
-                        <a href="#" class="text-gray-300 hover:text-cyan-400 px-3 py-2 rounded-md text-sm font-medium">Teams & Clubs</a>
-                        <a href="#" class="text-gray-300 hover:text-cyan-400 px-3 py-2 rounded-md text-sm font-medium">Tournaments</a>
+                        <a href="/leagues.html" class="text-gray-300 hover:text-cyan-400 px-3 py-2 rounded-md text-sm font-medium">Leagues</a>
+                        <a href="/teams.html" class="text-gray-300 hover:text-cyan-400 px-3 py-2 rounded-md text-sm font-medium">Teams & Clubs</a>
+                        <a href="/tournaments.html" class="text-gray-300 hover:text-cyan-400 px-3 py-2 rounded-md text-sm font-medium">Tournaments</a>
                     </div>
                     
                     <div class="flex items-center ml-6 space-x-3">
-                        <a href="#" class="cta-button text-cyan-400 bg-gray-900 border border-cyan-400 hover:bg-gray-800 px-4 py-2 rounded-xl text-sm font-medium shadow-sm">
+                        <a href="/login.html" class="cta-button text-cyan-400 bg-gray-900 border border-cyan-400 hover:bg-gray-800 px-4 py-2 rounded-xl text-sm font-medium shadow-sm">
                             Log In
                         </a>
-                        <a href="#" class="cta-button bg-cyan-600 text-white hover:bg-cyan-500 px-4 py-2 rounded-xl text-sm font-medium shadow-lg hover:shadow-xl">
+                        <a href="auth/signup.html" class="cta-button bg-cyan-600 text-white hover:bg-cyan-500 px-4 py-2 rounded-xl text-sm font-medium shadow-lg hover:shadow-xl">
                             Sign Up
                         </a>
                     </div>
@@ -59,14 +59,14 @@
         <div id="mobile-menu" class="hidden md:hidden bg-gray-900 pb-3 border-t border-gray-700">
             
             <div class="pt-4 pb-3 px-4 space-y-2">
-                <a href="#" id="mobile-login-button" class="cta-button block text-center text-cyan-400 bg-gray-800 border border-cyan-400 hover:bg-gray-700 px-4 py-2 rounded-xl text-base font-medium shadow-sm">Log In</a>
-                <a href="#" id="mobile-signup-button" class="cta-button block text-center bg-cyan-600 text-white hover:bg-cyan-500 px-4 py-2 rounded-xl text-base font-medium shadow-lg">Sign Up</a>
+                <a href="/login.html" id="mobile-login-button" class="cta-button block text-center text-cyan-400 bg-gray-800 border border-cyan-400 hover:bg-gray-700 px-4 py-2 rounded-xl text-base font-medium shadow-sm">Log In</a>
+                <a href="auth/signup.html" id="mobile-signup-button" class="cta-button block text-center bg-cyan-600 text-white hover:bg-cyan-500 px-4 py-2 rounded-xl text-base font-medium shadow-lg">Sign Up</a>
             </div>
 
             <div class="px-2 pt-2 pb-3 space-y-1 mt-2">
-                <a href="#" class="block text-base font-medium text-gray-300 hover:bg-gray-800 hover:text-cyan-400 rounded-md py-2 px-3">Leagues</a>
-                <a href="#" class="block text-base font-medium text-gray-300 hover:bg-gray-800 hover:text-cyan-400 rounded-md py-2 px-3">Teams & Clubs</a>
-                <a href="#" class="block text-base font-medium text-gray-300 hover:bg-gray-800 hover:text-cyan-400 rounded-md py-2 px-3">Tournaments</a>
+                <a href="/leagues.html" class="block text-base font-medium text-gray-300 hover:bg-gray-800 hover:text-cyan-400 rounded-md py-2 px-3">Leagues</a>
+                <a href="/teams.html" class="block text-base font-medium text-gray-300 hover:bg-gray-800 hover:text-cyan-400 rounded-md py-2 px-3">Teams & Clubs</a>
+                <a href="/tournaments.html" class="block text-base font-medium text-gray-300 hover:bg-gray-800 hover:text-cyan-400 rounded-md py-2 px-3">Tournaments</a>
             </div>
         </div>
     </nav>
@@ -81,10 +81,10 @@
                     Join thousands of competitive gamers in organized leagues and tournaments across multiple titles. Forge your legacy, challenge the best, and go pro.
                 </p>
                 <div class="mt-10 flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
-                    <a href="#" class="cta-button bg-cyan-600 text-white text-lg font-semibold px-8 py-3 rounded-xl shadow-lg hover:bg-cyan-500 hover:ring-4 hover:ring-cyan-700/50">
+                    <a href="/signup.html" class="cta-button bg-cyan-600 text-white text-lg font-semibold px-8 py-3 rounded-xl shadow-lg hover:bg-cyan-500 hover:ring-4 hover:ring-cyan-700/50">
                         Register Your Team Now!
                     </a>
-                    <a href="#" class="cta-button bg-gray-700 text-gray-100 border border-gray-600 text-lg font-semibold px-8 py-3 rounded-xl shadow-md hover:bg-gray-600">
+                    <a href="/leagues.html" class="cta-button bg-gray-700 text-gray-100 border border-gray-600 text-lg font-semibold px-8 py-3 rounded-xl shadow-md hover:bg-gray-600">
                         Explore Active Leagues
                     </a>
                 </div>
@@ -155,7 +155,6 @@
             const iconClosed = document.getElementById('menu-icon-closed');
             const iconOpen = document.getElementById('menu-icon-open');
             
-            // Added unique IDs for easy targeting in the mobile menu CTA section
             const mobileLoginButton = document.getElementById('mobile-login-button');
             const mobileSignupButton = document.getElementById('mobile-signup-button'); 
 
@@ -172,25 +171,21 @@
             // 1. Menu Toggle Button Listener
             if (button && menu) {
                 button.addEventListener('click', () => {
-                    // Toggle the 'hidden' class on the menu content
                     menu.classList.toggle('hidden');
-
-                    // Toggle the menu icon (Hamburger <-> X)
                     iconClosed.classList.toggle('hidden');
                     iconOpen.classList.toggle('hidden');
                     
-                    // Toggle aria-expanded attribute for accessibility
                     const isExpanded = button.getAttribute('aria-expanded') === 'true' || false;
                     button.setAttribute('aria-expanded', !isExpanded);
                 });
             }
 
-            // 2. Mobile Sign Up Button Listener
+            // 2. Mobile Sign Up Button Listener (Closes menu on click)
             if (mobileSignupButton) {
                 mobileSignupButton.addEventListener('click', closeMobileMenu);
             }
             
-            // 3. Mobile Log In Button Listener
+            // 3. Mobile Log In Button Listener (Closes menu on click)
             if (mobileLoginButton) {
                 mobileLoginButton.addEventListener('click', closeMobileMenu);
             }
