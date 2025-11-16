@@ -23,41 +23,63 @@
     <!-- Navigation Bar -->
     <nav class="bg-gray-900 shadow-xl sticky top-0 z-10">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Primary Navbar Row (Always Visible) -->
             <div class="flex justify-between h-16">
                 <!-- Logo/Branding -->
                 <div class="flex-shrink-0 flex items-center">
-                    <a href="/" class="text-3xl font-extrabold text-cyan-400">PCE</a>
+                    <a href="#" class="text-3xl font-extrabold text-cyan-400">PCE</a>
                 </div>
 
-                <!-- Desktop Links & Auth Buttons -->
-                <div class="flex items-center">
-                    <div class="hidden md:flex space-x-4">
+                <!-- Desktop Links & Auth Buttons (Hidden on Mobile, Flex on Desktop) -->
+                <div class="hidden md:flex items-center">
+                    <!-- Desktop Links -->
+                    <div class="space-x-4">
                         <a href="#" class="text-gray-300 hover:text-cyan-400 px-3 py-2 rounded-md text-sm font-medium">Leagues</a>
                         <a href="#" class="text-gray-300 hover:text-cyan-400 px-3 py-2 rounded-md text-sm font-medium">Teams & Clubs</a>
                         <a href="#" class="text-gray-300 hover:text-cyan-400 px-3 py-2 rounded-md text-sm font-medium">Tournaments</a>
                     </div>
                     
-                    <div class="hidden md:flex items-center ml-6 space-x-3">
-                        <!-- Log In Button (Secondary CTA) -->
-                        <a href="/auth/login.html" class="cta-button text-cyan-400 bg-gray-900 border border-cyan-400 hover:bg-gray-800 px-4 py-2 rounded-xl text-sm font-medium shadow-sm">
+                    <!-- Desktop CTAs -->
+                    <div class="flex items-center ml-6 space-x-3">
+                        <a href="#" class="cta-button text-cyan-400 bg-gray-900 border border-cyan-400 hover:bg-gray-800 px-4 py-2 rounded-xl text-sm font-medium shadow-sm">
                             Log In
                         </a>
-                        <!-- Sign Up Button (Primary CTA) -->
-                        <a href="/auth/signup.html" class="cta-button bg-cyan-600 text-white hover:bg-cyan-500 px-4 py-2 rounded-xl text-sm font-medium shadow-lg hover:shadow-xl">
+                        <a href="#" class="cta-button bg-cyan-600 text-white hover:bg-cyan-500 px-4 py-2 rounded-xl text-sm font-medium shadow-lg hover:shadow-xl">
                             Sign Up
                         </a>
                     </div>
                 </div>
 
-                <!-- Mobile Menu Button (Placeholder for functionality) -->
+                <!-- Mobile Menu Button -->
                 <div class="flex items-center md:hidden">
-                    <button class="inline-flex items-center justify-center p-2 rounded-md text-gray-300 hover:text-white hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-cyan-400">
-                        <!-- Menu Icon (using inline SVG for simplicity) -->
-                        <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <button id="mobile-menu-button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-300 hover:text-white hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-cyan-400" aria-expanded="false">
+                        <!-- Menu closed icon (Hamburger) -->
+                        <svg id="menu-icon-closed" class="h-6 w-6 block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+                        </svg>
+                        <!-- Menu open icon (X) -->
+                        <svg id="menu-icon-open" class="h-6 w-6 hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                         </svg>
                     </button>
                 </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu Content (Toggled) -->
+        <div id="mobile-menu" class="hidden md:hidden bg-gray-900 pb-3 border-t border-gray-700">
+            
+            <!-- Mobile CTAs - Placed at the top of the menu as requested -->
+            <div class="pt-4 pb-3 px-4 space-y-2">
+                <a href="#" class="cta-button block text-center text-cyan-400 bg-gray-800 border border-cyan-400 hover:bg-gray-700 px-4 py-2 rounded-xl text-base font-medium shadow-sm">Log In</a>
+                <a href="#" class="cta-button block text-center bg-cyan-600 text-white hover:bg-cyan-500 px-4 py-2 rounded-xl text-base font-medium shadow-lg">Sign Up</a>
+            </div>
+
+            <!-- Mobile Links -->
+            <div class="px-2 pt-2 pb-3 space-y-1 mt-2">
+                <a href="#" class="block text-base font-medium text-gray-300 hover:bg-gray-800 hover:text-cyan-400 rounded-md py-2 px-3">Leagues</a>
+                <a href="#" class="block text-base font-medium text-gray-300 hover:bg-gray-800 hover:text-cyan-400 rounded-md py-2 px-3">Teams & Clubs</a>
+                <a href="#" class="block text-base font-medium text-gray-300 hover:bg-gray-800 hover:text-cyan-400 rounded-md py-2 px-3">Tournaments</a>
             </div>
         </div>
     </nav>
@@ -75,11 +97,11 @@
                 </p>
                 <div class="mt-10 flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
                     <!-- Primary CTA - Sign Up (Larger) -->
-                    <a href="/auth/signup.html" class="cta-button bg-cyan-600 text-white text-lg font-semibold px-8 py-3 rounded-xl shadow-lg hover:bg-cyan-500 hover:ring-4 hover:ring-cyan-700/50">
+                    <a href="#" class="cta-button bg-cyan-600 text-white text-lg font-semibold px-8 py-3 rounded-xl shadow-lg hover:bg-cyan-500 hover:ring-4 hover:ring-cyan-700/50">
                         Register Your Team Now!
                     </a>
                     <!-- Secondary CTA - View Leagues -->
-                    <a href="/leagues" class="cta-button bg-gray-700 text-gray-100 border border-gray-600 text-lg font-semibold px-8 py-3 rounded-xl shadow-md hover:bg-gray-600">
+                    <a href="#" class="cta-button bg-gray-700 text-gray-100 border border-gray-600 text-lg font-semibold px-8 py-3 rounded-xl shadow-md hover:bg-gray-600">
                         Explore Active Leagues
                     </a>
                 </div>
@@ -149,6 +171,31 @@
             </div>
         </div>
     </footer>
+
+    <script>
+        // JavaScript for mobile menu toggle functionality
+        document.addEventListener('DOMContentLoaded', () => {
+            const button = document.getElementById('mobile-menu-button');
+            const menu = document.getElementById('mobile-menu');
+            const iconClosed = document.getElementById('menu-icon-closed');
+            const iconOpen = document.getElementById('menu-icon-open');
+
+            if (button && menu) {
+                button.addEventListener('click', () => {
+                    // Toggle the 'hidden' class on the menu content
+                    menu.classList.toggle('hidden');
+
+                    // Toggle the menu icon (Hamburger <-> X)
+                    iconClosed.classList.toggle('hidden');
+                    iconOpen.classList.toggle('hidden');
+                    
+                    // Toggle aria-expanded attribute for accessibility
+                    const isExpanded = button.getAttribute('aria-expanded') === 'true' || false;
+                    button.setAttribute('aria-expanded', !isExpanded);
+                });
+            }
+        });
+    </script>
 
 </body>
 </html>
