@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PCE Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom styles for the Inter font and smooth transitions */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #111827; /* Deep slate background */
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4">
+
+    <div id="auth-container" class="w-full max-w-md bg-white p-8 rounded-xl shadow-2xl transition duration-300 ease-in-out">
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-6" id="auth-title">PCE Login</h1>
+        
+        <div id="auth-form" class="space-y-4">
+            <div>
+                <label for="email" class="block text-sm font-medium text-gray-700">Email (Username)</label>
+                <input type="email" id="email" placeholder="you@example.com"
+                    class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    required>
+            </div>
+            <div>
+                <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+                <input type="password" id="password" placeholder="••••••••"
+                    class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    required>
+            </div>
+            
+            <button id="login-button"
+                class="w-full flex justify-center py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-300 ease-in-out">
+                Log In
+            </button>
+            
+            <button id="goto-signup-button"
+                class="w-full flex justify-center py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-indigo-600 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-300 ease-in-out">
+                Go to Sign Up Page
+            </button>
+            
+            <div id="error-message" class="text-sm font-medium text-red-600 pt-2 hidden"></div>
+        </div>
+
+        <div id="user-status" class="hidden text-center space-y-4">
+            <h2 class="text-xl font-semibold text-green-600">Login Successful!</h2>
+            <p class="text-gray-700">Redirecting to **home.html**...</p> 
+            <p class="text-gray-700">User ID: <span id="user-id" class="break-all font-mono text-xs p-1 bg-gray-100 rounded-lg inline-block"></span></p>
+            
+            <button id="logout-button"
+                class="w-full flex justify-center py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition duration-300 ease-in-out">
+                Log Out (Only visible for 1s)
+            </button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { 
+            getAuth, 
+            signInWithEmailAndPassword, 
+            signOut,
+            onAuthStateChanged,
+            signInWithCustomToken,
+            setPersistence,
+            browserSessionPersistence
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        
+        // --- Global Variables (Provided by Canvas Environment) ---
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        // --- FALLBACK CONFIGURATION (Your config) ---
+        const USER_FALLBACK_CONFIG = {
+            apiKey: "AIzaSyB0C5O-9xh9CrmLnsD2kquCyJ1zTtYkiLg", 
+            authDomain: "fifa-super-league.firebaseapp.com",
+            projectId: "fifa-super-league",
+            storageBucket: "fifa-super-league.firebasestorage.app",
+            messagingSenderId: "407346622789",
+            appId: "1:407346622789:web:6b48448ca0410ccf588e2c",
+            databaseURL: "https://fifa-super-league-default-rtdb.europe-west1.firebasedatabase.app",
+            measurementId: "G-Y8HVMK7SZ1"
+        };
+        // -----------------------------------------------------------------
+
+        let firebaseConfig = USER_FALLBACK_CONFIG; 
+
+        // 1. Try to safely parse the environment-provided configuration (omitted for brevity)
+        const environmentConfigString = typeof __firebase_config !== 'undefined' ? __firebase_config : null;
+        try {
+            if (environmentConfigString) {
+                const parsedConfig = JSON.parse(environmentConfigString);
+                if (parsedConfig && parsedConfig.apiKey) {
+                    firebaseConfig = parsedConfig;
+                }
+            }
+        } catch (e) {
+            console.error("Error parsing __firebase_config:", e);
+        }
+
+        let auth;
+
+        // --- UI Element References ---
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const loginButton = document.getElementById('login-button');
+        const gotoSignupButton = document.getElementById('goto-signup-button');
+        const logoutButton = document.getElementById('logout-button');
+        const errorMessageDiv = document.getElementById('error-message');
+        const authFormDiv = document.getElementById('auth-form');
+        const userStatusDiv = document.getElementById('user-status');
+        const authTitle = document.getElementById('auth-title');
+        const userIdDisplay = document.getElementById('user-id');
+
+        /**
+         * Displays an error message to the user in the designated div.
+         * @param {string} message - The error message to display.
+         */
+        function displayError(message) {
+            errorMessageDiv.textContent = message;
+            errorMessageDiv.classList.remove('hidden');
+        }
+
+        /**
+         * Clears the error message.
+         */
+        function clearError() {
+            errorMessageDiv.textContent = '';
+            errorMessageDiv.classList.add('hidden');
+        }
+
+        /**
+         * Updates the UI based on the current user state, and redirects if logged in.
+         * @param {object | null} user - The Firebase User object or null if logged out.
+         */
+        function updateUI(user) {
+            clearError();
+            
+            // Check for a fully authenticated user with an email (not anonymous)
+            if (user && user.email) { 
+                // --- REDIRECTION LOGIC ---
+                // CONSOLE LOG UPDATED
+                console.log(`User signed in (${user.uid}). Attempting redirect to home.html`);
+                
+                // Set initial status to show successful login
+                authTitle.textContent = 'Welcome Back!';
+                userIdDisplay.textContent = user.uid;
+                authFormDiv.classList.add('hidden');
+                userStatusDiv.classList.remove('hidden');
+
+                // Check the current page path against the target 'home.html'
+                const currentPath = window.location.pathname.split('/').pop();
+                // FILENAME CHECK UPDATED
+                if (currentPath !== 'home.html' && currentPath !== 'home.html#') { 
+                    // Redirect after a short delay (1000ms) to allow the user to see the success state
+                    setTimeout(() => {
+                        // REDIRECTION TARGET UPDATED
+                        window.location.href = '/home.html'; 
+                    }, 1000); 
+                } else {
+                    // CONSOLE LOG UPDATED
+                    console.log("Redirection skipped: Already on or attempting to navigate to home.html.");
+                }
+            } else {
+                // User is logged out, show the login form
+                authTitle.textContent = 'PCE Login';
+                authFormDiv.classList.remove('hidden');
+                userStatusDiv.classList.add('hidden');
+                console.log('No email/password user signed in. Showing login form.');
+            }
+        }
+        
+        /**
+         * Main function to handle user login.
+         */
+        async function handleLogin() {
+            clearError();
+            const email = emailInput.value.trim();
+            const password = passwordInput.value;
+
+            if (!email || !password) {
+                displayError("Please enter both email and password.");
+                return;
+            }
+
+            try {
+                // Ensure session persistence is set before sign-in
+                await setPersistence(auth, browserSessionPersistence);
+                
+                await signInWithEmailAndPassword(auth, email, password);
+                // onAuthStateChanged will call updateUI() and handle the redirection
+            } catch (error) {
+                console.error("Login Error:", error);
+                let message = "Login failed. Please check your credentials.";
+                if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
+                    message = "Invalid email or password. Please try again or sign up.";
+                } else if (error.code === 'auth/wrong-password') {
+                    message = "Incorrect password.";
+                }
+                displayError(message);
+            }
+        }
+
+        /**
+         * Handles the click on the "Go to Sign Up Page" button.
+         */
+        function handleGoToSignUp() {
+            // Simulated navigation to the signup page
+            console.log("Navigation simulated: Redirecting to signup.html");
+            displayError("To create an account, you must visit your separate signup page (e.g., signup.html). This file is for Login only.");
+        }
+
+        /**
+         * Handles user logout.
+         */
+        async function handleLogout() {
+            try {
+                await signOut(auth);
+                // onAuthStateChanged will call updateUI() and show the login form
+                emailInput.value = '';
+                passwordInput.value = '';
+            } catch (error) {
+                console.error("Logout Error:", error);
+                displayError("Failed to log out.");
+            }
+        }
+
+        /**
+         * Initializes Firebase and sets up event listeners.
+         */
+        async function initApp() {
+            try {
+                // 1. Initialize Firebase App
+                const app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                
+                // 2. Initial Auth Setup (omitted for brevity)
+                if (initialAuthToken) {
+                    signInWithCustomToken(auth, initialAuthToken)
+                        .then(() => console.log("Signed in with initial custom token."))
+                        .catch((e) => console.warn("Initial custom token sign-in failed. Relying on browser session/login form.", e));
+                }
+
+                // 3. Set up Auth State Listener (Crucial for session checking and redirection)
+                onAuthStateChanged(auth, (user) => {
+                    // Update UI and handle redirect whenever the authentication state changes
+                    updateUI(user);
+                });
+
+                // 4. Set up event listeners for buttons
+                loginButton.addEventListener('click', handleLogin);
+                gotoSignupButton.addEventListener('click', handleGoToSignUp);
+                logoutButton.addEventListener('click', handleLogout);
+
+            } catch (error) {
+                console.error("Firebase Initialization Error:", error);
+                displayError("Failed to initialize the application. Check Firebase configuration and network status.");
+            }
+        }
+
+        // Start the application
+        window.onload = initApp;
+    </script>
+</body>
+</html>

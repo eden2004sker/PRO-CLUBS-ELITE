@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Roles Management</title>
+    <!-- Load Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        'primary-dark': '#1e293b',
+                        'primary-light': '#334155',
+                        'accent-indigo': '#4f46e5',
+                        'admin-red': '#dc2626',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            background-color: #f1f5f9;
+        }
+        .main-content::-webkit-scrollbar { width: 8px; }
+        .main-content::-webkit-scrollbar-thumb { background-color: #94a3b8; border-radius: 4px; }
+        .main-content::-webkit-scrollbar-track { background: #f1f5f9; }
+        
+        /* Style for the select dropdown */
+        .role-select {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2220%22%20height%3D%2220%22%20fill%3D%22none%22%20viewBox%3D%220%200%2020%2020%22%3E%3Cpath%20stroke%3D%22%236b7280%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%221.5%22%20d%3D%22M6%208l4%204%204-4%22%2F%3E%3C%2Fsvg%3E');
+            background-position: right 0.5rem center;
+            background-repeat: no-repeat;
+            background-size: 1.5em 1.5em;
+            padding-right: 2.5rem;
+        }
+    </style>
+</head>
+<body class="flex h-screen">
+
+    <!-- Sidebar Menu (Simplified for this page) -->
+    <aside class="fixed inset-y-0 left-0 z-50 w-64 bg-primary-dark shadow-xl md:relative md:flex flex-col text-slate-200">
+        <div class="p-6 border-b border-primary-light flex items-center justify-center">
+             <svg class="w-8 h-8 text-accent-indigo" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+            </svg>
+            <h1 class="text-2xl font-bold ml-3 text-white">Admin Panel</h1>
+        </div>
+        <nav class="flex-grow p-4 space-y-2">
+            <a href="dashboard.html" class="flex items-center p-3 rounded-xl hover:bg-primary-light text-slate-300">
+                Dashboard
+            </a>
+            <a href="#" class="flex items-center p-3 rounded-xl bg-primary-light text-accent-indigo font-semibold shadow-md">
+                User Roles
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content Area -->
+    <div id="main-panel" class="flex-1 flex flex-col overflow-y-auto main-content">
+        <!-- Header / Top Bar -->
+        <header class="bg-white shadow-md p-4 sticky top-0 z-40">
+            <div class="flex items-center justify-between">
+                <h1 class="text-xl font-bold text-primary-dark">Manage User Roles</h1>
+                <div id="status-display" class="text-sm px-3 py-1 rounded-full bg-yellow-100 text-yellow-800 font-medium">
+                    Loading...
+                </div>
+            </div>
+        </header>
+
+        <!-- Roles Management Content -->
+        <main class="p-8">
+            <h2 class="text-3xl font-extrabold text-primary-dark mb-6">League Members</h2>
+            
+            <div class="bg-white p-6 rounded-2xl shadow-xl border border-slate-200">
+                <p class="text-sm text-slate-500 mb-4">
+                    Data Path: <code class="bg-slate-100 p-0.5 rounded font-mono break-all" id="path-display">...</code>
+                </p>
+                
+                <div class="overflow-x-auto rounded-xl border border-slate-200">
+                    <table class="min-w-full divide-y divide-slate-200">
+                        <thead class="bg-slate-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">User Info</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Platform</th>
+                                <th class="px-6 py-3 text-center text-xs font-medium text-slate-500 uppercase tracking-wider">Role</th>
+                            </tr>
+                        </thead>
+                        <tbody id="user-table-body" class="bg-white divide-y divide-slate-200">
+                            <tr><td colspan="3" class="p-4 text-center text-slate-500" id="initial-message">Waiting for Firebase connection...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+        </main>
+        
+        <!-- Footer -->
+        <footer class="p-4 text-center text-slate-500 border-t mt-8 text-sm">
+            &copy; <span id="current-year"></span> Pro Clubs Admin System.
+        </footer>
+    </div>
+    
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, setPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, doc, onSnapshot, updateDoc, setDoc, query, where } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        
+        // setLogLevel('debug'); // Uncomment to see detailed firebase logs
+
+        // A minimal, safe fallback configuration to prevent the app from crashing,
+        // now using the API key you provided.
+        const fallbackConfig = {
+            // Using the user-provided key to enable connection
+            apiKey: "AIzaSyB0C5O-9xh9CrmLnsD2kquCyJ1zTtYkiLg", 
+            projectId: "dummy-project", 
+            authDomain: "dummy.firebaseapp.com", 
+            storageBucket: "dummy.appspot.com", 
+            messagingSenderId: "123456789012", 
+            appId: "1:123456789012:web:1234567890abcdef",
+        };
+        
+        // Your defined roles
+        const ROLES = [
+            { id: 'developer', name: 'Developer', color: 'bg-black text-white' },
+            { id: 'founder', name: 'Founder', color: 'bg-red-600 text-white' },
+            { id: 'owner', name: 'Owner', color: 'bg-red-500 text-white' },
+            { id: 'co-owner', name: 'Co-Owner', color: 'bg-red-400 text-white' },
+            { id: 'head_admin', name: 'Head Admin', color: 'bg-orange-500 text-white' },
+            { id: 'admin', name: 'Admin', color: 'bg-orange-400 text-black' },
+            { id: 'manager', name: 'Manager', color: 'bg-blue-500 text-white' },
+            { id: 'co_manager', name: 'Co-Manager', color: 'bg-blue-400 text-white' },
+            { id: 'user', name: 'Standard User', color: 'bg-green-100 text-green-800' }
+        ];
+
+        // --- GLOBAL VARIABLES ---
+        let appId = 'default-app-id';
+        let firebaseConfig = {};
+        let authToken = null;
+        let isConfigFallback = false;
+        let db = null;
+        let auth = null;
+        let currentUserId = null;
+        let maxRetries = 5;
+
+        // 1. Load Configuration (attempts to use environment variable first)
+        if (typeof __firebase_config !== 'undefined' && __firebase_config.length > 0) {
+            try { firebaseConfig = JSON.parse(__firebase_config); } catch (e) { firebaseConfig = fallbackConfig; isConfigFallback = true; }
+        } else {
+             firebaseConfig = fallbackConfig; isConfigFallback = true;
+        }
+
+        // 2. Load App ID & Auth Token
+        if (typeof __app_id !== 'undefined' && __app_id.length > 0) {
+            appId = __app_id;
+        }
+        if (typeof __initial_auth_token !== 'undefined') {
+            authToken = __initial_auth_token;
+        }
+        
+        const PUBLIC_USER_PROFILES_COLLECTION = `artifacts/${appId}/public/data/user_profiles`;
+
+        // Utility to wait for a specific duration
+        const delay = ms => new Promise(res => setTimeout(res, ms));
+
+        // --- AUTHENTICATION WITH RETRY ---
+        async function signInWithRetry(auth, authToken, maxAttempts) {
+            const statusDisplay = document.getElementById('status-display');
+            for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+                try {
+                    statusDisplay.textContent = `Authenticating (Attempt ${attempt}/${maxAttempts})...`;
+                    statusDisplay.className = 'text-sm px-3 py-1 rounded-full bg-indigo-100 text-indigo-800 font-medium';
+                    
+                    if (authToken) {
+                        await signInWithCustomToken(auth, authToken);
+                    } else {
+                        await signInAnonymously(auth);
+                    }
+                    
+                    // Success, return true
+                    return true; 
+                } catch (error) {
+                    console.warn(`Auth attempt ${attempt} failed: ${error.code}.`);
+                    if (attempt < maxAttempts) {
+                        const waitTime = Math.pow(2, attempt) * 500; // Exponential backoff (1s, 2s, 4s, ...)
+                        await delay(waitTime);
+                    } else {
+                        // Max attempts reached, re-throw the final error
+                        throw error;
+                    }
+                }
+            }
+        }
+
+
+        // --- CORE SETUP FUNCTION ---
+        async function setupFirebase() {
+            const statusDisplay = document.getElementById('status-display');
+            document.getElementById('path-display').textContent = PUBLIC_USER_PROFILES_COLLECTION;
+            
+            if (isConfigFallback) {
+                console.warn("Using Fallback Configuration. Some features may not work correctly.");
+                statusDisplay.textContent = 'WARNING: Using Fallback Configuration';
+                statusDisplay.className = 'text-sm px-3 py-1 rounded-full bg-yellow-100 text-yellow-800 font-medium';
+            }
+            
+            try {
+                // 1. Initialize App
+                const app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+                await setPersistence(auth, browserSessionPersistence);
+                
+                // 2. Authentication Block with Retry
+                try {
+                    await signInWithRetry(auth, authToken, maxRetries);
+                    currentUserId = auth.currentUser.uid;
+                    statusDisplay.textContent = 'Authenticated';
+                    statusDisplay.className = 'text-sm px-3 py-1 rounded-full bg-green-100 text-green-800 font-medium';
+                } catch (authError) {
+                    currentUserId = `auth-fail-${crypto.randomUUID()}`;
+                    
+                    // Check specifically for the admin-restricted error
+                    const errorCode = authError.code || 'UNKNOWN';
+                    const errorMessage = errorCode === 'auth/admin-restricted-operation'
+                        ? 'AUTH BLOCKED (Rule issue?): auth/admin-restricted-operation'
+                        : `AUTH FAILED: ${errorCode}`;
+                        
+                    statusDisplay.textContent = errorMessage;
+                    statusDisplay.className = 'text-sm px-3 py-1 rounded-full bg-red-100 text-red-800 font-medium';
+                    
+                    document.getElementById('user-table-body').innerHTML = `
+                        <tr><td colspan="3" class="p-4 text-center text-red-600">
+                            Authentication failed after ${maxRetries} attempts.
+                            <br>Check Firebase Security Rules for Auth and Firestore reads.
+                        </td></tr>
+                    `;
+                    console.error("Auth: Sign-in failed after retries. Error:", authError);
+                    return; // Stop execution if auth fails persistently
+                }
+                
+                // Start listening to the user profile collection
+                startRolesListener();
+
+            } catch (fatalError) {
+                statusDisplay.textContent = `FATAL: ${fatalError.code || fatalError.message}`;
+                statusDisplay.className = 'text-sm px-3 py-1 rounded-full bg-red-600 text-white font-medium';
+                console.error("Firebase Setup Failed (Fatal): ", fatalError);
+            }
+        }
+
+        // --- FIRESTORE LOGIC ---
+
+        // Function to update the user's role
+        async function updateUserRole(targetUserId, newRole) {
+            const docRef = doc(db, PUBLIC_USER_PROFILES_COLLECTION, targetUserId);
+            
+            if (targetUserId === currentUserId) {
+                showMessage("You cannot modify your own role on this page.", 'error');
+                // Revert the dropdown (or just let the listener snap it back)
+                startRolesListener(); // Refresh list to show original value
+                return;
+            }
+
+            try {
+                await updateDoc(docRef, {
+                    role: newRole
+                });
+                showMessage(`Updated role for ${targetUserId} to ${newRole}.`, 'success');
+            } catch (error) {
+                console.error("Error updating role:", error);
+                showMessage(`Update Failed: ${error.code} - Do you have write permissions?`, 'error');
+            }
+        }
+        
+        // Expose function to global scope for button clicks
+        window.updateUserRole = updateUserRole;
+
+        // Function to display messages in a temporary floating box
+        function showMessage(message, type = 'info') {
+            const box = document.createElement('div');
+            box.textContent = message;
+            box.className = 'fixed bottom-4 right-4 p-3 rounded-xl shadow-2xl z-50 text-white transition-opacity duration-300';
+            const colors = {
+                success: 'bg-green-500', error: 'bg-red-600', info: 'bg-accent-indigo'
+            };
+            box.classList.add(colors[type] || colors['info']);
+            document.body.appendChild(box);
+            setTimeout(() => { box.remove(); }, 5000);
+        }
+        
+        // Helper function to create the role dropdown
+        function createRoleDropdown(userId, currentRoleId) {
+            const select = document.createElement('select');
+            select.className = 'role-select block w-full p-2 border border-slate-300 rounded-md shadow-sm focus:ring-accent-indigo focus:border-accent-indigo';
+            
+            // Disable if it's the current user
+            if (userId === currentUserId) {
+                select.disabled = true;
+                select.classList.add('opacity-70', 'cursor-not-allowed');
+            }
+            
+            ROLES.forEach(role => {
+                const option = document.createElement('option');
+                option.value = role.id;
+                option.textContent = role.name;
+                if (role.id === currentRoleId) {
+                    option.selected = true;
+                }
+                select.appendChild(option);
+            });
+            
+            // Add the onchange event listener
+            select.addEventListener('change', (e) => {
+                window.updateUserRole(userId, e.target.value);
+            });
+            
+            return select;
+        }
+
+        // Real-time listener for the user profiles collection
+        function startRolesListener() {
+            const collectionRef = collection(db, PUBLIC_USER_PROFILES_COLLECTION);
+            
+            onSnapshot(collectionRef, (snapshot) => {
+                const tableBody = document.getElementById('user-table-body');
+                tableBody.innerHTML = ''; // Clear previous rows
+                document.getElementById('initial-message').style.display = 'none';
+
+                if (snapshot.empty) {
+                    tableBody.innerHTML = '<tr><td colspan="3" class="p-4 text-center text-slate-500">No user profiles found.</td></tr>';
+                    return;
+                }
+
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const userId = doc.id;
+                    const currentRole = data.role || 'user'; // Default to 'user' if no role is set
+                    
+                    // Find the full role object for styling
+                    const roleObject = ROLES.find(r => r.id === currentRole) || ROLES.find(r => r.id === 'user');
+
+                    const row = document.createElement('tr');
+                    
+                    // User Info Cell
+                    const infoCell = document.createElement('td');
+                    infoCell.className = 'px-6 py-4 whitespace-nowrap';
+                    infoCell.innerHTML = `
+                        <div class="text-sm font-medium text-primary-dark">${data.gamertag || 'N/A'}</div>
+                        <div class="text-xs text-slate-500 font-mono break-all">${data.email || userId}</div>
+                    `;
+                    row.appendChild(infoCell);
+                    
+                    // Platform Cell
+                    const platformCell = document.createElement('td');
+                    platformCell.className = 'px-6 py-4 whitespace-nowrap text-sm text-slate-500';
+                    platformCell.textContent = data.platform || 'N/A';
+                    row.appendChild(platformCell);
+                    
+                    // Role Cell (with dropdown and badge)
+                    const roleCell = document.createElement('td');
+                    // Use a responsive layout: stack on mobile (default), side-by-side on desktop (sm:flex)
+                    roleCell.className = 'px-6 py-4 text-center'; 
+                    roleCell.innerHTML = `
+                        <div class="flex flex-col sm:flex-row items-center justify-center space-y-2 sm:space-y-0 sm:space-x-3">
+                            <!-- Role Badge -->
+                            <span class="px-3 py-1 text-xs font-semibold rounded-full w-full sm:w-auto ${roleObject.color}">
+                                ${roleObject.name}
+                            </span>
+                            <!-- Dropdown Container -->
+                            <div id="dropdown-container-${userId}" class="w-full sm:w-1/2 min-w-[140px]">
+                                <!-- Dropdown will be inserted here -->
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Insert the dynamically created dropdown into its container
+                    const dropdownContainer = roleCell.querySelector(`#dropdown-container-${userId}`);
+                    const dropdown = createRoleDropdown(userId, currentRole);
+                    dropdownContainer.appendChild(dropdown);
+                    
+                    row.appendChild(roleCell);
+                    
+                    tableBody.appendChild(row);
+                });
+            }, (error) => {
+                document.getElementById('user-table-body').innerHTML = `<tr><td colspan="3" class="p-4 text-center text-red-600">
+                    Listener Error: ${error.code} - Ensure your Firebase security rules allow read access to this collection.
+                </td></tr>`;
+                console.error("Firestore Listener Error: ", error);
+            });
+        }
+
+        // --- UI Initialization ---
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('current-year').textContent = new Date().getFullYear();
+        });
+        
+        window.addEventListener('load', setupFirebase);
+    </script>
+</body>
+</html>

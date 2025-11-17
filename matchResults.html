@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enter Match Results</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+        .input-score {
+            width: 4rem;
+            text-align: center;
+        }
+        .container {
+            max-width: 28rem; /* Set max width for the form */
+        }
+    </style>
+</head>
+<body class="p-4 sm:p-8">
+
+    <div class="container mx-auto">
+        <header class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">Enter Match Results</h1>
+            <p id="user-info" class="text-sm text-gray-500">Connecting...</p>
+        </header>
+
+        <!-- Status Message Box -->
+        <div id="status-message" class="hidden p-4 mb-4 rounded-lg text-sm transition duration-300"></div>
+
+        <div class="bg-white p-6 sm:p-8 rounded-xl shadow-xl space-y-6">
+            <div id="loading-teams" class="text-center p-4 text-gray-500">
+                <svg class="animate-spin h-5 w-5 mr-3 inline text-indigo-500" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Loading available teams...
+            </div>
+
+            <form id="match-form" class="hidden space-y-6" onsubmit="event.preventDefault(); submitResult();">
+                <!-- Home Team Selection -->
+                <div>
+                    <label for="home-team" class="block text-sm font-medium text-gray-700 mb-2">Home Team</label>
+                    <select id="home-team" required class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md shadow-sm">
+                        <option value="">Select Home Team</option>
+                    </select>
+                </div>
+
+                <!-- Score Input -->
+                <div class="flex items-center justify-center space-x-4">
+                    <input type="number" id="home-score" min="0" required 
+                           class="input-score border border-gray-300 rounded-lg p-3 text-lg font-bold text-indigo-600 focus:border-indigo-500 focus:ring-indigo-500">
+                    <span class="text-3xl font-extrabold text-gray-500">-</span>
+                    <input type="number" id="away-score" min="0" required 
+                           class="input-score border border-gray-300 rounded-lg p-3 text-lg font-bold text-indigo-600 focus:border-indigo-500 focus:ring-indigo-500">
+                </div>
+
+                <!-- Away Team Selection -->
+                <div>
+                    <label for="away-team" class="block text-sm font-medium text-gray-700 mb-2">Away Team</label>
+                    <select id="away-team" required class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md shadow-sm">
+                        <option value="">Select Away Team</option>
+                    </select>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" id="submit-button" disabled
+                        class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-lg font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out disabled:opacity-50">
+                    Record Result
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs and Logic -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, query, onSnapshot, updateDoc, doc, increment, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Global variables from the Canvas environment
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        let db;
+        let auth;
+        let userId = null;
+        let teamsMap = {}; // Map to hold teamId -> TeamObject for easy lookups
+        let isAuthReady = false;
+
+        const form = document.getElementById('match-form');
+        const homeSelect = document.getElementById('home-team');
+        const awaySelect = document.getElementById('away-team');
+        const homeScoreInput = document.getElementById('home-score');
+        const awayScoreInput = document.getElementById('away-score');
+        const submitButton = document.getElementById('submit-button');
+        const loadingTeams = document.getElementById('loading-teams');
+        const userInfoElement = document.getElementById('user-info');
+        const statusMessage = document.getElementById('status-message');
+
+        setLogLevel('debug');
+
+        /**
+         * Utility to display status messages to the user.
+         * @param {string} message - The message content.
+         * @param {string} type - 'success' or 'error'.
+         */
+        function showStatus(message, type) {
+            statusMessage.textContent = message;
+            statusMessage.classList.remove('hidden', 'bg-red-100', 'border-red-500', 'text-red-700', 'bg-green-100', 'border-green-500', 'text-green-700', 'border-l-4', 'bg-yellow-100', 'border-yellow-500', 'text-yellow-700');
+
+            if (type === 'success') {
+                statusMessage.classList.add('bg-green-100', 'border-green-500', 'text-green-700', 'border-l-4');
+            } else if (type === 'error') {
+                statusMessage.classList.add('bg-red-100', 'border-red-500', 'text-red-700', 'border-l-4');
+            } else if (type === 'warning') {
+                statusMessage.classList.add('bg-yellow-100', 'border-yellow-500', 'text-yellow-700', 'border-l-4');
+            }
+            statusMessage.classList.remove('hidden');
+            setTimeout(() => {
+                statusMessage.classList.add('hidden');
+            }, 5000); // Hide after 5 seconds
+        }
+
+        /**
+         * Populates the team dropdowns with data from the teamsMap.
+         */
+        function populateTeamSelects() {
+            homeSelect.innerHTML = '<option value="">Select Home Team</option>';
+            awaySelect.innerHTML = '<option value="">Select Away Team</option>';
+
+            const options = Object.entries(teamsMap).map(([id, team]) => 
+                `<option value="${id}">${team.name}</option>`
+            ).join('');
+
+            homeSelect.insertAdjacentHTML('beforeend', options);
+            awaySelect.insertAdjacentHTML('beforeend', options);
+            
+            // Re-enable button if we have at least 2 teams
+            if (Object.keys(teamsMap).length >= 2) {
+                 submitButton.disabled = false;
+            } else {
+                 submitButton.disabled = true;
+            }
+        }
+
+        /**
+         * Submits the match result, calculates stats, and updates Firestore using a batch write.
+         */
+        window.submitResult = async function() {
+            if (!isAuthReady || !userId) {
+                showStatus("App not fully connected. Please wait for authentication to complete.", 'warning');
+                return;
+            }
+
+            const homeTeamId = homeSelect.value;
+            const awayTeamId = awaySelect.value;
+            const homeScore = parseInt(homeScoreInput.value, 10);
+            const awayScore = parseInt(awayScoreInput.value, 10);
+
+            if (!homeTeamId || !awayTeamId || isNaN(homeScore) || isNaN(awayScore) || homeTeamId === awayTeamId) {
+                showStatus("Please ensure you've selected two different teams and entered valid scores.", 'error');
+                return;
+            }
+
+            submitButton.disabled = true;
+            submitButton.textContent = "Recording...";
+
+            try {
+                // Determine result type
+                let homeResult = 'drawn', awayResult = 'drawn';
+                
+                if (homeScore > awayScore) {
+                    homeResult = 'won';
+                    awayResult = 'lost';
+                } else if (awayScore > homeScore) {
+                    homeResult = 'lost';
+                    awayResult = 'won';
+                }
+                
+                // Get a reference to the teams collection (Using TEAMS)
+                const teamsRef = collection(db, `artifacts/${appId}/public/data/TEAMS`);
+                const batch = writeBatch(db);
+
+                // --- Update Home Team Stats ---
+                const homeDocRef = doc(teamsRef, homeTeamId);
+                const homeUpdate = {
+                    played: increment(1),
+                    goalsFor: increment(homeScore),
+                    goalsAgainst: increment(awayScore),
+                };
+                homeUpdate[homeResult] = increment(1);
+                batch.update(homeDocRef, homeUpdate);
+
+                // --- Update Away Team Stats ---
+                const awayDocRef = doc(teamsRef, awayTeamId);
+                const awayUpdate = {
+                    played: increment(1),
+                    goalsFor: increment(awayScore),
+                    goalsAgainst: increment(homeScore),
+                };
+                awayUpdate[awayResult] = increment(1);
+                batch.update(awayDocRef, awayUpdate);
+
+                // Commit the batch
+                await batch.commit();
+
+                showStatus(`Result recorded: ${teamsMap[homeTeamId].name} ${homeScore} - ${awayScore} ${teamsMap[awayTeamId].name}.`, 'success');
+                
+                // Reset form fields
+                homeSelect.value = '';
+                awaySelect.value = '';
+                homeScoreInput.value = '';
+                awayScoreInput.value = '';
+
+            } catch (error) {
+                console.error("Error submitting match result:", error);
+                showStatus(`Failed to record result. Error: ${error.message}. Check console.`, 'error');
+            } finally {
+                submitButton.disabled = false;
+                submitButton.textContent = "Record Result";
+            }
+        };
+
+        /**
+         * Sets up the real-time listener for the 'TEAMS' collection to populate dropdowns.
+         */
+        function startTeamListener() {
+            // Only proceed if authentication is confirmed
+            if (!isAuthReady || !userId) return; 
+
+            const teamsRef = collection(db, `artifacts/${appId}/public/data/TEAMS`);
+            const teamsQuery = query(teamsRef); 
+            
+            loadingTeams.textContent = "Fetching team data...";
+
+            onSnapshot(teamsQuery, (snapshot) => {
+                loadingTeams.classList.add('hidden'); // Hide loading indicator
+                form.classList.remove('hidden'); // Show the form
+                teamsMap = {}; // Reset the map
+                
+                if (snapshot.empty) {
+                    showStatus("No teams found. Please add teams to your Firestore 'TEAMS' collection.", 'warning');
+                    submitButton.disabled = true;
+                    return;
+                }
+                
+                snapshot.forEach(doc => {
+                    // Store the team object with its Firestore document ID
+                    teamsMap[doc.id] = { id: doc.id, ...doc.data() };
+                });
+
+                populateTeamSelects();
+
+            }, (error) => {
+                console.error("Error fetching teams data:", error);
+                loadingTeams.textContent = "Error fetching data. Check your Firestore collection path and security rules.";
+                showStatus("Error fetching teams for selection. Check console.", 'error');
+                submitButton.disabled = true;
+            });
+        }
+
+
+        /**
+         * Main function to initialize Firebase and handle authentication.
+         */
+        async function initializeAppAndListener() {
+            try {
+                // 1. Initialize Firebase
+                const app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+                
+                // 2. Handle Authentication
+                onAuthStateChanged(auth, async (user) => {
+                    if (user) {
+                        userId = user.uid;
+                        userInfoElement.textContent = `User ID: ${userId}`;
+                        isAuthReady = true;
+                        // Start listening to the database ONLY after successful auth
+                        startTeamListener();
+                    } else {
+                        // Attempt Sign In
+                        try {
+                            if (initialAuthToken) {
+                                await signInWithCustomToken(auth, initialAuthToken);
+                            } else {
+                                await signInAnonymously(auth);
+                            }
+                        } catch (e) {
+                            // If sign-in fails, mark as ready but log error
+                            console.error("Authentication failed:", e);
+                            userInfoElement.textContent = "Authentication Failed.";
+                            isAuthReady = true;
+                            startTeamListener(); // Try listener anyway, but it will likely fail due to rules
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error("Firebase initialization failed:", error);
+                loadingTeams.textContent = "Error initializing Firebase. Please check your app configuration.";
+                showStatus("Error initializing Firebase. Cannot load teams.", 'error');
+            }
+        }
+
+        initializeAppAndListener();
+    </script>
+</body>
+</html>

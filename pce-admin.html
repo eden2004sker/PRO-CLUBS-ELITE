@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PCE | Admin Panel</title>
+    
+    <link rel="stylesheet" href="styles/index.css">
+
+    <style>
+        /* Admin-specific styles (Minimal adjustments to your dark mode) */
+        #admin-container {
+            width: 100%;
+            max-width: 800px;
+            padding: 20px;
+            background-color: #1f2937; /* Gray-800 background */
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+        }
+        .status-active {
+            color: #4ade80; /* Green-400 */
+            font-weight: 600;
+        }
+        .status-inactive {
+            color: #fca5a5; /* Red-300 */
+        }
+        #login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding: 20px;
+            border: 1px solid #374151;
+            border-radius: 6px;
+        }
+        input, button {
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+        }
+        input {
+            background-color: #374151; /* Gray-700 input background */
+            color: white;
+        }
+        .toggle-btn {
+            background-color: #4ade80; /* Green-400 */
+            color: #111827; /* Dark text */
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .toggle-btn:hover {
+            background-color: #22c55e; /* Green-500 hover */
+        }
+        .toggle-btn:disabled {
+            background-color: #6b7280; /* Gray-500 */
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>PCE | Admin Panel</h1>
+
+    <div id="admin-container">
+        <div id="login-section">
+            <h2>Admin Login</h2>
+            <form id="login-form">
+                <input type="email" id="email" placeholder="Admin Email" required>
+                <input type="password" id="password" placeholder="Password" required>
+                <button type="submit" id="login-btn">Sign In</button>
+            </form>
+        </div>
+
+        <div id="management-section" style="display: none;">
+            <h2>Manage Season Teams</h2>
+            <p><button id="logout-btn" class="toggle-btn" style="background-color: #dc2626; margin-bottom: 20px;">Sign Out</button></p>
+
+            <p id="loading-teams">Loading teams...</p>
+            <table id="teams-admin-table">
+                <thead>
+                    <tr>
+                        <th class="team-name-col" style="text-align: left;">Team</th>
+                        <th>Current Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="admin-teams-list">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+    
+    <script>
+        // === FIREBASE CONFIGURATION (Must match your index.html) ===
+        const firebaseConfig = {
+            apiKey: "AIzaSyB0C5O-9xh9CrmLnsD2kquCyJ1zTtYkiLg",
+            authDomain: "fifa-super-league.firebaseapp.com",
+            databaseURL: "https://fifa-super-league-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "fifa-super-league",
+            storageBucket: "fifa-super-league.firebasestorage.app",
+            messagingSenderId: "407346622789",
+            appId: "1:407346622789:web:6b48448ca0410ccf588e2c",
+            measurementId: "G-Y8HVMK7SZ1"
+        };
+
+        // Initialize Firebase services
+        const app = firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // DOM elements
+        const loginSection = document.getElementById('login-section');
+        const managementSection = document.getElementById('management-section');
+        const loginForm = document.getElementById('login-form');
+        const adminTeamsList = document.getElementById('admin-teams-list');
+        const loadingTeams = document.getElementById('loading-teams');
+        const logoutBtn = document.getElementById('logout-btn');
+
+
+        // --- FIREBASE AUTHENTICATION LOGIC ---
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = loginForm.email.value;
+            const password = loginForm.password.value;
+            
+            try {
+                await auth.signInWithEmailAndPassword(email, password);
+                // The auth state observer handles display change
+            } catch (error) {
+                alert(`Login Failed: ${error.message}`);
+            }
+        });
+
+        logoutBtn.addEventListener('click', async () => {
+            await auth.signOut();
+        });
+
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                // User is signed in. Show management section.
+                loginSection.style.display = 'none';
+                managementSection.style.display = 'block';
+                fetchAdminTeamsData();
+            } else {
+                // User is signed out. Show login section.
+                managementSection.style.display = 'none';
+                loginSection.style.display = 'block';
+                adminTeamsList.innerHTML = '';
+            }
+        });
+
+
+        // --- FIRESTORE MANAGEMENT LOGIC ---
+
+        /**
+         * Toggles the 'inCurrentSeason' status for a specific team document.
+         */
+        async function toggleTeamStatus(teamDocId, currentStatus, buttonElement) {
+            buttonElement.disabled = true;
+            buttonElement.textContent = 'Updating...';
+
+            const teamRef = db.collection('TEAMS').doc(teamDocId);
+            const newStatus = !currentStatus;
+
+            try {
+                await teamRef.update({
+                    inCurrentSeason: newStatus
+                });
+                
+                // Success: Re-render the table to show the new status immediately
+                fetchAdminTeamsData(); 
+
+            } catch (error) {
+                console.error("Error toggling team status:", error);
+                alert("Failed to update team status. Check your Firestore Write Rules (Must require auth!).");
+                buttonElement.disabled = false;
+                buttonElement.textContent = 'Try Again';
+            }
+        }
+        
+        /**
+         * Fetches all teams and renders the admin table.
+         */
+        async function fetchAdminTeamsData() {
+            loadingTeams.style.display = 'block';
+            adminTeamsList.innerHTML = ''; 
+
+            try {
+                const snapshot = await db.collection('TEAMS').get();
+                loadingTeams.style.display = 'none';
+
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const teamDocId = doc.id; // Get the document ID (e.g., 'brentford')
+                    const status = data.inCurrentSeason === true; // Ensure it's a boolean
+                    
+                    const row = adminTeamsList.insertRow();
+
+                    // Team Name
+                    const nameCell = row.insertCell();
+                    nameCell.classList.add('team-name-col');
+                    nameCell.style.paddingLeft = '10px';
+                    nameCell.textContent = data.name || teamDocId;
+
+                    // Current Status
+                    const statusCell = row.insertCell();
+                    statusCell.classList.add(status ? 'status-active' : 'status-inactive');
+                    statusCell.textContent = status ? 'ACTIVE' : 'INACTIVE';
+                    
+                    // Action Button
+                    const actionCell = row.insertCell();
+                    const button = document.createElement('button');
+                    button.classList.add('toggle-btn');
+                    button.textContent = status ? 'Deactivate' : 'Activate';
+                    button.style.backgroundColor = status ? '#dc2626' : '#10b981'; // Red for Deactivate, Green for Activate
+                    
+                    // Attach the function to the button click
+                    button.onclick = (e) => toggleTeamStatus(teamDocId, status, e.target);
+                    actionCell.appendChild(button);
+                });
+
+            } catch (error) {
+                console.error("Error fetching admin data:", error);
+                loadingTeams.textContent = 'Error loading data.';
+            }
+        }
+        
+    </script>
+</body>
+</html>

@@ -1,193 +1,390 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>PCE - Pro Clubs Elite</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/lucide@latest"></script>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
-    body {
-      font-family: 'Inter', sans-serif;
-      background-color: #0d1117;
-      color: #c9d1d9;
-    }
-    .header {
-      background-color: #161b22;
-      border-bottom: 1px solid #30363d;
-    }
-    .mobile-menu {
-      transition: transform 0.3s ease;
-    }
-    .dropdown-content {
-      display: none;
-    }
-    .dropdown.open .dropdown-content {
-      display: block;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PCE - Home</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0F172A; /* Slate 900 */
+            color: #E2E8F0; /* Slate 200 */
+        }
+        /* Custom class for smooth transition */
+        .dropdown-menu {
+            transition: all 0.3s ease-out;
+            transform-origin: top right;
+        }
+        /* Hide scrollbar for the TOTW Carousel, but allow scrolling */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+    </style>
 </head>
 <body>
 
-<header class="header flex justify-between items-center sticky top-0 z-30 p-4 sm:px-8">
-  <div class="flex items-center space-x-4">
-    <button id="menu-button" class="md:hidden p-2 rounded-lg text-blue-400 hover:bg-[#30363d]">
-      <i id="open-icon" data-lucide="menu" class="w-6 h-6"></i>
-      <i id="close-icon" data-lucide="x" class="w-6 h-6 hidden"></i>
-    </button>
-    <a href="https://discord.gg/YOUR_INVITE_CODE" target="_blank" class="flex items-center space-x-2">
-      <img src="asets/logos/standard.gif" alt="PCE Logo" class="h-6 sm:h-8 object-contain"
-           onerror="this.onerror=null; this.src='https://placehold.co/50x32/161b22/8dd3f4?text=PCE';">
-      <span class="text-xl font-extrabold text-gray-200">PCE</span>
-    </a>
-  </div>
+    <!-- PRIMARY NAVIGATION BAR -->
+    <nav class="bg-gray-900 border-b border-gray-700/50 shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex-shrink-0">
+                    <a href="index.html" class="text-3xl font-extrabold text-cyan-400 tracking-wider">PCE</a>
+                </div>
 
-  <nav class="hidden md:flex space-x-6 text-sm font-medium items-center">
-    <a href="fixtures.html" class="text-gray-300 hover:text-white">Fixtures</a>
-    <a href="league.html" class="text-gray-300 hover:text-white">League Table</a>
-    <a href="contact.html" class="text-gray-300 hover:text-white">Contact</a>
-    <a href="staff.html" class="text-gray-300 hover:text-white">Staff</a>
-    <a href="competitions.html" class="text-gray-300 hover:text-white">Competitions</a>
+                <!-- Desktop Navigation Links (Hidden on Mobile) -->
+                <div class="hidden sm:ml-6 sm:flex sm:space-x-4 lg:space-x-8">
+                    <a href="leagueTable.html" class="nav-link">Table Page</a>
+                    <a href="fixtures.html" class="nav-link">Fixtures Page</a>
+                    <a href="awards.html" class="nav-link">Golden Awards</a>
+                </div>
 
-    <div class="relative dropdown">
-      <button onclick="toggleDropdown(this)" class="text-gray-300 hover:text-white">Support ▾</button>
-      <div class="dropdown-content absolute bg-[#161b22] border border-gray-700 rounded mt-2 p-2 space-y-1 z-10">
-        <a href="stats-tutorial.html" class="block text-sm text-gray-300 hover:text-white">Stats Submit Tutorial</a>
-        <a href="contract-tutorial.html" class="block text-sm text-gray-300 hover:text-white">Contract Submission Tutorial</a>
-        <a href="apply-staff.html" class="block text-sm text-gray-300 hover:text-white">How to Apply for Staff</a>
-        <a href="apply-manager.html" class="block text-sm text-gray-300 hover:text-white">How to Apply for Manager</a>
-        <a href="manager-support.html" class="block text-sm text-gray-300 hover:text-white">Manager Support</a>
-      </div>
-    </div>
+                <!-- Profile Dropdown & Burger Menu -->
+                <div class="flex items-center">
+                    
+                    <!-- Profile Dropdown (Desktop/Tablet) -->
+                    <div class="hidden sm:ml-4 sm:flex sm:items-center relative">
+                        <button id="profile-button-desktop" type="button" 
+                                class="bg-gray-800 p-2 rounded-full text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-cyan-500 transition duration-150 flex items-center">
+                            <!-- User Initial/Placeholder -->
+                            <span id="user-initials-desktop" class="h-6 w-6 flex items-center justify-center text-sm font-semibold rounded-full bg-cyan-600 text-white">
+                                --
+                            </span>
+                            <svg class="ml-1 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                            </svg>
+                        </button>
 
-    <div class="relative dropdown">
-      <button onclick="toggleDropdown(this)" class="text-yellow-400 hover:text-yellow-300">Golden Awards ▾</button>
-      <div class="dropdown-content absolute bg-[#161b22] border border-gray-700 rounded mt-2 p-2 space-y-1 z-10">
-        <a href="golden-boot.html" class="block text-sm text-gray-300 hover:text-white">Golden Boot</a>
-        <a href="golden-glove.html" class="block text-sm text-gray-300 hover:text-white">Golden Glove</a>
-        <a href="top-assist.html" class="block text-sm text-gray-300 hover:text-white">Top Assist</a>
-        <a href="brick-wall.html" class="block text-sm text-gray-300 hover:text-white">Brick Wall</a>
-        <a href="balon-dor.html" class="block text-sm text-gray-300 hover:text-white">Balon d'Or</a>
-      </div>
-    </div>
+                        <!-- Profile Dropdown Menu -->
+                        <div id="profile-menu-desktop" class="dropdown-menu absolute right-0 top-full mt-1 w-48 rounded-md shadow-2xl bg-gray-800 py-1 opacity-0 pointer-events-none transform scale-95 ring-1 ring-black ring-opacity-5">
+                            <!-- UPDATED DROPDOWN ITEMS WITH EMOJIS AND FLEX LAYOUT -->
+                            <a href="user-dashboard.html" class="dropdown-item"><span class="flex items-center space-x-2"><span>👤</span><span>Profile</span></span></a>
+                            <a href="settings.html" class="dropdown-item"><span class="flex items-center space-x-2"><span>⚙️</span><span>Settings</span></span></a>
+                            <a href="trophies.html" class="dropdown-item"><span class="flex items-center space-x-2"><span>🏆</span><span>Trophies</span></span></a>
+                            <a href="leaguestats.html" class="dropdown-item"><span class="flex items-center space-x-2"><span>📈</span><span>League Stats</span></span></a>
+                            <a href="notifications.html" class="dropdown-item"><span class="flex items-center space-x-2"><span>🔔</span><span>Notifications</span></span></a>
+                            <hr class="border-gray-700 my-1">
+                            <button onclick="handleSignOut()" class="dropdown-item w-full text-left font-bold text-red-400 hover:bg-red-900/40">
+                                <span class="flex items-center space-x-2"><span>🚪</span><span>Sign Out</span></span>
+                            </button>
+                        </div>
+                    </div>
 
-    <a href="season-awards.html" class="text-purple-400 hover:text-purple-300">Season Awards</a>
-  </nav>
+                    <!-- Mobile Menu Button (Burger Icon) -->
+                    <button id="mobile-menu-button" type="button" 
+                            class="sm:hidden bg-gray-800 p-2 rounded-md inline-flex items-center justify-center text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-cyan-500 transition duration-150" 
+                            aria-controls="mobile-menu" aria-expanded="false">
+                        <span class="sr-only">Open main menu</span>
+                        <svg class="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                        <svg class="hidden h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
 
-  <div class="flex items-center space-x-4">
-   <div class="relative dropdown">
-  <button onclick="toggleDropdown(this)" class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold py-1 px-3 rounded">
-    User Panel ▾
-  </button>
-  <div class="dropdown-content absolute right-0 bg-[#161b22] border border-gray-700 rounded mt-2 px-4 py-2 z-10 flex flex-wrap gap-3 text-sm">
-    <a href="apply-manager.html" class="text-gray-300 hover:text-white whitespace-nowrap">Apply for Manager</a>
-    <a href="apply-staff.html" class="text-gray-300 hover:text-white whitespace-nowrap">Apply for Staff</a>
-    <a id="managerLounge" href="lounge.html" class="hidden text-gray-300 hover:text-white whitespace-nowrap">Manager Lounge</a>
-    <a id="contractSubmit" href="contract-submit.html" class="hidden text-gray-300 hover:text-white whitespace-nowrap">Submit Contract</a>
-    <a href="contract-offers.html" class="text-gray-300 hover:text-white whitespace-nowrap">Contract Offers</a>
-    <a href="profile.html" class="text-gray-300 hover:text-white whitespace-nowrap">Profile Page</a>
-   <a id="adminBtn" href="admin.html" class="hidden text-red-500 font-bold whitespace-nowrap">Admin</a>
-  </div>
-</div>
+        <!-- Mobile Menu Panel (Hidden by default, shown by JS) -->
+        <div id="mobile-menu" class="sm:hidden hidden" role="menu" aria-orientation="vertical" aria-labelledby="mobile-menu-button">
+            <div class="px-2 pt-2 pb-3 space-y-1">
+                <a href="leagueTable.html" class="mobile-item">Table Page</a>
+                <a href="fixtures.html" class="mobile-item">Fixtures Page</a>
+                <a href="awards.html" class="mobile-item mb-4">Golden Awards</a>
 
-    <button id="logoutBtn" class="hidden md:inline-block bg-red-600 hover:bg-red-500 text-white text-xs font-bold py-1 px-3 rounded">
-      Logout
-    </button>
-  </div>
-</header>
-  <!-- Footer -->
-  <footer class="p-6 text-center text-sm text-gray-500 border-t border-gray-700 bg-[#0d1117] space-y-2">
-    <div>
-      Join our community on 
-      <a href="https://discord.gg/YOUR_INVITE_CODE" target="_blank" class="text-blue-400 hover:underline">Discord</a>
-    </div>
-    <div>© 2025 Pro Clubs Elite. All rights reserved.</div>
-    <div class="text-xs text-gray-600 italic">
-      This site is not affiliated with or endorsed by EA Sports or Electronic Arts Inc.
-    </div>
-  </footer>
+                <!-- Mobile Profile Links -->
+                <div class="border-t border-gray-700 pt-3">
+                    <div id="mobile-user-info" class="text-sm font-medium text-gray-400 px-3 pb-2">Logged in as: N/A</div>
+                    <!-- UPDATED MOBILE ITEMS WITH EMOJIS AND FLEX LAYOUT -->
+                    <a href="profile.html" class="mobile-item"><span class="flex items-center space-x-2"><span>👤</span><span>Profile</span></span></a>
+                    <a href="settings.html" class="mobile-item"><span class="flex items-center space-x-2"><span>⚙️</span><span>Settings</span></span></a>
+                    <a href="trophies.html" class="mobile-item"><span class="flex items-center space-x-2"><span>🏆</span><span>Trophies</span></span></a>
+                    <a href="leaguestats.html" class="mobile-item"><span class="flex items-center space-x-2"><span>📈</span><span>League Stats</span></span></a>
+                    <a href="notifications.html" class="mobile-item"><span class="flex items-center space-x-2"><span>🔔</span><span>Notifications</span></span></a>
+                    <button onclick="handleSignOut()" class="mobile-item text-red-400 hover:bg-red-900/40 w-full text-left font-bold">
+                        <span class="flex items-center space-x-2"><span>🚪</span><span>Sign Out</span></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
 
-  <!-- Firebase + Dropdown Logic -->
- <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
-  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
-  import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+    <!-- MAIN CONTENT AREA -->
+    <main class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        <h1 class="text-3xl sm:text-4xl font-extrabold text-white mb-6 border-b border-cyan-500/50 pb-2">PCE Dashboard</h1>
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyB0C5O-9xh9CrmLnsD2kquCyJ1zTtYkiLg",
-    authDomain: "fifa-super-league.firebaseapp.com",
-    projectId: "fifa-super-league",
-    appId: "1:407346622789:web:6b48448ca0410ccf588e2c"
-  };
+        <!-- 1. TOTW CAROUSEL -->
+        <div class="mb-8">
+            <h2 class="text-2xl font-bold text-white mb-4">Team of the Week (TOTW) - Matchday 6</h2>
+            <div class="flex space-x-4 overflow-x-auto pb-4 no-scrollbar">
+                <!-- Mock TOTW Player Card 1 -->
+                <div class="flex-shrink-0 w-64 p-4 bg-gray-800 rounded-xl shadow-xl border border-yellow-500/50">
+                    <div class="text-center">
+                        <div class="text-4xl mb-2">⭐️</div>
+                        <p class="text-xl font-bold text-yellow-400">J. Smith</p>
+                        <p class="text-sm text-gray-400">ST | Team Titans</p>
+                        <p class="text-xs text-cyan-400 mt-1">3 Goals, 1 Assist</p>
+                    </div>
+                </div>
+                <!-- Mock TOTW Player Card 2 -->
+                <div class="flex-shrink-0 w-64 p-4 bg-gray-800 rounded-xl shadow-xl border border-yellow-500/50">
+                    <div class="text-center">
+                        <div class="text-4xl mb-2">🛡️</div>
+                        <p class="text-xl font-bold text-yellow-400">A. Khan</p>
+                        <p class="text-sm text-gray-400">CB | Elite Strikers</p>
+                        <p class="text-xs text-cyan-400 mt-1">2 Clean Sheets</p>
+                    </div>
+                </div>
+                <!-- Mock TOTW Player Card 3 -->
+                <div class="flex-shrink-0 w-64 p-4 bg-gray-800 rounded-xl shadow-xl border border-yellow-500/50">
+                    <div class="text-center">
+                        <div class="text-4xl mb-2">👟</div>
+                        <p class="text-xl font-bold text-yellow-400">M. Davies</p>
+                        <p class="text-sm text-gray-400">CM | The Destroyers</p>
+                        <p class="text-xs text-cyan-400 mt-1">9.5 Match Rating</p>
+                    </div>
+                </div>
+                <!-- Mock TOTW Player Card 4 -->
+                <div class="flex-shrink-0 w-64 p-4 bg-gray-800 rounded-xl shadow-xl border border-yellow-500/50">
+                    <div class="text-center">
+                        <div class="text-4xl mb-2">🧤</div>
+                        <p class="text-xl font-bold text-yellow-400">C. Bell</p>
+                        <p class="text-sm text-gray-400">GK | Dynamo FC</p>
+                        <p class="text-xs text-cyan-400 mt-1">12 Saves</p>
+                    </div>
+                </div>
+                <!-- Add more cards as needed -->
+            </div>
+        </div>
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
+        <!-- 2. LEAGUE TABLE & FIXTURES (Split Layout) -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- LEAGUE TABLE SNIPPET (2/3 width on desktop) -->
+            <div class="lg:col-span-2">
+                <div class="bg-gray-800 p-6 rounded-xl shadow-xl border border-gray-700/50">
+                    <h2 class="text-2xl font-bold text-white mb-4 flex justify-between items-center">
+                        League Table Top 5
+                        <a href="table.html" class="text-sm text-cyan-400 hover:text-cyan-300 font-medium">View Full Table &rarr;</a>
+                    </h2>
+                    
+                    <table class="min-w-full text-left text-sm">
+                        <thead class="uppercase text-xs text-gray-400 border-b border-gray-700">
+                            <tr>
+                                <th class="py-2 px-2">Pos</th>
+                                <th class="py-2 px-2">Team</th>
+                                <th class="py-2 px-2">P</th>
+                                <th class="py-2 px-2">Pts</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-b border-gray-700 bg-gray-700/50 font-bold text-white">
+                                <td class="py-2 px-2 rounded-l-lg">1</td>
+                                <td class="py-2 px-2">The Champions</td>
+                                <td class="py-2 px-2">10</td>
+                                <td class="py-2 px-2 rounded-r-lg">28</td>
+                            </tr>
+                            <tr class="border-b border-gray-700 hover:bg-gray-700/30">
+                                <td class="py-2 px-2">2</td>
+                                <td class="py-2 px-2">Galactic Goals</td>
+                                <td class="py-2 px-2">10</td>
+                                <td class="py-2 px-2">25</td>
+                            </tr>
+                            <tr class="border-b border-gray-700 hover:bg-gray-700/30">
+                                <td class="py-2 px-2">3</td>
+                                <td class="py-2 px-2">PC Elite</td>
+                                <td class="py-2 px-2">10</td>
+                                <td class="py-2 px-2">21</td>
+                            </tr>
+                            <tr class="border-b border-gray-700 hover:bg-gray-700/30">
+                                <td class="py-2 px-2">4</td>
+                                <td class="py-2 px-2">Console Kings</td>
+                                <td class="py-2 px-2">10</td>
+                                <td class="py-2 px-2">18</td>
+                            </tr>
+                            <tr class="hover:bg-gray-700/30">
+                                <td class="py-2 px-2">5</td>
+                                <td class="py-2 px-2">Midnight Marauders</td>
+                                <td class="py-2 px-2">10</td>
+                                <td class="py-2 px-2">17</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
 
-  document.addEventListener("DOMContentLoaded", () => {
-    const adminBtn = document.getElementById("adminBtn");
-    const managerLounge = document.getElementById("managerLounge");
-    const contractSubmit = document.getElementById("contractSubmit");
-    const logoutBtn = document.getElementById("logoutBtn");
+            <!-- UPCOMING FIXTURES (1/3 width on desktop) -->
+            <div class="lg:col-span-1">
+                <div class="bg-gray-800 p-6 rounded-xl shadow-xl border border-gray-700/50">
+                    <h2 class="text-2xl font-bold text-white mb-4 flex justify-between items-center">
+                        Upcoming Fixtures
+                        <a href="fixtures.html" class="text-sm text-cyan-400 hover:text-cyan-300 font-medium">View All &rarr;</a>
+                    </h2>
+                    
+                    <ul class="space-y-4">
+                        <li class="p-3 bg-gray-900 rounded-lg border-l-4 border-cyan-500">
+                            <p class="text-sm text-gray-400">Today, 20:00 GMT</p>
+                            <p class="font-semibold">The Champions vs PC Elite</p>
+                        </li>
+                        <li class="p-3 bg-gray-900 rounded-lg border-l-4 border-cyan-500">
+                            <p class="text-sm text-gray-400">Mon, 21:00 GMT</p>
+                            <p class="font-semibold">Galactic Goals vs Console Kings</p>
+                        </li>
+                        <li class="p-3 bg-gray-900 rounded-lg border-l-4 border-cyan-500">
+                            <p class="text-sm text-gray-400">Tue, 19:30 GMT</p>
+                            <p class="font-semibold">Midnight Marauders vs Team Titans</p>
+                        </li>
+                    </ul>
+                </div>
+            </div>
 
-    onAuthStateChanged(auth, async (user) => {
-      if (!user) return;
+        </div>
+    </main>
 
-      try {
-        const roleRef = doc(
-          db,
-          "artifacts",
-          "fifa-super-league",
-          "users",
-          user.uid,
-          "user_metadata",
-          "profile"
-        );
+    <!-- STYLING HELPERS (included in the single file) -->
+    <style>
+        .nav-link {
+            @apply inline-flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-300 hover:bg-gray-800 hover:text-white transition duration-150;
+        }
+        .dropdown-item {
+            /* Ensures items stack vertically and fill the width, the flex inside handles icon/text alignment */
+            @apply block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition duration-100;
+        }
+        .mobile-item {
+            @apply block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-gray-700 transition duration-150;
+        }
+        /* State for open dropdown */
+        .dropdown-open {
+            opacity: 1;
+            pointer-events: auto;
+            transform: scale(1);
+        }
+    </style>
 
-        const roleSnap = await getDoc(roleRef);
-        const role = roleSnap.exists() ? roleSnap.data().role : null;
+    <!-- --------------------------------------- -->
+    <!-- FIREBASE AND JAVASCRIPT LOGIC START HERE -->
+    <!-- --------------------------------------- -->
 
-        console.log("User role:", role); // ✅ Debug
+    <!-- 1. Load Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 
-        const isPrivileged = ["admin", "manager", "co-manager"].includes(role);
+    <script>
+        // --- YOUR ACTUAL FIREBASE CONFIGURATION ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyB0C5O-9xh9CrmLnsD2kquCyJ1zTtYkiLg", 
+            authDomain: "fifa-super-league.firebaseapp.com",
+            databaseURL: "https://fifa-super-league-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "fifa-super-league",
+            storageBucket: "fifa-super-league.firebasestorage.app",
+            messagingSenderId: "407346622789",
+            appId: "1:407346622789:web:6b48448ca0410ccf588e2c",
+            measurementId: "G-Y8HVMK7SZ1"
+        };
+        // ----------------------------------------
 
-        if (isPrivileged) {
-          adminBtn?.classList.remove("hidden");
-          managerLounge?.classList.remove("hidden");
-          contractSubmit?.classList.remove("hidden");
+        // Initialize Firebase services
+        const app = firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        
+        // --- DOM Elements ---
+        const desktopMenu = document.getElementById('profile-menu-desktop');
+        const desktopButton = document.getElementById('profile-button-desktop');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const mobileButton = document.getElementById('mobile-menu-button');
+        const userInitialsDesktop = document.getElementById('user-initials-desktop');
+        const mobileUserInfo = document.getElementById('mobile-user-info');
+        
+        let isDesktopMenuOpen = false;
+        let isMobileMenuOpen = false;
+
+        // --- AUTH STATE LISTENER (To update UI based on login status) ---
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                // User is signed in.
+                // Use displayName if available, otherwise use the part of the email before @
+                const displayName = user.displayName || user.email.split('@')[0];
+                const initials = displayName.substring(0, 2).toUpperCase();
+
+                // Update Desktop UI
+                userInitialsDesktop.textContent = initials;
+                
+                // Update Mobile UI
+                mobileUserInfo.textContent = `Logged in as: ${displayName}`;
+
+            } else {
+                // User is signed out.
+                userInitialsDesktop.textContent = 'G'; // Guest
+                mobileUserInfo.textContent = 'Logged in as: Guest';
+                
+                // Redirect to the homepage when logged out (as requested)
+                // Note: If this page is strictly for logged-in users, you might want to redirect
+                // only if the user is currently on a protected page. For now, we redirect to index.html on logout.
+                window.location.href = "index.html"; 
+            }
+        });
+
+        // --- DROPDOWN/MENU TOGGLE FUNCTIONS ---
+
+        function toggleDesktopMenu() {
+            isDesktopMenuOpen = !isDesktopMenuOpen;
+            if (isDesktopMenuOpen) {
+                desktopMenu.classList.add('dropdown-open');
+                desktopMenu.classList.remove('opacity-0', 'pointer-events-none', 'scale-95');
+            } else {
+                desktopMenu.classList.remove('dropdown-open');
+                desktopMenu.classList.add('opacity-0', 'pointer-events-none', 'scale-95');
+            }
+        }
+        
+        function toggleMobileMenu() {
+            isMobileMenuOpen = !isMobileMenuOpen;
+            if (isMobileMenuOpen) {
+                mobileMenu.classList.remove('hidden');
+            } else {
+                mobileMenu.classList.add('hidden');
+            }
         }
 
-        logoutBtn?.classList.remove("hidden");
-      } catch (error) {
-        console.error("Error fetching role:", error);
-      }
-    });
+        // --- SIGN OUT FUNCTION ---
+        window.handleSignOut = async function() {
+            try {
+                await auth.signOut();
+                // Redirection to index.html is handled by the auth.onAuthStateChanged listener above
+            } catch (error) {
+                console.error("Sign Out Error:", error);
+                // Since alerts are forbidden, we rely on the console log for debugging.
+            }
+        }
 
-    // Mobile menu toggle
-    const menuBtn = document.getElementById("menu-button");
-    const mobileMenu = document.getElementById("mobile-menu");
-    const openIcon = document.getElementById("open-icon");
-    const closeIcon = document.getElementById("close-icon");
+        // --- Event Listeners ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Desktop Profile Button
+            if (desktopButton) {
+                desktopButton.addEventListener('click', toggleDesktopMenu);
+            }
+            // Mobile Menu Button
+            if (mobileButton) {
+                mobileButton.addEventListener('click', toggleMobileMenu);
+            }
 
-    if (menuBtn) {
-      menuBtn.addEventListener("click", () => {
-        mobileMenu.classList.toggle("translate-x-0");
-        mobileMenu.classList.toggle("translate-x-full");
-        openIcon?.classList.toggle("hidden");
-        closeIcon?.classList.toggle("hidden");
-      });
-    }
+            // Close dropdown if user clicks outside
+            document.addEventListener('click', (event) => {
+                if (isDesktopMenuOpen && desktopButton && !desktopButton.contains(event.target) && !desktopMenu.contains(event.target)) {
+                    toggleDesktopMenu();
+                }
+            });
+        });
 
-    // Dropdown toggle logic
-    window.toggleDropdown = function (button) {
-      const dropdown = button.parentElement;
-      dropdown.classList.toggle("open");
-    };
-
-    lucide.createIcons();
-  });
-</script>
-</script>
+    </script>
 </body>
 </html>

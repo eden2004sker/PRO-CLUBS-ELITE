@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PCE Contract System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        // Custom color scheme definition for synchronization across the app
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        // Primary color (Manager/Branding focus)
+                        'pce-primary': '#4f46e5', // Indigo-600 equivalent
+                        // Secondary color (Player/Success focus)
+                        'pce-secondary': '#10b981', // Emerald-500 equivalent
+                        // Dark mode specific colors
+                        'slate-900': '#0F172A',
+                        'slate-800': '#1E293B',
+                        'slate-700': '#334155',
+                        'slate-600': '#475569',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Applying the new dark theme colors */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0F172A; /* Slate 900 */
+            color: #E2E8F0; /* Slate 200 - General text fallback */
+        }
+        .contract-card {
+            /* Consistent shadow, slightly darker for dark mode visibility */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -2px rgba(0, 0, 0, 0.1); 
+        }
+        /* Ensure inputs and textareas are readable against the dark theme */
+        input, textarea {
+            background-color: #334155; /* Slate 700 */
+            color: #E2E8F0; /* Slate 200 */
+            border-color: #475569; /* Slate 600 */
+        }
+    </style>
+</head>
+<body class="p-4 sm:p-8">
+
+    <div class="max-w-7xl mx-auto">
+        <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-6 border-b border-slate-700 mb-6">
+            <h1 class="text-3xl font-bold text-white flex items-center">
+                Contract Dashboard 
+                <!-- Badge bg is handled by JS, but default text should be readable -->
+                <span id="role-badge" class="ml-3 px-3 py-1 text-xs font-semibold rounded-full bg-slate-700 text-gray-300">Loading...</span>
+            </h1>
+            <div class="mt-4 sm:mt-0 flex items-center space-x-4">
+                <div id="notification-area" class="relative">
+                    <!-- Notification Bell Icon (lightened for dark background) -->
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 text-gray-400">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.33A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.043 5.454 1.33A23.847 23.847 0 0 0 12 18.75a23.847 23.847 0 0 0 2.857-1.668Z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 21v-6a3.75 3.75 0 1 1 7.5 0v6" />
+                    </svg>
+                    <!-- Notification Badge -->
+                    <span id="notification-badge" class="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full hidden">0</span>
+                </div>
+                <button id="logout-button" class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition duration-150">Log Out</button>
+            </div>
+        </header>
+
+        <!-- Dynamic Content Area -->
+        <main id="app-content">
+            <div id="loading-spinner" class="text-center py-10">
+                <svg class="animate-spin h-8 w-8 text-pce-primary mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <p class="text-gray-400 mt-3">Initializing application...</p>
+            </div>
+        </main>
+        
+        <!-- Manager Contract Creation Form -->
+        <div id="manager-form-container" class="hidden bg-slate-800 p-6 rounded-xl contract-card mb-8">
+            <!-- Uses pce-primary for branding consistency -->
+            <h2 class="text-2xl font-semibold text-pce-primary mb-4">Send New Contract</h2>
+            <form id="contract-form" class="space-y-4">
+                <div>
+                    <label for="recipient-user" class="block text-sm font-medium text-gray-300">Recipient User ID (UID)</label>
+                    <!-- Input styling adjusted for dark background -->
+                    <input type="text" id="recipient-user" placeholder="Enter User ID (UID) of the player"
+                        class="mt-1 block w-full px-3 py-2 border border-slate-600 rounded-lg shadow-sm focus:ring-pce-primary focus:border-pce-primary" required>
+                </div>
+                <div>
+                    <label for="contract-title" class="block text-sm font-medium text-gray-300">Contract Title</label>
+                    <input type="text" id="contract-title" placeholder="e.g., Annual Player Agreement"
+                        class="mt-1 block w-full px-3 py-2 border border-slate-600 rounded-lg shadow-sm focus:ring-pce-primary focus:border-pce-primary" required>
+                </div>
+                <div>
+                    <label for="contract-content" class="block text-sm font-medium text-gray-300">Contract Content</label>
+                    <textarea id="contract-content" rows="6" placeholder="Detail the terms: salary, duration, bonuses..."
+                        class="mt-1 block w-full px-3 py-2 border border-slate-600 rounded-lg shadow-sm focus:ring-pce-primary focus:border-pce-primary" required></textarea>
+                </div>
+                <button type="submit" id="send-contract-btn"
+                    class="w-full flex justify-center py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-pce-primary hover:bg-indigo-700 transition duration-150">
+                    Send Contract
+                </button>
+                <p id="contract-message" class="text-center text-sm font-medium pt-2 hidden"></p>
+            </form>
+        </div>
+
+        <!-- Contracts List Container (Used by both Manager and Player) -->
+        <div class="bg-slate-800 p-6 rounded-xl contract-card">
+            <h2 class="text-2xl font-semibold text-white mb-4">Contract History</h2>
+            <div id="contracts-list" class="space-y-4">
+                <!-- Contracts will be injected here -->
+            </div>
+            <p id="no-contracts" class="text-gray-400 text-center py-8 hidden">No contracts found.</p>
+        </div>
+
+    </div>
+
+    <!-- Custom Modal for Notifications/Alerts -->
+    <div id="custom-modal" class="fixed inset-0 bg-gray-900 bg-opacity-75 hidden items-center justify-center p-4 z-50">
+        <div class="bg-slate-800 p-6 rounded-lg shadow-2xl max-w-sm w-full">
+            <!-- Modal title also uses pce-primary -->
+            <h3 id="modal-title" class="text-xl font-bold mb-3 text-pce-primary">Alert</h3>
+            <p id="modal-content" class="text-gray-300 mb-4"></p>
+            <button onclick="document.getElementById('custom-modal').classList.add('hidden')"
+                    class="w-full py-2 px-4 bg-slate-700 text-white rounded-lg hover:bg-slate-600 transition duration-150">Close</button>
+        </div>
+    </div>
+
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { 
+            getAuth, 
+            signOut,
+            onAuthStateChanged,
+            signInWithCustomToken,
+            setPersistence,
+            browserSessionPersistence
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { 
+            getFirestore, 
+            doc, 
+            addDoc, 
+            updateDoc, 
+            onSnapshot, 
+            collection, 
+            query, 
+            where, 
+            orderBy,
+            serverTimestamp
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // --- GLOBAL VARIABLES (Provided by Canvas Environment) ---
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+        let firebaseConfig = null;
+        
+        // --- FALLBACK CONFIGURATION (Simplified placeholder - actual config should come from __firebase_config) ---
+        const USER_FALLBACK_CONFIG = {
+            apiKey: "AIzaSyB0C5O-9xh9CrmLnsD2kquCyJ1zTtYkiLg", 
+            authDomain: "example-project.firebaseapp.com",
+            projectId: "example-project",
+        };
+        
+        const environmentConfigString = typeof __firebase_config !== 'undefined' ? __firebase_config : null;
+        try {
+            if (environmentConfigString) {
+                firebaseConfig = JSON.parse(environmentConfigString);
+            } else {
+                firebaseConfig = USER_FALLBACK_CONFIG;
+            }
+        } catch (e) {
+            console.error("Error parsing __firebase_config:", e);
+            firebaseConfig = USER_FALLBACK_CONFIG;
+        }
+
+        // --- CORE FIREBASE INSTANCES ---
+        let db;
+        let auth;
+        let userId = null;
+        let userEmail = null;
+        let isManager = false;
+
+        // --- UI REFERENCES ---
+        const appContent = document.getElementById('app-content');
+        const loadingSpinner = document.getElementById('loading-spinner');
+        const roleBadge = document.getElementById('role-badge');
+        const managerFormContainer = document.getElementById('manager-form-container');
+        const contractsList = document.getElementById('contracts-list');
+        const noContracts = document.getElementById('no-contracts');
+        const contractForm = document.getElementById('contract-form');
+        const notificationBadge = document.getElementById('notification-badge');
+        const contractMessage = document.getElementById('contract-message');
+
+        // --- CONFIGURATION ---
+        // Contract data is public/shared, so we use the public data path.
+        const CONTRACTS_PATH = `/artifacts/${appId}/public/data/contracts`;
+        const MANAGER_EMAIL = 'manager@pce.com'; // Mock manager email for demo purposes
+
+        /**
+         * Shows a custom modal message instead of alert().
+         * @param {string} title - The title of the modal.
+         * @param {string} content - The content message.
+         */
+        function showModal(title, content) {
+            document.getElementById('modal-title').textContent = title;
+            document.getElementById('modal-content').textContent = content;
+            document.getElementById('custom-modal').classList.remove('hidden');
+            document.getElementById('custom-modal').classList.add('flex');
+        }
+
+        /**
+         * Renders a single contract item.
+         * @param {object} contract - The contract data.
+         * @param {boolean} isManagerView - True if the current user is a manager.
+         * @returns {string} The HTML string for the contract card.
+         */
+        function renderContract(contract, isManagerView) {
+            // Status colors remain the same for functionality
+            const statusColor = contract.status === 'Accepted' ? 'bg-pce-secondary text-white' :
+                                contract.status === 'Declined' ? 'bg-red-500 text-white' :
+                                'bg-yellow-400 text-gray-800'; // Pending status
+
+            const parsedDetails = JSON.parse(contract.contractDetails);
+
+            let actions = '';
+            // Only show action buttons for pending contracts sent to the current user (Player role)
+            if (!isManagerView && contract.status === 'Pending') {
+                actions = `
+                    <div class="flex space-x-2 mt-4">
+                        <button data-id="${contract.id}" data-action="Accepted" 
+                            class="contract-action-btn flex-1 py-2 px-4 bg-green-600 text-white rounded-lg hover:bg-green-700 transition duration-150">
+                            Accept Contract
+                        </button>
+                        <button data-id="${contract.id}" data-action="Declined" 
+                            class="contract-action-btn flex-1 py-2 px-4 bg-red-600 text-white rounded-lg hover:bg-red-700 transition duration-150">
+                            Decline
+                        </button>
+                    </div>
+                `;
+            } else if (isManagerView && contract.status === 'Pending') {
+                actions = '<p class="text-sm text-yellow-500 mt-2">Awaiting signature from User.</p>'; // Slightly adjusted yellow for dark background
+            }
+
+            // Text colors adjusted for dark background
+            const roleSpecificInfo = isManagerView 
+                ? `<p class="text-sm text-gray-400 mt-1">Recipient: <span class="font-medium text-white break-all">${contract.userId}</span></p>`
+                : `<p class="text-sm text-gray-400 mt-1">Manager: <span class="font-medium text-white break-all">${contract.managerId}</span></p>`;
+
+
+            return `
+                <div class="bg-slate-700 p-4 border border-slate-600 rounded-xl hover:shadow-md transition duration-200">
+                    <div class="flex justify-between items-start">
+                        <h3 class="text-lg font-semibold text-white">${parsedDetails.title}</h3>
+                        <span class="px-3 py-1 text-xs font-bold rounded-full ${statusColor}">
+                            ${contract.status}
+                        </span>
+                    </div>
+                    ${roleSpecificInfo}
+                    <p class="mt-2 text-sm text-gray-300 whitespace-pre-wrap">${parsedDetails.content}</p>
+                    <p class="text-xs text-gray-500 mt-3">Sent: ${new Date(contract.createdAt).toLocaleString()}</p>
+                    ${contract.signedAt ? `<p class="text-xs text-gray-500">Status Updated: ${new Date(contract.signedAt).toLocaleString()}</p>` : ''}
+                    ${actions}
+                </div>
+            `;
+        }
+
+        /**
+         * Handles accepting or declining a contract.
+         * @param {string} contractId - ID of the contract document.
+         * @param {string} action - 'Accepted' or 'Declined'.
+         */
+        async function handleContractAction(contractId, action) {
+            const contractRef = doc(db, CONTRACTS_PATH, contractId);
+            try {
+                await updateDoc(contractRef, {
+                    status: action,
+                    signedAt: Date.now(),
+                    // In a real app, you would also capture IP, user agent, etc., for legal proof
+                });
+                showModal('Contract Updated', `You have successfully ${action.toLowerCase()} the contract.`);
+            } catch (error) {
+                console.error("Error updating contract status:", error);
+                showModal('Error', 'Failed to update contract status. Check console for details.');
+            }
+        }
+
+
+        /**
+         * Sets up the real-time contract listener for the current user's role.
+         */
+        function setupContractListener() {
+            let contractsQuery;
+
+            if (isManager) {
+                // Manager sees all contracts they have sent
+                contractsQuery = query(collection(db, CONTRACTS_PATH), where("managerId", "==", userId), orderBy("createdAt", "desc"));
+                managerFormContainer.classList.remove('hidden');
+            } else {
+                // Player sees all contracts sent to them
+                contractsQuery = query(collection(db, CONTRACTS_PATH), where("userId", "==", userId), orderBy("createdAt", "desc"));
+                managerFormContainer.classList.add('hidden');
+            }
+
+            // Real-time listener
+            onSnapshot(contractsQuery, (snapshot) => {
+                const contracts = [];
+                let pendingCount = 0;
+                
+                snapshot.forEach((doc) => {
+                    const contractData = doc.data();
+                    contracts.push({ id: doc.id, ...contractData });
+                    if (contractData.status === 'Pending' && !isManager) {
+                        pendingCount++;
+                    }
+                });
+
+                // Render the list
+                if (contracts.length === 0) {
+                    contractsList.innerHTML = '';
+                    noContracts.classList.remove('hidden');
+                } else {
+                    noContracts.classList.add('hidden');
+                    contractsList.innerHTML = contracts.map(c => renderContract(c, isManager)).join('');
+                    
+                    // Attach event listeners for Accept/Decline buttons (for players)
+                    document.querySelectorAll('.contract-action-btn').forEach(button => {
+                        button.removeEventListener('click', handleContractButtonClick); // Prevent double-binding
+                        button.addEventListener('click', handleContractButtonClick);
+                    });
+                }
+                
+                // Update notification badge for Players
+                if (!isManager) {
+                    if (pendingCount > 0) {
+                        notificationBadge.textContent = pendingCount;
+                        notificationBadge.classList.remove('hidden');
+                    } else {
+                        notificationBadge.classList.add('hidden');
+                    }
+                }
+                
+                console.log(`Contracts loaded. Pending count: ${pendingCount}`);
+            }, (error) => {
+                console.error("Error setting up contract listener:", error);
+                showModal('Data Error', 'Failed to load contracts in real-time. Check network and console.');
+            });
+        }
+
+        /**
+         * Unified click handler for Accept/Decline buttons.
+         */
+        function handleContractButtonClick(event) {
+            const button = event.currentTarget;
+            const contractId = button.getAttribute('data-id');
+            const action = button.getAttribute('data-action');
+            if (contractId && action) {
+                handleContractAction(contractId, action);
+            }
+        }
+
+        /**
+         * Displays temporary message on the form.
+         * @param {string} message - The message content.
+         * @param {string} type - 'success' or 'error'.
+         */
+        function displayMessage(message, type) {
+            contractMessage.textContent = message;
+            // Uses custom colors for visual synchronization
+            let colorClass = type === 'error' ? 'text-red-500' : 'text-pce-secondary'; 
+            contractMessage.className = `text-center text-sm font-medium pt-2 ${colorClass}`;
+            contractMessage.classList.remove('hidden');
+            setTimeout(() => { contractMessage.classList.add('hidden'); }, 4000);
+        }
+
+        /**
+         * Handles the form submission for sending a new contract (Manager only).
+         */
+        async function handleSendContract(event) {
+            event.preventDefault();
+
+            const recipientId = document.getElementById('recipient-user').value.trim();
+            const title = document.getElementById('contract-title').value.trim();
+            const content = document.getElementById('contract-content').value.trim();
+
+            if (!recipientId || !title || !content) {
+                displayMessage("All fields are required.", 'error');
+                return;
+            }
+
+            // Basic check to prevent sending to self 
+            if (recipientId === userId) {
+                 displayMessage("You cannot send a contract to yourself.", 'error');
+                 return;
+            }
+
+            try {
+                const contractData = {
+                    managerId: userId,
+                    userId: recipientId,
+                    // Use JSON.stringify to ensure complex data structure is stored safely in Firestore
+                    contractDetails: JSON.stringify({ title, content }), 
+                    status: 'Pending',
+                    createdAt: Date.now(),
+                    signedAt: null,
+                };
+
+                await addDoc(collection(db, CONTRACTS_PATH), contractData);
+
+                // Success message uses pce-secondary color
+                contractForm.reset();
+                displayMessage("Contract sent successfully! The user will receive a notification.", 'success');
+
+            } catch (error) {
+                console.error("Error sending contract:", error);
+                displayMessage(`Failed to send contract: ${error.message.substring(0, 50)}...`, 'error');
+            }
+        }
+        
+        /**
+         * Initializes the UI based on the authenticated user's role.
+         */
+        function initializeUI(user) {
+            loadingSpinner.classList.add('hidden');
+            appContent.classList.remove('hidden'); // Show main content
+
+            if (!user) {
+                // If not logged in, redirect to login page (assuming login.html exists)
+                window.location.href = '/login.html'; 
+                return;
+            }
+
+            userId = user.uid;
+            userEmail = user.email;
+            
+            // ROLE DEFINITION: If the email matches the mock manager email, assign manager role.
+            isManager = (userEmail === MANAGER_EMAIL);
+
+            // Update Role Badge color based on role (pce-primary for Manager, pce-secondary for Player)
+            if (isManager) {
+                roleBadge.textContent = 'MANAGER';
+                roleBadge.classList.replace('bg-slate-700', 'bg-pce-primary');
+                roleBadge.classList.replace('text-gray-300', 'text-white');
+            } else {
+                roleBadge.textContent = 'PLAYER';
+                roleBadge.classList.replace('bg-slate-700', 'bg-pce-secondary');
+                roleBadge.classList.replace('text-gray-300', 'text-white');
+            }
+            
+            // Set up contracts listener which renders the dashboard
+            setupContractListener();
+
+            // Set up manager form listener
+            if (isManager) {
+                contractForm.addEventListener('submit', handleSendContract);
+            }
+        }
+
+
+        /**
+         * Initializes Firebase and authentication state listener.
+         */
+        async function initApp() {
+            try {
+                const app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                db = getFirestore(app);
+                
+                // Set session persistence
+                await setPersistence(auth, browserSessionPersistence);
+
+                // Sign in with custom token or rely on existing session
+                if (initialAuthToken) {
+                    await signInWithCustomToken(auth, initialAuthToken)
+                        .catch((e) => console.warn("Initial custom token sign-in failed. Relying on browser session.", e));
+                }
+
+                // Set up Auth State Listener
+                onAuthStateChanged(auth, (user) => {
+                    // Check if user is fully authenticated (not null, and has an email for role check)
+                    if (user && user.email) {
+                        initializeUI(user);
+                    } else {
+                        // Redirect to login if unauthenticated
+                        window.location.href = 'auth/login.html'; 
+                    }
+                });
+                
+                // Add Logout listener
+                document.getElementById('logout-button').addEventListener('click', async () => {
+                    await signOut(auth);
+                });
+
+            } catch (error) {
+                console.error("Firebase Initialization Error:", error);
+                loadingSpinner.innerHTML = `<p class="text-red-500">Error: Failed to initialize. Check console for details.</p>`;
+                showModal('Initialization Failed', 'Could not connect to the contract system. Please check your Firebase configuration.');
+            }
+        }
+
+        // Start the application on load
+        window.onload = initApp;
+    </script>
+</body>
+</html>
